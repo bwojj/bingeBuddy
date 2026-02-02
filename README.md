@@ -1,0 +1,2 @@
+# bingeBuddy
+Binge Buddy App

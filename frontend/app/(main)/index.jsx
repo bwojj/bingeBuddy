@@ -2,8 +2,8 @@ import { Text, View, StyleSheet, ScrollView, TouchableOpacity } from "react-nati
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import HomeCheckInBox from './components/HomeCheckInBox';
-import HomeMotivation from './components/HomeMotivation';
+import HomeCheckInBox from '../components/HomeCheckInBox';
+import HomeMotivation from '../components/HomeMotivation';
 
 export default function Index() {
   const insets = useSafeAreaInsets();

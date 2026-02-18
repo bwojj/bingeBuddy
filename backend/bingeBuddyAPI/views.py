@@ -1,7 +1,9 @@
 from django.shortcuts import render
+from rest_framework import viewsets 
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes 
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from .serializers import UserDataSerializer, UserSerializer
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -99,3 +101,12 @@ class CustomTokenRefreshView(TokenRefreshView):
 @permission_classes([IsAuthenticated]) # if authenticated, true, else fail
 def is_authenticated(request):
     return Response({'authenticated': True})
+
+# creates view for user data 
+class UserDataView(viewsets.ModelViewSet): 
+    serializer_class = UserDataSerializer
+    # custom query set to filer based on user only 
+    def get_queryset(self):
+        user_profile = self.request.user 
+
+        return User_Data.objects.filter(user=user_profile)

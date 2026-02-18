@@ -1,9 +1,11 @@
-import { Text, View, StyleSheet, ScrollView } from "react-native";
+import { Text, View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 export default function Signup() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
 
   return (
     <ScrollView
@@ -71,9 +73,9 @@ export default function Signup() {
       </View>
 
       {/* Continue button */}
-      <View style={styles.primaryButton}>
+      <TouchableOpacity style={styles.primaryButton} onPress={() => router.push('/(auth)/(onboarding)/maincause')}>
         <Text style={styles.primaryButtonText}>Continue</Text>
-      </View>
+      </TouchableOpacity>
     </ScrollView>
   );
 }

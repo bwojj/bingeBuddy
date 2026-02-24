@@ -1,29 +1,31 @@
-import {Stack, Redirect } from 'expo-router'
-import { useState, useEffect } from 'react';
-import { authenticated } from '../components/AuthApi.js'
+import { Stack, useRouter, useSegments } from 'expo-router';
+import { useEffect } from 'react';
+import { AuthProvider, useAuth } from '../context/AuthContext';
 
-const RootLayout = () => {
+function RootLayoutNav() {
+    const { isAuthenticated } = useAuth();
+    const segments = useSegments();
+    const router = useRouter();
 
-    // defines state for if user is authenticated
-    const [isAuthenticated, setIsAuthenticated] = useState(false); 
-
-    // update state on mount 
     useEffect(() => {
-        // get result from authenticated API call, set authenticated based on
-        const checkAuth = async () => {
-            const auth = await authenticated(); 
-            setIsAuthenticated(auth); 
+        if (isAuthenticated === null) return; // still loading
+
+        const inAuthGroup = segments[0] === '(auth)';
+
+        if (!isAuthenticated && !inAuthGroup) {
+            router.replace('/(auth)/login');
+        } else if (isAuthenticated && inAuthGroup) {
+            router.replace('/(main)');
         }
+    }, [isAuthenticated, segments]);
 
-        checkAuth(); 
-    }, [])
-
-    return(
-        <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(auth)" redirect={isAuthenticated}/>
-            <Stack.Screen name="(main)" redirect={!isAuthenticated}/>
-        </Stack>
-    );
+    return <Stack screenOptions={{ headerShown: false }} />;
 }
 
-export default RootLayout
+export default function RootLayout() {
+    return (
+        <AuthProvider>
+            <RootLayoutNav />
+        </AuthProvider>
+    );
+}

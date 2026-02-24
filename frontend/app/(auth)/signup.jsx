@@ -1,11 +1,35 @@
-import { Text, View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { useState } from 'react';
+import { Text, View, StyleSheet, ScrollView, TouchableOpacity, TextInput } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { login, register } from '../../components/AuthApi.js'
 
 export default function Signup() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('' );
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [agreed, setAgreed] = useState(false);
+
+  // calls signup API 
+  const handleSignup = async () => {
+    const ok = await register(username, name, email, password);
+    if (ok === true) {
+      const res = await login(username, password); 
+      if (res === true) {
+        router.push('/(auth)/(onboarding)/maincause');
+      }
+      else {
+        console.log("Failed to Login"); 
+        console.log(email);
+        console.log(username);
+      }
+    }
+  };
 
   return (
     <ScrollView
@@ -15,7 +39,9 @@ export default function Signup() {
     >
       {/* Top row */}
       <View style={styles.topRow}>
-        <Ionicons name="chevron-back" size={26} color="#333" />
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="chevron-back" size={26} color="#333" />
+        </TouchableOpacity>
         <Text style={styles.stepText}>STEP 1 OF 4</Text>
         <View style={{ width: 26 }} />
       </View>
@@ -43,27 +69,70 @@ export default function Signup() {
       <Text style={styles.label}>Preferred Name</Text>
       <View style={styles.inputRow}>
         <Ionicons name="person-outline" size={20} color="#999" />
-        <Text style={styles.inputPlaceholder}>Alex</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Alex"
+          placeholderTextColor="#aaa"
+          value={name}
+          onChangeText={setName}
+        />
+      </View>
+
+      {/* Username */}
+      <Text style={styles.label}>Username</Text>
+      <View style={styles.inputRow}>
+        <Ionicons name="at-outline" size={20} color="#999" />
+        <TextInput
+          style={styles.input}
+          placeholder="alex123"
+          placeholderTextColor="#aaa"
+          value={username}
+          onChangeText={setUsername}
+          autoCapitalize="none"
+        />
       </View>
 
       {/* Email */}
       <Text style={styles.label}>Email Address</Text>
       <View style={styles.inputRow}>
         <Ionicons name="mail-outline" size={20} color="#999" />
-        <Text style={styles.inputPlaceholder}>alex@example.com</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="alex@example.com"
+          placeholderTextColor="#aaa"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
       </View>
 
       {/* Password */}
       <Text style={styles.label}>Create Password</Text>
       <View style={styles.inputRow}>
         <Ionicons name="lock-closed-outline" size={20} color="#999" />
-        <Text style={styles.inputDots}>••••••••</Text>
-        <Ionicons name="eye-outline" size={20} color="#999" style={styles.eyeIcon} />
+        <TextInput
+          style={styles.input}
+          placeholder="••••••••"
+          placeholderTextColor="#aaa"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry={!showPassword}
+          autoCapitalize="none"
+        />
+        <TouchableOpacity onPress={() => setShowPassword(v => !v)}>
+          <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color="#999" />
+        </TouchableOpacity>
       </View>
 
       {/* Terms checkbox */}
       <View style={styles.termsRow}>
-        <View style={styles.checkbox} />
+        <TouchableOpacity
+          style={[styles.checkbox, agreed && styles.checkboxChecked]}
+          onPress={() => setAgreed(v => !v)}
+        >
+          {agreed && <Ionicons name="checkmark" size={14} color="white" />}
+        </TouchableOpacity>
         <Text style={styles.termsText}>
           {"I agree to the "}
           <Text style={styles.termsLink}>Terms of Service</Text>
@@ -72,8 +141,8 @@ export default function Signup() {
         </Text>
       </View>
 
-      {/* Continue button */}
-      <TouchableOpacity style={styles.primaryButton} onPress={() => router.push('/(auth)/(onboarding)/maincause')}>
+      {/* Continue button router.push('/(auth)/(onboarding)/maincause')*/}
+      <TouchableOpacity style={[styles.primaryButton, !agreed && { opacity: 0.4 }]} onPress={handleSignup} disabled={!agreed}>
         <Text style={styles.primaryButtonText}>Continue</Text>
       </TouchableOpacity>
     </ScrollView>
@@ -169,21 +238,11 @@ const styles = StyleSheet.create({
     marginBottom: 18,
     backgroundColor: '#fafafa',
   },
-  inputPlaceholder: {
-    fontSize: 15,
-    color: '#aaa',
-    marginLeft: 10,
+  input: {
     flex: 1,
-  },
-  inputDots: {
-    fontSize: 18,
+    fontSize: 15,
     color: '#333',
     marginLeft: 10,
-    flex: 1,
-    letterSpacing: 2,
-  },
-  eyeIcon: {
-    marginLeft: 'auto',
   },
 
   /* Terms */
@@ -201,6 +260,12 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 4,
     marginTop: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkboxChecked: {
+    backgroundColor: '#7B1FA2',
+    borderColor: '#7B1FA2',
   },
   termsText: {
     flex: 1,

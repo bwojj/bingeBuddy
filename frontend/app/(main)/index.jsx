@@ -11,22 +11,24 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
-      {/* Purple header background - stays behind content */}
-      <View style={styles.headerBg} />
-
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Greeting */}
-        <View style={[styles.greetingContainer, { paddingTop: insets.top + 15 }]}>
-          <Text style={styles.greeting}>Good Morning, Alex!</Text>
-          <Text style={styles.date}>Thursday, Nov 20</Text>
+        {/* Purple header - scrolls with content */}
+        <View style={[styles.headerBg, { paddingTop: insets.top + 15 }]}>
+          {/* Greeting */}
+          <View style={styles.greetingContainer}>
+            <Text style={styles.greeting}>Good Morning, Alex!</Text>
+            <Text style={styles.date}>Thursday, Nov 20</Text>
+          </View>
         </View>
 
-        {/* Check-In Card */}
-        <HomeCheckInBox />
+        {/* Check-In Card - overlaps bottom of purple header */}
+        <View style={styles.checkInWrapper}>
+          <HomeCheckInBox />
+        </View>
 
         {/* Motivation Section */}
         <Text style={styles.sectionTitle}>Motivation</Text>
@@ -111,14 +113,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#f3edf7',
   },
   headerBg: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 230,
     backgroundColor: '#7B1FA2',
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
+    paddingBottom: 68,
+  },
+  checkInWrapper: {
+    marginTop: -48,
   },
   scrollContent: {
     paddingBottom: 20,

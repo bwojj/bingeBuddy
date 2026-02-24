@@ -19,26 +19,26 @@ export default function Progress() {
 
   return (
     <View style={styles.container}>
-      {/* Purple header background */}
-      <View style={styles.headerBg} />
-
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
-        <View style={[styles.headerRow, { paddingTop: insets.top + 10 }]}>
-          <Ionicons name="chevron-back" size={26} color="white" />
-          <Text style={styles.headerTitle}>Progress History</Text>
-          <Ionicons name="share-outline" size={22} color="white" />
-        </View>
+        {/* Purple header - scrolls with content */}
+        <View style={[styles.headerBg, { paddingTop: insets.top + 10 }]}>
+          {/* Header */}
+          <View style={styles.headerRow}>
+            <Ionicons name="chevron-back" size={26} color="white" />
+            <Text style={styles.headerTitle}>Progress History</Text>
+            <Ionicons name="share-outline" size={22} color="white" />
+          </View>
 
-        {/* Streak */}
-        <View style={styles.streakContainer}>
-          <Text style={styles.streakNumber}>12</Text>
-          <Text style={styles.streakLabel}>DAY SOBER STREAK</Text>
-          <Text style={styles.streakQuote}>{"\"Keep going, you're stronger than you think.\""}</Text>
+          {/* Streak */}
+          <View style={styles.streakContainer}>
+            <Text style={styles.streakNumber}>12</Text>
+            <Text style={styles.streakLabel}>DAY SOBER STREAK</Text>
+            <Text style={styles.streakQuote}>{"\"Keep going, you're stronger than you think.\""}</Text>
+          </View>
         </View>
 
         {/* Urge Frequency Card */}
@@ -176,12 +176,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#f3edf7',
   },
   headerBg: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 320,
     backgroundColor: '#7B1FA2',
+    paddingBottom: 32,
   },
   scrollContent: {
     paddingBottom: 20,

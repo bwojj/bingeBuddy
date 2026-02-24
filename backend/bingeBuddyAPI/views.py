@@ -3,7 +3,8 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes 
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .serializers import UserDataSerializer, UserSerializer
+from .models import UserData
+from .serializers import UserDataSerializer, UserSerializer, UserRegistrationSerializer
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -36,23 +37,23 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             res.set_cookie(
                 key='access_token', 
                 value=access_token,
-                httponly=True, 
-                secure=True, 
-                samesite='None',
+                httponly=True,
+                secure=True,
+                samesite=False,
                 path='/',
             )
             res.set_cookie(
                 key='refresh_token',
                 value=refresh_token,
-                httponly=True, 
-                secure=True, 
-                samesite='None',
+                httponly=True,
+                secure=True,
+                samesite=False,
                 path='/', 
             )
             return res
-        # if post fails 
-        except: 
-            return Response({'success': False})
+        # if post fails
+        except Exception as e:
+            return Response({'success': False, 'error': str(e)}, status=400)
 
 class CustomTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs): 
@@ -110,3 +111,68 @@ class UserDataView(viewsets.ModelViewSet):
         user_profile = self.request.user 
 
         return User_Data.objects.filter(user=user_profile)
+
+# defines view for registering 
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def register(request): 
+    # gets serializers
+    serializer = UserRegistrationSerializer(data=request.data)
+    # if it is valid, saves it else returns an error 
+    if serializer.is_valid():
+        serializer.save()
+        return Response({'success': True})
+    return Response(serializer.errors, status=400)
+
+
+#defines logout function 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout(request):
+    try:
+        # deletes cookies to log out 
+        res = Response()
+        res.data = {'Success': True}
+        res.delete_cookie('access_token', path="/", samesite='None')
+        res.delete_cookie('refresh_token', path="/", samesite='None')
+
+        return res
+    except:
+        return Response({"Success": False})
+
+# defines function to add to main cause to user data
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_data_main_cause(request): 
+    data_obj, _ = UserData.objects.update_or_create(
+        user=request.user, 
+        defaults={
+            "main_cause": request.data,
+        }
+    )
+
+    return Response({"Success": True})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_data_coaching_style(request): 
+    data_obj, _ = UserData.objects.update_or_create(
+        user=request.user, 
+        defaults={
+            "coaching_style": request.data,
+        }
+    )
+
+    return Response({"Success": True})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_data_motivation(request): 
+    data_obj, _ = UserData.objects.update_or_create(
+        user=request.user, 
+        defaults={
+            "motivation": request.data, 
+        }
+    )
+
+    return Response({"Success": True})

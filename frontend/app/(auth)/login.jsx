@@ -1,9 +1,28 @@
-import { Text, View, StyleSheet, ScrollView } from "react-native";
+import { useState } from 'react';
+import { Text, View, StyleSheet, ScrollView, TouchableOpacity, TextInput } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { login } from '../../components/AuthApi';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Login() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const { setIsAuthenticated } = useAuth();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleLogin = async () => {
+    const ok = await login(username, password);
+    if (ok === true) {
+      setIsAuthenticated(true);
+    }
+    else {
+      console.log('Failed to login');
+    }
+  };
 
   return (
     <ScrollView
@@ -20,28 +39,47 @@ export default function Login() {
       <Text style={styles.title}>Welcome Back</Text>
       <Text style={styles.subtitle}>Your recovery journey continues here.</Text>
 
-      {/* Email */}
-      <Text style={styles.label}>Email Address</Text>
+      {/* Username */}
+      <Text style={styles.label}>Username</Text>
       <View style={styles.inputRow}>
-        <Ionicons name="mail-outline" size={20} color="#999" />
-        <Text style={styles.inputPlaceholder}>alex@example.com</Text>
+        <Ionicons name="at-outline" size={20} color="#999" />
+        <TextInput
+          style={styles.input}
+          placeholder="alex123"
+          placeholderTextColor="#aaa"
+          value={username}
+          onChangeText={setUsername}
+          autoCapitalize="none"
+        />
       </View>
 
       {/* Password */}
       <Text style={styles.label}>Password</Text>
       <View style={styles.inputRow}>
         <Ionicons name="lock-closed-outline" size={20} color="#999" />
-        <Text style={styles.inputDots}>••••••••</Text>
-        <Ionicons name="eye-off-outline" size={20} color="#999" style={styles.eyeIcon} />
+        <TextInput
+          style={styles.input}
+          placeholder="••••••••"
+          placeholderTextColor="#aaa"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry={!showPassword}
+          autoCapitalize="none"
+        />
+        <TouchableOpacity onPress={() => setShowPassword(v => !v)}>
+          <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color="#999" />
+        </TouchableOpacity>
       </View>
 
       {/* Forgot password */}
-      <Text style={styles.forgotText}>Forgot Password?</Text>
+      <TouchableOpacity onPress={() => {}}>
+        <Text style={styles.forgotText}>Forgot Password?</Text>
+      </TouchableOpacity>
 
       {/* Login button */}
-      <View style={styles.primaryButton}>
+      <TouchableOpacity style={styles.primaryButton} onPress={handleLogin}>
         <Text style={styles.primaryButtonText}>{"Log In  \u2192"}</Text>
-      </View>
+      </TouchableOpacity>
 
       {/* Divider */}
       <View style={styles.dividerRow}>
@@ -52,20 +90,22 @@ export default function Login() {
 
       {/* Social buttons */}
       <View style={styles.socialRow}>
-        <View style={styles.socialButton}>
+        <TouchableOpacity style={styles.socialButton} onPress={() => {}}>
           <MaterialCommunityIcons name="google" size={20} color="#333" />
           <Text style={styles.socialButtonText}>Google</Text>
-        </View>
-        <View style={styles.socialButton}>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.socialButton} onPress={() => {}}>
           <Ionicons name="logo-apple" size={20} color="#333" />
           <Text style={styles.socialButtonText}>Apple</Text>
-        </View>
+        </TouchableOpacity>
       </View>
 
       {/* Sign up link */}
       <View style={styles.bottomLinkRow}>
         <Text style={styles.bottomLinkText}>{"Don't have an account? "}</Text>
-        <Text style={styles.bottomLinkAction}>Sign Up</Text>
+        <TouchableOpacity onPress={() => router.push('/(auth)/signup')}>
+          <Text style={styles.bottomLinkAction}>Sign Up</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -125,21 +165,11 @@ const styles = StyleSheet.create({
     marginBottom: 18,
     backgroundColor: '#fafafa',
   },
-  inputPlaceholder: {
-    fontSize: 15,
-    color: '#aaa',
-    marginLeft: 10,
+  input: {
     flex: 1,
-  },
-  inputDots: {
-    fontSize: 18,
+    fontSize: 15,
     color: '#333',
     marginLeft: 10,
-    flex: 1,
-    letterSpacing: 2,
-  },
-  eyeIcon: {
-    marginLeft: 'auto',
   },
 
   /* Forgot */
@@ -215,6 +245,7 @@ const styles = StyleSheet.create({
   /* Bottom link */
   bottomLinkRow: {
     flexDirection: 'row',
+    alignItems: 'center',
   },
   bottomLinkText: {
     fontSize: 14,

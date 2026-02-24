@@ -1,33 +1,42 @@
-import { Text, View, StyleSheet, ScrollView } from "react-native";
+import { useState } from 'react';
+import { Text, View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useRouter } from 'expo-router';
+import { coachingStyle } from '../../../components/OnboardingApi';
 
 const OPTIONS = [
   {
     id: "gentle",
     title: "Gentle & Supportive",
     subtitle: "Encouraging words and a soft touch for when things get tough.",
-    icon: <Ionicons name="heart-outline" size={22} color="#7B1FA2" />,
-    selected: true,
+    icon: (color) => <Ionicons name="heart-outline" size={22} color={color} />,
   },
   {
     id: "firm",
     title: "Firm & Direct",
     subtitle: "Honest feedback and clear accountability to keep you on track.",
-    icon: <Ionicons name="shield-outline" size={22} color="#888" />,
-    selected: false,
+    icon: (color) => <Ionicons name="shield-outline" size={22} color={color} />,
   },
   {
     id: "analytical",
     title: "Analytical",
     subtitle: "Deep insights and data-driven milestones to understand your progress.",
-    icon: <MaterialCommunityIcons name="chart-line-variant" size={22} color="#888" />,
-    selected: false,
+    icon: (color) => <MaterialCommunityIcons name="chart-line-variant" size={22} color={color} />,
   },
 ];
 
 export default function Taught() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const [selected, setSelected] = useState('gentle');
+
+  const handleCoachingStyle = async () => {
+    const ok = await coachingStyle(selected);
+    if(ok === true){
+      router.push('/(auth)/(onboarding)/motivation')
+    }
+  }
 
   return (
     <ScrollView
@@ -40,7 +49,9 @@ export default function Taught() {
     >
       {/* Top row */}
       <View style={styles.topRow}>
-        <Ionicons name="chevron-back" size={26} color="#333" />
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="chevron-back" size={26} color="#333" />
+        </TouchableOpacity>
         <Text style={styles.stepText}>Step 3 of 5</Text>
         <View style={{ width: 26 }} />
       </View>
@@ -59,30 +70,35 @@ export default function Taught() {
       </Text>
 
       {/* Options */}
-      {OPTIONS.map((option) => (
-        <View
-          key={option.id}
-          style={[styles.optionCard, option.selected && styles.optionCardSelected]}
-        >
-          <View style={[styles.iconCircle, option.selected && styles.iconCircleSelected]}>
-            {option.icon}
-          </View>
-          <View style={styles.optionText}>
-            <Text style={[styles.optionTitle, option.selected && styles.optionTitleSelected]}>
-              {option.title}
-            </Text>
-            <Text style={styles.optionSubtitle}>{option.subtitle}</Text>
-          </View>
-          {option.selected && (
-            <Ionicons name="checkmark-circle" size={22} color="#7B1FA2" />
-          )}
-        </View>
-      ))}
+      {OPTIONS.map((option) => {
+        const isSelected = selected === option.id;
+        return (
+          <TouchableOpacity
+            key={option.id}
+            style={[styles.optionCard, isSelected && styles.optionCardSelected]}
+            onPress={() => setSelected(option.id)}
+            activeOpacity={0.7}
+          >
+            <View style={[styles.iconCircle, isSelected && styles.iconCircleSelected]}>
+              {option.icon(isSelected ? "#7B1FA2" : "#888")}
+            </View>
+            <View style={styles.optionText}>
+              <Text style={[styles.optionTitle, isSelected && styles.optionTitleSelected]}>
+                {option.title}
+              </Text>
+              <Text style={styles.optionSubtitle}>{option.subtitle}</Text>
+            </View>
+            {isSelected && (
+              <Ionicons name="checkmark-circle" size={22} color="#7B1FA2" />
+            )}
+          </TouchableOpacity>
+        );
+      })}
 
       {/* Continue button */}
-      <View style={styles.continueButton}>
+      <TouchableOpacity style={styles.continueButton} onPress={handleCoachingStyle}>
         <Text style={styles.continueButtonText}>Continue</Text>
-      </View>
+      </TouchableOpacity>
 
       {/* Footer note */}
       <Text style={styles.footerNote}>You can change this anytime in Settings.</Text>

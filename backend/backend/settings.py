@@ -25,7 +25,13 @@ SECRET_KEY = 'django-insecure-wa66v8px5)i8vn_(xcjn8m8%vp#90ytx_bch#fbb6vqa2-&_9$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '35.21.80.43',
+    '0.0.0.0',
+    'unluxuriating-alysa-vengefully.ngrok-free.dev',
+]
 
 
 # Application definition
@@ -39,9 +45,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework', 
     'bingeBuddyAPI',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware', 
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -50,6 +58,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'backend.urls'
 

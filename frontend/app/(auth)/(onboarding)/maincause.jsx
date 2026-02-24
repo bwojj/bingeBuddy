@@ -1,40 +1,48 @@
-import { Text, View, StyleSheet, ScrollView } from "react-native";
+import { useState } from 'react';
+import { Text, View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useRouter } from 'expo-router';
+import { mainCause } from '../../../components/OnboardingApi';
 
-const OPTIONS = [
+const INITIAL_OPTIONS = [
   {
     id: "stress",
     title: "Stress",
     subtitle: "Feeling overwhelmed by work or life",
-    icon: <MaterialCommunityIcons name="lightning-bolt" size={22} color="#7B1FA2" />,
-    selected: true,
+    icon: (color) => <MaterialCommunityIcons name="lightning-bolt" size={22} color={color} />,
   },
   {
     id: "boredom",
     title: "Boredom",
     subtitle: "Eating when there is nothing to do",
-    icon: <Ionicons name="time-outline" size={22} color="#888" />,
-    selected: false,
+    icon: (color) => <Ionicons name="time-outline" size={22} color={color} />,
   },
   {
     id: "emotions",
     title: "Difficult Emotions",
     subtitle: "Coping with sadness or anxiety",
-    icon: <MaterialCommunityIcons name="emoticon-sad-outline" size={22} color="#888" />,
-    selected: false,
+    icon: (color) => <MaterialCommunityIcons name="emoticon-sad-outline" size={22} color={color} />,
   },
   {
     id: "social",
     title: "Social Situations",
     subtitle: "Pressure from friends or family events",
-    icon: <Ionicons name="people-outline" size={22} color="#888" />,
-    selected: false,
+    icon: (color) => <Ionicons name="people-outline" size={22} color={color} />,
   },
 ];
 
 export default function MainCause() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const [selected, setSelected] = useState('stress');
+
+  const handleMainCause = async () => {
+    const ok = await mainCause(selected); 
+    if(ok === true){
+      router.push('/(auth)/(onboarding)/taught')
+    }
+  }
 
   return (
     <ScrollView
@@ -47,7 +55,9 @@ export default function MainCause() {
     >
       {/* Top row */}
       <View style={styles.topRow}>
-        <Ionicons name="chevron-back" size={26} color="#333" />
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="chevron-back" size={26} color="#333" />
+        </TouchableOpacity>
         <Text style={styles.stepText}>STEP 2 OF 5</Text>
         <View style={{ width: 26 }} />
       </View>
@@ -69,32 +79,38 @@ export default function MainCause() {
       </Text>
 
       {/* Options */}
-      {OPTIONS.map((option) => (
-        <View
-          key={option.id}
-          style={[styles.optionCard, option.selected && styles.optionCardSelected]}
-        >
-          <View
-            style={[styles.iconCircle, option.selected && styles.iconCircleSelected]}
+      {INITIAL_OPTIONS.map((option) => {
+        const isSelected = selected === option.id;
+        return (
+          <TouchableOpacity
+            key={option.id}
+            style={[styles.optionCard, isSelected && styles.optionCardSelected]}
+            onPress={() => setSelected(option.id)}
+            activeOpacity={0.7}
           >
-            {option.icon}
-          </View>
-          <View style={styles.optionText}>
-            <Text style={[styles.optionTitle, option.selected && styles.optionTitleSelected]}>
-              {option.title}
-            </Text>
-            <Text style={styles.optionSubtitle}>{option.subtitle}</Text>
-          </View>
-        </View>
-      ))}
+            <View style={[styles.iconCircle, isSelected && styles.iconCircleSelected]}>
+              {option.icon(isSelected ? "#7B1FA2" : "#888")}
+            </View>
+            <View style={styles.optionText}>
+              <Text style={[styles.optionTitle, isSelected && styles.optionTitleSelected]}>
+                {option.title}
+              </Text>
+              <Text style={styles.optionSubtitle}>{option.subtitle}</Text>
+            </View>
+            {isSelected && <Ionicons name="checkmark-circle" size={22} color="#7B1FA2" />}
+          </TouchableOpacity>
+        );
+      })}
 
       {/* Next button */}
-      <View style={styles.nextButton}>
+      <TouchableOpacity style={styles.nextButton} onPress={handleMainCause}>
         <Text style={styles.nextButtonText}>Next</Text>
-      </View>
+      </TouchableOpacity>
 
       {/* Not sure link */}
-      <Text style={styles.notSureText}>{"I'm not sure yet"}</Text>
+      <TouchableOpacity onPress={() => router.push('/(auth)/(onboarding)/taught')}>
+        <Text style={styles.notSureText}>{"I'm not sure yet"}</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 }

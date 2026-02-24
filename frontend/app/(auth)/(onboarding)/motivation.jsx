@@ -1,20 +1,43 @@
-import { Text, View, StyleSheet, ScrollView } from "react-native";
+import { useState } from 'react';
+import { Text, View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useRouter } from 'expo-router';
+import { motivation } from '../../../components/OnboardingApi';
+import { useAuth } from '../../../context/AuthContext';
 
-const CHIPS = [
-  { id: "health", label: "Health", selected: true },
-  { id: "weight", label: "Weight Loss", selected: false },
-  { id: "confidence", label: "Confidence", selected: false },
-  { id: "mental", label: "Mental Clarity", selected: false },
-  { id: "money", label: "Save Money", selected: false },
-  { id: "relationships", label: "Relationships", selected: false },
-  { id: "sleep", label: "Sleep Quality", selected: false },
-  { id: "career", label: "Career Goals", selected: false },
+const INITIAL_CHIPS = [
+  { id: "health", label: "Health" },
+  { id: "weight", label: "Weight Loss" },
+  { id: "confidence", label: "Confidence" },
+  { id: "mental", label: "Mental Clarity" },
+  { id: "money", label: "Save Money" },
+  { id: "relationships", label: "Relationships" },
+  { id: "sleep", label: "Sleep Quality" },
+  { id: "career", label: "Career Goals" },
 ];
 
 export default function Motivation() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const { setIsAuthenticated } = useAuth();
+  const [selected, setSelected] = useState(new Set(['health']));
+
+  const toggleChip = (id) => {
+    setSelected(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const handleMotivation = async () => {
+    const ok = await motivation(Array.from(selected));
+    if(ok === true)
+    {
+      setIsAuthenticated(true);
+    }
+  }
 
   return (
     <ScrollView
@@ -27,7 +50,9 @@ export default function Motivation() {
     >
       {/* Top row */}
       <View style={styles.topRow}>
-        <Ionicons name="chevron-back" size={26} color="#333" />
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="chevron-back" size={26} color="#333" />
+        </TouchableOpacity>
         <Text style={styles.stepText}>STEP 3 OF 3</Text>
         <View style={{ width: 26 }} />
       </View>
@@ -58,32 +83,37 @@ export default function Motivation() {
 
       {/* Chips grid */}
       <View style={styles.chipsGrid}>
-        {CHIPS.map((chip) => (
-          <View
-            key={chip.id}
-            style={[styles.chip, chip.selected && styles.chipSelected]}
-          >
-            {chip.selected && (
-              <Ionicons name="shield-checkmark" size={14} color="white" style={{ marginRight: 5 }} />
-            )}
-            <Text style={[styles.chipText, chip.selected && styles.chipTextSelected]}>
-              {chip.label}
-            </Text>
-          </View>
-        ))}
+        {INITIAL_CHIPS.map((chip) => {
+          const isSelected = selected.has(chip.id);
+          return (
+            <TouchableOpacity
+              key={chip.id}
+              style={[styles.chip, isSelected && styles.chipSelected]}
+              onPress={() => toggleChip(chip.id)}
+              activeOpacity={0.7}
+            >
+              {isSelected && (
+                <Ionicons name="shield-checkmark" size={14} color="white" style={{ marginRight: 5 }} />
+              )}
+              <Text style={[styles.chipText, isSelected && styles.chipTextSelected]}>
+                {chip.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
 
         {/* Other chip */}
-        <View style={styles.chipOther}>
+        <TouchableOpacity style={styles.chipOther} onPress={() => {}}>
           <MaterialCommunityIcons name="plus" size={14} color="#7B1FA2" style={{ marginRight: 4 }} />
           <Text style={styles.chipOtherText}>Other</Text>
-        </View>
+        </TouchableOpacity>
       </View>
 
       {/* Finish button */}
-      <View style={styles.finishButton}>
+      <TouchableOpacity style={styles.finishButton} onPress={handleMotivation}>
         <Text style={styles.finishButtonText}>Finish</Text>
         <MaterialCommunityIcons name="check-bold" size={18} color="white" style={{ marginLeft: 8 }} />
-      </View>
+      </TouchableOpacity>
 
       {/* Footer note */}
       <Text style={styles.footerNote}>You can always change these later in settings.</Text>

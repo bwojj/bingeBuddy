@@ -66,6 +66,16 @@ export default function Settings() {
             <Text style={styles.menuLabel}>Privacy & Security</Text>
             <Ionicons name="chevron-forward" size={18} color="#bbb" style={styles.menuChevron} />
           </TouchableOpacity>
+
+          <View style={styles.menuDivider} />
+
+          <TouchableOpacity style={styles.menuRow} onPress={() => router.push('/personalization')}>
+            <View style={[styles.menuIconWrap, { backgroundColor: '#f3e8ff' }]}>
+              <Ionicons name="color-palette-outline" size={20} color="#7B1FA2" />
+            </View>
+            <Text style={styles.menuLabel}>Personalization</Text>
+            <Ionicons name="chevron-forward" size={18} color="#bbb" style={styles.menuChevron} />
+          </TouchableOpacity>
         </View>
 
         {/* PREFERENCES Section */}

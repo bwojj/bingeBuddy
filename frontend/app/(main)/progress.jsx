@@ -137,10 +137,10 @@ export default function Progress() {
       </ScrollView>
 
       {/* SOS Button */}
-      <View style={styles.sosButton}>
+      <TouchableOpacity style={styles.sosButton} onPress={() => router.push('/panic')}>
         <MaterialCommunityIcons name="lifebuoy" size={26} color="white" />
         <Text style={styles.sosText}>SOS</Text>
-      </View>
+      </TouchableOpacity>
 
       {/* Bottom Tab Bar */}
       <View style={[styles.tabBar, { paddingBottom: insets.bottom || 10 }]}>

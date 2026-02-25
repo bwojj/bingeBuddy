@@ -80,10 +80,10 @@ export default function Index() {
       </ScrollView>
 
       {/* SOS Button - fixed above tab bar */}
-      <View style={styles.sosButton}>
+      <TouchableOpacity style={styles.sosButton} onPress={() => router.push('/panic')}>
         <MaterialCommunityIcons name="lifebuoy" size={26} color="white" />
         <Text style={styles.sosText}>SOS</Text>
-      </View>
+      </TouchableOpacity>
 
       {/* Bottom Tab Bar */}
       <View style={[styles.tabBar, { paddingBottom: insets.bottom || 10 }]}>
@@ -99,14 +99,14 @@ export default function Index() {
           <Ionicons name="chatbubble-ellipses-outline" size={24} color="#999" />
           <Text style={styles.tabLabel}>AI Coach</Text>
         </TouchableOpacity>
-        <View style={styles.tabItem}>
+        <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/journal')}>
           <Ionicons name="document-text-outline" size={24} color="#999" />
           <Text style={styles.tabLabel}>Journal</Text>
-        </View>
-        <View style={styles.tabItem}>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/settings')}>
           <Ionicons name="settings-outline" size={24} color="#999" />
           <Text style={styles.tabLabel}>Settings</Text>
-        </View>
+        </TouchableOpacity>
       </View>
     </View>
   );

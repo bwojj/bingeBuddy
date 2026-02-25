@@ -1,14 +1,34 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
+import { useRouter } from 'expo-router'
 import React from 'react'
 
-const HomeMotivation = () => {
+const HomeMotivation = ({ imageUri, myWhy }) => {
+  const router = useRouter();
+
   return (
-    <View style={styles.card}>
-      <View style={styles.imagePlaceholder}>
-        <View style={styles.overlay} />
-        <Text style={styles.caption}>My Why: Being present for my kids.</Text>
+    <TouchableOpacity
+      style={styles.card}
+      activeOpacity={0.9}
+      onPress={() => router.push('/personalization')}
+    >
+      {imageUri ? (
+        <Image source={{ uri: imageUri }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+      ) : (
+        <View style={styles.imagePlaceholder} />
+      )}
+      <View style={styles.overlay} />
+
+      {/* Edit hint */}
+      <View style={styles.editBadge}>
+        <Ionicons name="pencil" size={12} color="white" />
+        <Text style={styles.editText}>Edit</Text>
       </View>
-    </View>
+
+      <Text style={styles.caption}>
+        {myWhy ? `My Why: ${myWhy}` : 'My Why: Being present for my kids.'}
+      </Text>
+    </TouchableOpacity>
   )
 }
 
@@ -25,15 +45,33 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 6,
     elevation: 4,
+    justifyContent: 'flex-end',
+    backgroundColor: '#5a4235',
   },
   imagePlaceholder: {
-    flex: 1,
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: '#5a4235',
-    justifyContent: 'flex-end',
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.2)',
+    backgroundColor: 'rgba(0,0,0,0.28)',
+  },
+  editBadge: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    gap: 4,
+  },
+  editText: {
+    color: 'white',
+    fontSize: 11,
+    fontWeight: '600',
   },
   caption: {
     color: 'white',

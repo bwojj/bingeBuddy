@@ -10,6 +10,7 @@ export default function RootLayout() {
       <Stack.Screen name="panic" options={{title: 'Panic', headerShown: false}}/>
       <Stack.Screen name="progress" options={{title: 'Progress', headerShown: false}}/>
       <Stack.Screen name="tracker" options={{title: 'Tracker', headerShown: false}}/>
+      <Stack.Screen name="personalization" options={{title: 'Personalization', headerShown: false}}/>
     </Stack>
   )
 }

@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.contrib.auth.models import User
 from rest_framework import viewsets 
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes 
@@ -104,13 +105,22 @@ def is_authenticated(request):
     return Response({'authenticated': True})
 
 # creates view for user data 
-class UserDataView(viewsets.ModelViewSet): 
+class UserDataView(viewsets.ModelViewSet):
     serializer_class = UserDataSerializer
-    # custom query set to filer based on user only 
-    def get_queryset(self):
-        user_profile = self.request.user 
+    permission_classes = [IsAuthenticated]
 
-        return User_Data.objects.filter(user=user_profile)
+    def get_queryset(self):
+        user_profile = self.request.user
+        return UserData.objects.filter(user=user_profile)
+
+# creates view for user credentials
+class UserView(viewsets.ModelViewSet):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user_profile = self.request.user
+        return User.objects.filter(pk=user_profile.pk)
 
 # defines view for registering 
 @api_view(['POST'])

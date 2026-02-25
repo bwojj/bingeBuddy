@@ -3,13 +3,13 @@ from django.contrib.auth.models import User
 from .models import UserData
 
 # creater serializer for user model 
-class UserSerializer(serializers.Serializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta: 
         model = User 
-        fileds = ['username', 'email']
+        fields = ['username', 'email', 'first_name']
 
 # creates model for the user data serializer 
-class UserDataSerializer(serializers.Serializer):
+class UserDataSerializer(serializers.ModelSerializer):
     class Meta: 
         model = UserData
         fields = '__all__'

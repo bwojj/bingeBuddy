@@ -4,10 +4,15 @@ import { useRouter } from "expo-router";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import HomeCheckInBox from '../components/HomeCheckInBox';
 import HomeMotivation from '../components/HomeMotivation';
+import { useAuth } from "@/context/AuthContext";
 
 export default function Index() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+
+  const { userCredentials, userLoading } = useAuth();
+
+  if (userLoading) return null;
 
   return (
     <View style={styles.container}>
@@ -20,7 +25,7 @@ export default function Index() {
         <View style={[styles.headerBg, { paddingTop: insets.top + 15 }]}>
           {/* Greeting */}
           <View style={styles.greetingContainer}>
-            <Text style={styles.greeting}>Good Morning, Alex!</Text>
+            <Text style={styles.greeting}>Good Morning, {userCredentials?.first_name}!</Text>
             <Text style={styles.date}>Thursday, Nov 20</Text>
           </View>
         </View>

@@ -6,6 +6,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useState } from 'react';
+import { addMotivationImage } from '../../components/DataAPI'; 
+import { motivation } from '../../components/OnboardingApi'
 import * as ImagePicker from 'expo-image-picker';
 
 /* ── Onboarding data ─────────────────────────────── */
@@ -38,7 +40,7 @@ export default function Personalization() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
-  const [photoUri, setPhotoUri]       = useState(null);
+  const [photoAsset, setPhotoAsset]   = useState(null);
   const [myWhy, setMyWhy]             = useState('');
   const [trigger, setTrigger]         = useState('stress');
   const [coachStyle, setCoachStyle]   = useState('gentle');
@@ -65,14 +67,22 @@ export default function Personalization() {
       quality: 0.8,
     });
     if (!result.canceled) {
-      setPhotoUri(result.assets[0].uri);
+      setPhotoAsset(result.assets[0]);
     }
   };
 
-  const handleSave = () => {
-    Alert.alert('Saved!', 'Your personalization settings have been updated.', [
-      { text: 'Great', onPress: () => router.back() },
-    ]);
+  const handleSave = async () => {
+    const motivationImageOk = await addMotivationImage(photoAsset);
+    const motivationOk = await motivation(myWhy); 
+    if(motivationImageOk && motivationOk){
+      Alert.alert('Saved!', 'Your personalization settings have been updated.', [
+        { text: 'Great', onPress: () => router.back() },
+      ]);
+    } else{
+      Alert.alert('Failed', 'Your personalization settings have not been updated.', [
+        { text: 'Ok', onPress: () => router.back() },
+      ]);
+    }
   };
 
   return (
@@ -95,8 +105,8 @@ export default function Personalization() {
         {/* ── Motivation Photo ── */}
         <SectionLabel icon="image-outline" label="Motivation Photo" />
         <TouchableOpacity style={styles.photoCard} onPress={pickImage} activeOpacity={0.85}>
-          {photoUri ? (
-            <Image source={{ uri: photoUri }} style={styles.photoImage} resizeMode="cover" />
+          {photoAsset ? (
+            <Image source={{ uri: photoAsset.uri }} style={styles.photoImage} resizeMode="cover" />
           ) : (
             <View style={styles.photoPlaceholder}>
               <View style={styles.cameraCircle}>
@@ -106,7 +116,7 @@ export default function Personalization() {
               <Text style={styles.photoPlaceholderSub}>This image will appear on your dashboard</Text>
             </View>
           )}
-          {photoUri && (
+          {photoAsset && (
             <View style={styles.photoOverlay}>
               <View style={styles.changePhotoBadge}>
                 <Ionicons name="camera-outline" size={14} color="white" />

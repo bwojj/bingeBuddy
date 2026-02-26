@@ -7,3 +7,10 @@ class UserData(models.Model):
     main_cause = models.CharField(max_length=64); 
     coaching_style = models.CharField(max_length=64); 
     motivation = models.JSONField(default=list); 
+    motivation_image = models.ImageField(upload_to='motivation_images/', blank=True, null=True)
+
+# model for user urges by day
+class UserUrges(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='urges')
+    date = models.DateField(auto_now_add=True)
+    urge_level = models.IntegerField()

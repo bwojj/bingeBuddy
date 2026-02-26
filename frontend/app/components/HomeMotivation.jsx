@@ -3,8 +3,10 @@ import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import React from 'react'
 
-const HomeMotivation = ({ imageUri, myWhy }) => {
+const HomeMotivation = ({ userPreferences }) => {
   const router = useRouter();
+  const imageUri = userPreferences?.motivation_image ?? null;
+  const myWhy = userPreferences?.motivation ?? null;
 
   return (
     <TouchableOpacity

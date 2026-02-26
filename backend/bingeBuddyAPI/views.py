@@ -4,8 +4,8 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes 
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import UserData
-from .serializers import UserDataSerializer, UserSerializer, UserRegistrationSerializer
+from .models import UserData, UserUrges
+from .serializers import UserDataSerializer, UserSerializer, UserRegistrationSerializer, UserUrgeSerializer
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -122,6 +122,15 @@ class UserView(viewsets.ModelViewSet):
         user_profile = self.request.user
         return User.objects.filter(pk=user_profile.pk)
 
+# creates view for user urges
+class UserUrgeView(viewsets.ModelViewSet):
+    serializer_class = UserUrgeSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user_profile = self.request.user 
+        return UserUrges.objects.filter(pk=user_profile.pk)
+
 # defines view for registering 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -157,7 +166,7 @@ def add_data_main_cause(request):
     data_obj, _ = UserData.objects.update_or_create(
         user=request.user, 
         defaults={
-            "main_cause": request.data,
+            "main_cause": request.data.get('main_cause'),
         }
     )
 
@@ -169,7 +178,7 @@ def add_data_coaching_style(request):
     data_obj, _ = UserData.objects.update_or_create(
         user=request.user, 
         defaults={
-            "coaching_style": request.data,
+            "coaching_style": request.data.get('coaching_style'),
         }
     )
 
@@ -181,8 +190,33 @@ def add_data_motivation(request):
     data_obj, _ = UserData.objects.update_or_create(
         user=request.user, 
         defaults={
-            "motivation": request.data, 
+            "motivation": request.data.get('motivation'),
         }
     )
 
     return Response({"Success": True})
+
+# defines view to add to image
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def set_motivation_image(request):
+    image = request.FILES.get('motivation_image')
+    user_object, _ = UserData.objects.update_or_create(
+        user=request.user,
+        defaults={
+            "motivation_image": image,
+        }
+    )
+    return Response({"success": True})
+
+# defines view to add to urges
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def set_urge_level(request):
+    user_object, _ = UserUrges.objects.update_or_create(
+        user=request.user, 
+        defaults={
+            "urge_level": request.data.get('urge_level'),
+        }
+    )
+    return Response({"success": True})

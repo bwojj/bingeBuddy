@@ -1,12 +1,13 @@
 from django.urls import path, include
 from rest_framework import routers 
-from .views import (CustomTokenObtainPairView, CustomTokenRefreshView, 
+from .views import (CustomTokenObtainPairView, CustomTokenRefreshView, UserUrgeView,
                     is_authenticated, UserDataView, UserView, register, logout, add_data_main_cause,
-                    add_data_coaching_style, add_data_motivation)
+                    add_data_coaching_style, add_data_motivation, set_motivation_image, set_urge_level)
 
 router = routers.DefaultRouter()
 router.register(r'data', UserDataView, 'data')
 router.register(r'credentials', UserView, 'credentials')
+router.register(r'urges', UserUrgeView, 'urges')
 
 urlpatterns = [
     path('api/', include(router.urls)), 
@@ -18,4 +19,6 @@ urlpatterns = [
     path('api/add-data-main-cause', add_data_main_cause, name="main-cause"), 
     path('api/add-data-coaching-style', add_data_coaching_style, name="coaching-style"),
     path('api/add-data-motivation', add_data_motivation, name="motivation"),
+    path('api/add-motivation-image', set_motivation_image, name="motivation-image"),
+    path('api/add-urge-level', set_urge_level, name="urge-level"), 
 ]

@@ -1,6 +1,6 @@
 from rest_framework import serializers 
 from django.contrib.auth.models import User 
-from .models import UserData
+from .models import UserData, UserUrges
 
 # creater serializer for user model 
 class UserSerializer(serializers.ModelSerializer):
@@ -12,6 +12,12 @@ class UserSerializer(serializers.ModelSerializer):
 class UserDataSerializer(serializers.ModelSerializer):
     class Meta: 
         model = UserData
+        fields = '__all__'
+
+# creates serializer for user urges 
+class UserUrgeSerializer(serializers.ModelSerializer):
+    class Meta: 
+        model = UserUrges
         fields = '__all__'
 
 # creates serializer for registration

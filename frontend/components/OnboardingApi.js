@@ -11,7 +11,7 @@ export const mainCause = async (cause) => {
                 'Content-Type': 'application/json', 
                 'Authorization': token ? `Bearer ${token}` : '',
             }, 
-            body: JSON.stringify(cause), 
+            body: JSON.stringify({ main_cause: cause }),
             credentials: 'include', 
         })
         if(response.ok)
@@ -32,7 +32,7 @@ export const coachingStyle = async (style) => {
                 'Content-Type': 'application/json',
                 'Authorization': token ? `Bearer ${token}` : '', 
             }, 
-            body: JSON.stringify(style), 
+            body: JSON.stringify({ coaching_style: style }),
             credentials: 'include', 
         })
         if(response.ok)
@@ -53,7 +53,7 @@ export const motivation = async (motivation) => {
                 'Content-Type': 'application/json', 
                 'Authorization': token ? `Bearer ${token}` : '',
             }, 
-            body: JSON.stringify(motivation), 
+            body: JSON.stringify({ motivation: motivation }),
             credentials: 'include', 
         })
         if(response.ok)

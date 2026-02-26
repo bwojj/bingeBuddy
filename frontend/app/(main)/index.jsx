@@ -10,7 +10,7 @@ export default function Index() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
-  const { userCredentials, userLoading } = useAuth();
+  const { userCredentials, userPreferences, userLoading } = useAuth();
 
   if (userLoading) return null;
 
@@ -37,7 +37,7 @@ export default function Index() {
 
         {/* Motivation Section */}
         <Text style={styles.sectionTitle}>Motivation</Text>
-        <HomeMotivation />
+        <HomeMotivation userPreferences={userPreferences}/>
 
         {/* Progress Snapshot Card */}
         <View style={styles.progressCard}>

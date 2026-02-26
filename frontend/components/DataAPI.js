@@ -92,3 +92,23 @@ export const addUrgeLevel = async (urgeLevel) => {
         return false; 
     }
 }
+
+export const getUrgeLevel = async () => {
+    const token = await getToken();
+
+    try {
+        const response = await fetch(`${BASEURL}/api/urges`, {
+            
+            headers: {
+                'Content-Type': 'application/json', 
+                'Authorization': token ? `Bearer ${token}` : '',
+            }
+        })
+        if(response.ok){
+            const data = await response.json();
+            return data; 
+        }
+    } catch(error){
+        console.log('Failed to get UrgeLevel', error); 
+    }
+}

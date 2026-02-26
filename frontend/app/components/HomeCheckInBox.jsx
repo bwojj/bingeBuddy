@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View, TouchableOpacity, PanResponder, Alert } from 'react-native'
-import React, { useState, useRef, useCallback } from 'react'
+import React, { useState, useRef, useCallback, useEffect } from 'react'
+import { addUrgeLevel, getUrgeLevel } from '@/components/DataAPI';
 
 const MIN = 1;
 const MAX = 10;
@@ -16,6 +17,24 @@ const HomeCheckInBox = () => {
   const [urgeLevel, setUrgeLevel] = useState(3);
   const sliderWidth = useRef(0);
   const currentValue = useRef(urgeLevel);
+
+  useEffect(() => {
+    const loadLastUrge = async () => {
+      const data = await getUrgeLevel();
+      const urges = Array.isArray(data) ? data : (data?.results ?? []);
+      if (urges.length > 0) {
+        const last = urges[urges.length - 1];
+        const level = last.urge_level;
+        if (level != null) {
+          setUrgeLevel(level);
+          currentValue.current = level;
+        }
+      }
+    };
+    loadLastUrge();
+  }, []);
+
+
 
   const clampedPercent = (urgeLevel - MIN) / (MAX - MIN);
 
@@ -41,12 +60,22 @@ const HomeCheckInBox = () => {
     })
   ).current;
 
-  const handleLogUrge = () => {
-    Alert.alert(
+  const handleLogUrge = async () => {
+    const urgeSaved = await addUrgeLevel(urgeLevel);
+    if(urgeSaved){
+      Alert.alert(
       'Urge Logged',
       `Intensity ${urgeLevel}/10 recorded. Stay strong — this urge will pass.`,
       [{ text: 'Thanks', style: 'default' }]
     );
+    } else {
+      Alert.alert(
+      'Urge Failed',
+      `Intensity ${urgeLevel}/10 failed to record.`,
+      [{ text: 'Thanks', style: 'default' }]
+    );
+    }
+    
   };
 
   return (

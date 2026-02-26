@@ -1,6 +1,7 @@
 import { Text, View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
+import { useCallback } from "react";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import HomeCheckInBox from '../components/HomeCheckInBox';
 import HomeMotivation from '../components/HomeMotivation';
@@ -10,7 +11,13 @@ export default function Index() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
-  const { userCredentials, userPreferences, userLoading } = useAuth();
+  const { userCredentials, userPreferences, userLoading, refreshUserData } = useAuth();
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshUserData();
+    }, [refreshUserData])
+  );
 
   if (userLoading) return null;
 

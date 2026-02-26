@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { authenticated } from '../components/AuthApi';
 import { getUserData, getUserCredentials } from '../components/DataAPI'; 
 
@@ -18,24 +18,25 @@ export function AuthProvider({ children }) {
         checkAuth();
     }, []);
 
+    const fetchData = useCallback(async () => {
+        setUserLoading(true);
+        const [creds, pref] = await Promise.all([getUserCredentials(), getUserData()]);
+        setUserCredentials(creds?.[0] ?? null);
+        setUserPreferences(pref?.[0] ?? null);
+        setUserLoading(false);
+    }, []);
+
     useEffect(() => {
         if (isAuthenticated === null) return;
         if (!isAuthenticated) {
             setUserLoading(false);
             return;
         }
-        const fetchData = async () => {
-            setUserLoading(true);
-            const [creds, pref] = await Promise.all([getUserCredentials(), getUserData()]);
-            setUserCredentials(creds?.[0] ?? null);
-            setUserPreferences(pref?.[0] ?? null);
-            setUserLoading(false);
-        };
         fetchData();
-    }, [isAuthenticated]);
+    }, [isAuthenticated, fetchData]);
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated, userCredentials, userPreferences, userLoading }}>
+        <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated, userCredentials, userPreferences, userLoading, refreshUserData: fetchData }}>
             {children}
         </AuthContext.Provider>
     );

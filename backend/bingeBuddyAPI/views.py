@@ -129,7 +129,7 @@ class UserUrgeView(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user_profile = self.request.user 
-        return UserUrges.objects.filter(pk=user_profile.pk)
+        return UserUrges.objects.filter(user=user_profile)
 
 # defines view for registering 
 @api_view(['POST'])

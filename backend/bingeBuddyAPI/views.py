@@ -4,8 +4,8 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes 
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import UserData, UserUrges
-from .serializers import UserDataSerializer, UserSerializer, UserRegistrationSerializer, UserUrgeSerializer
+from .models import UserData, JournalEntry
+from .serializers import UserDataSerializer, UserSerializer, UserRegistrationSerializer, JournalEntrySerializer
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -122,16 +122,16 @@ class UserView(viewsets.ModelViewSet):
         user_profile = self.request.user
         return User.objects.filter(pk=user_profile.pk)
 
-# creates view for user urges
-class UserUrgeView(viewsets.ModelViewSet):
-    serializer_class = UserUrgeSerializer
+# creates view for journal entries 
+class JournalEntryView(viewsets.ModelViewSet):
+    serializer_class = JournalEntrySerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user_profile = self.request.user 
-        return UserUrges.objects.filter(user=user_profile)
+        return JournalEntry.objects.filter(user=user_profile)
 
-# defines view for registering 
+# defines view for registering
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register(request): 
@@ -209,14 +209,22 @@ def set_motivation_image(request):
     )
     return Response({"success": True})
 
-# defines view to add to urges
+# defines view for adding to journal entries 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def set_urge_level(request):
-    user_object, _ = UserUrges.objects.update_or_create(
-        user=request.user, 
-        defaults={
-            "urge_level": request.data.get('urge_level'),
-        }
+def add_journal_entry(request):
+    JournalEntry.objects.create(
+        user=request.user,
+        entry_type=request.data['entry_type'],
+        title=request.data['title'],
+        entry=request.data['entry'],
     )
-    return Response({"success": True})
+
+    return Response({'success': True})
+
+# defines view to delete entries 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def delete_entry(request):
+    JournalEntry.objects.filter(id=request.data['id']).delete()
+    return Response({'success': True})

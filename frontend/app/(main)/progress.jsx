@@ -24,6 +24,9 @@ export default function Progress() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        {/* Overscroll fix: fills iOS bounce area with purple */}
+        <View style={styles.overscrollFill} />
+
         {/* Purple header - scrolls with content */}
         <View style={[styles.headerBg, { paddingTop: insets.top + 10 }]}>
           {/* Header */}
@@ -33,18 +36,17 @@ export default function Progress() {
             <Ionicons name="share-outline" size={22} color="white" />
           </View>
 
-          {/* Streak */}
-          <View style={styles.streakContainer}>
-            <Text style={styles.streakNumber}>12</Text>
-            <Text style={styles.streakLabel}>DAY SOBER STREAK</Text>
-            <Text style={styles.streakQuote}>{"\"Keep going, you're stronger than you think.\""}</Text>
+          {/* Urges Defeated Count */}
+          <View style={styles.countContainer}>
+            <Text style={styles.countNumber}>7</Text>
+            <Text style={styles.countLabel}>URGES DEFEATED</Text>
           </View>
         </View>
 
-        {/* Urge Frequency Card */}
-        <View style={styles.card}>
+        {/* Urges Beat Card */}
+        <View style={[styles.card, { marginTop: 20 }]}>
           <View style={styles.cardHeaderRow}>
-            <Text style={styles.cardTitle}>Urge Frequency</Text>
+            <Text style={styles.cardTitle}>Urges Beat</Text>
             <View style={styles.thisWeekBadge}>
               <Text style={styles.thisWeekText}>This Week</Text>
             </View>
@@ -69,53 +71,49 @@ export default function Progress() {
             ))}
           </View>
 
-          <Text style={styles.chartFooter}>
-            {"Total urges down "}
-            <Text style={styles.chartFooterBold}>15%</Text>
-            {" from last week."}
-          </Text>
         </View>
 
         {/* Recovery Milestones */}
         <Text style={styles.sectionTitle}>Recovery Milestones</Text>
 
-        {/* 7 Day - Achieved */}
+        {/* 1 Urge - Achieved */}
         <View style={styles.milestoneCard}>
           <View style={styles.milestoneIconCircle}>
             <MaterialCommunityIcons name="trophy" size={22} color="white" />
           </View>
           <View style={styles.milestoneInfo}>
-            <Text style={styles.milestoneName}>7 Day Clean Streak</Text>
+            <Text style={styles.milestoneName}>1 Urge Defeated</Text>
             <Text style={styles.milestoneSubtext}>Achieved Nov 15</Text>
           </View>
           <Ionicons name="checkmark-circle" size={28} color="#4CAF50" />
         </View>
 
-        {/* 14 Day - In Progress */}
+        {/* 5 Urges - Achieved */}
+        <View style={styles.milestoneCard}>
+          <View style={styles.milestoneIconCircle}>
+            <MaterialCommunityIcons name="trophy" size={22} color="white" />
+          </View>
+          <View style={styles.milestoneInfo}>
+            <Text style={styles.milestoneName}>5 Urges Defeated</Text>
+            <Text style={styles.milestoneSubtext}>Achieved Nov 18</Text>
+          </View>
+          <Ionicons name="checkmark-circle" size={28} color="#4CAF50" />
+        </View>
+
+        {/* 10 Urges - In Progress */}
         <View style={styles.milestoneCard}>
           <View style={[styles.milestoneIconCircle, styles.milestoneIconGray]}>
             <MaterialCommunityIcons name="lock-outline" size={22} color="#999" />
           </View>
           <View style={styles.milestoneInfo}>
-            <Text style={styles.milestoneName}>14 Day Milestone</Text>
+            <Text style={styles.milestoneName}>10 Urges Defeated</Text>
             <View style={styles.progressBarContainer}>
               <View style={styles.progressBarTrack}>
                 <View style={styles.progressBarFill} />
               </View>
             </View>
           </View>
-          <Text style={styles.milestoneDays}>12/14 Days</Text>
-        </View>
-
-        {/* 30 Day - Locked */}
-        <View style={styles.milestoneCard}>
-          <View style={[styles.milestoneIconCircle, styles.milestoneIconGray]}>
-            <MaterialCommunityIcons name="lock-outline" size={22} color="#999" />
-          </View>
-          <View style={styles.milestoneInfo}>
-            <Text style={styles.milestoneName}>30 Day Milestone</Text>
-            <Text style={styles.milestoneSubtext}>Keep up the great work!</Text>
-          </View>
+          <Text style={styles.milestoneDays}>7/10 Urges</Text>
         </View>
 
         {/* Stats Row */}
@@ -151,7 +149,6 @@ export default function Progress() {
         <View style={styles.tabItem}>
           <Ionicons name="bar-chart" size={24} color="#7B1FA2" />
           <Text style={[styles.tabLabel, styles.tabLabelActive]}>Progress</Text>
-          <View style={styles.tabDot} />
         </View>
         <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/coach')}>
           <Ionicons name="chatbubble-ellipses-outline" size={24} color="#999" />
@@ -175,9 +172,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f3edf7',
   },
+  overscrollFill: {
+    position: 'absolute',
+    top: -1000,
+    left: 0,
+    right: 0,
+    height: 1000,
+    backgroundColor: '#7B1FA2',
+  },
   headerBg: {
     backgroundColor: '#7B1FA2',
-    paddingBottom: 32,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    paddingBottom: 36,
   },
   scrollContent: {
     paddingBottom: 20,
@@ -197,28 +204,25 @@ const styles = StyleSheet.create({
     color: 'white',
   },
 
-  /* Streak */
-  streakContainer: {
+  /* Urges Defeated Count */
+  countContainer: {
     alignItems: 'center',
+    alignSelf: 'stretch',
     marginBottom: 24,
   },
-  streakNumber: {
+  countNumber: {
     fontSize: 64,
     fontWeight: 'bold',
     color: 'white',
+    textAlign: 'center',
   },
-  streakLabel: {
+  countLabel: {
     fontSize: 14,
     fontWeight: '600',
     color: 'rgba(255,255,255,0.85)',
     letterSpacing: 2,
     marginTop: -4,
-  },
-  streakQuote: {
-    fontSize: 13,
-    fontStyle: 'italic',
-    color: 'rgba(255,255,255,0.7)',
-    marginTop: 10,
+    textAlign: 'center',
   },
 
   /* Card */
@@ -290,16 +294,6 @@ const styles = StyleSheet.create({
     color: '#7B1FA2',
     fontWeight: '600',
   },
-  chartFooter: {
-    fontSize: 13,
-    color: '#666',
-    marginTop: 8,
-  },
-  chartFooterBold: {
-    color: '#4CAF50',
-    fontWeight: '700',
-  },
-
   /* Section Title */
   sectionTitle: {
     fontSize: 19,
@@ -365,7 +359,7 @@ const styles = StyleSheet.create({
   },
   progressBarFill: {
     height: 6,
-    width: '85%',
+    width: '70%',
     backgroundColor: '#7B1FA2',
     borderRadius: 3,
   },
@@ -448,12 +442,5 @@ const styles = StyleSheet.create({
   },
   tabLabelActive: {
     color: '#7B1FA2',
-  },
-  tabDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: '#7B1FA2',
-    marginTop: 3,
   },
 });

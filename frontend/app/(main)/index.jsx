@@ -3,7 +3,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter, useFocusEffect } from "expo-router";
 import { useCallback } from "react";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import HomeCheckInBox from '../components/HomeCheckInBox';
+import HomeQuoteBox from '../components/HomeQuoteBox';
 import HomeMotivation from '../components/HomeMotivation';
 import { useAuth } from "@/context/AuthContext";
 
@@ -28,18 +28,24 @@ export default function Index() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        {/*
+          Overscroll fix: on iOS, pulling past the top bounces and reveals bare
+          background. This purple block sits 1000px above the content so that
+          bounce area is always purple.
+        */}
+        <View style={styles.overscrollFill} />
+
         {/* Purple header - scrolls with content */}
         <View style={[styles.headerBg, { paddingTop: insets.top + 15 }]}>
-          {/* Greeting */}
           <View style={styles.greetingContainer}>
             <Text style={styles.greeting}>Good Morning, {userCredentials?.first_name}!</Text>
             <Text style={styles.date}>Thursday, Nov 20</Text>
           </View>
         </View>
 
-        {/* Check-In Card - overlaps bottom of purple header */}
-        <View style={styles.checkInWrapper}>
-          <HomeCheckInBox />
+        {/* Quote Card - overlaps bottom of purple header */}
+        <View style={styles.quoteWrapper}>
+          <HomeQuoteBox />
         </View>
 
         {/* Motivation Section */}
@@ -50,17 +56,14 @@ export default function Index() {
         <View style={styles.progressCard}>
           <Text style={styles.progressTitle}>Progress Snapshot</Text>
           <View style={styles.ringContainer}>
-            {/* Ring track (background) */}
             <View style={styles.ringTrack} />
-            {/* Ring fill (progress) */}
             <View style={styles.ringFill} />
-            {/* Center text */}
             <View style={styles.ringCenter}>
               <Text style={styles.ringLabel}>Recovery Rate:</Text>
               <Text style={styles.ringPercent}>90%</Text>
             </View>
           </View>
-          <Text style={styles.progressSubtext}>{"You've been binge-free for 3 days!"}</Text>
+          <Text style={styles.progressSubtext}>{"You've defeated 12 urges and counting!"}</Text>
         </View>
 
         {/* Quick Actions Section */}
@@ -124,13 +127,22 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f3edf7',
   },
+  /* Fills the iOS overscroll bounce area at the top with purple */
+  overscrollFill: {
+    position: 'absolute',
+    top: -1000,
+    left: 0,
+    right: 0,
+    height: 1000,
+    backgroundColor: '#7B1FA2',
+  },
   headerBg: {
     backgroundColor: '#7B1FA2',
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
     paddingBottom: 68,
   },
-  checkInWrapper: {
+  quoteWrapper: {
     marginTop: -48,
   },
   scrollContent: {

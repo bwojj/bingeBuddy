@@ -1,6 +1,5 @@
 from django.contrib import admin
-from .models import UserData, UserUrges
+from .models import UserData
 
 # Register your models here.
 admin.site.register(UserData)
-admin.site.register(UserUrges)

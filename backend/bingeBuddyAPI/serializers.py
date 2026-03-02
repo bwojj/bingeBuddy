@@ -1,6 +1,6 @@
 from rest_framework import serializers 
 from django.contrib.auth.models import User 
-from .models import UserData, UserUrges
+from .models import UserData, JournalEntry
 
 # creater serializer for user model 
 class UserSerializer(serializers.ModelSerializer):
@@ -12,12 +12,6 @@ class UserSerializer(serializers.ModelSerializer):
 class UserDataSerializer(serializers.ModelSerializer):
     class Meta: 
         model = UserData
-        fields = '__all__'
-
-# creates serializer for user urges 
-class UserUrgeSerializer(serializers.ModelSerializer):
-    class Meta: 
-        model = UserUrges
         fields = '__all__'
 
 # creates serializer for registration
@@ -38,3 +32,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+
+class JournalEntrySerializer(serializers.ModelSerializer): 
+    class Meta: 
+        model = JournalEntry 
+        fields = '__all__'

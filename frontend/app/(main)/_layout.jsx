@@ -2,15 +2,15 @@ import { Stack } from "expo-router";
 
 export default function RootLayout() {
   return (
-    <Stack screenOptions={{headerStyle: 'none'}}>
-      <Stack.Screen name="index" options={{title: 'Home', headerShown: false}}/>
-      <Stack.Screen name="settings" options={{title: 'Settings', headerShown: false}}/>
-      <Stack.Screen name="coach" options={{title: 'Coach', headerShown: false}}/>
-      <Stack.Screen name="journal" options={{title: 'Journal', headerShown: false}}/>
-      <Stack.Screen name="panic" options={{title: 'Panic', headerShown: false}}/>
-      <Stack.Screen name="progress" options={{title: 'Progress', headerShown: false}}/>
-      <Stack.Screen name="tracker" options={{title: 'Tracker', headerShown: false}}/>
-      <Stack.Screen name="personalization" options={{title: 'Personalization', headerShown: false}}/>
+    <Stack screenOptions={{ headerShown: false, animation: 'fade', animationDuration: 200 }}>
+      <Stack.Screen name="index" options={{title: 'Home'}}/>
+      <Stack.Screen name="settings" options={{title: 'Settings'}}/>
+      <Stack.Screen name="coach" options={{title: 'Coach'}}/>
+      <Stack.Screen name="journal" options={{title: 'Journal'}}/>
+      <Stack.Screen name="panic" options={{title: 'Panic'}}/>
+      <Stack.Screen name="progress" options={{title: 'Progress'}}/>
+      <Stack.Screen name="tracker" options={{title: 'Tracker'}}/>
+      <Stack.Screen name="personalization" options={{title: 'Personalization'}}/>
     </Stack>
   )
 }

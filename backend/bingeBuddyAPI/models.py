@@ -5,8 +5,7 @@ from django.contrib.auth.models import User
 class UserData(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='data', default=1)
     main_cause = models.CharField(max_length=64)
-    coaching_style = models.CharField(max_length=64)
-    motivation = models.JSONField(default=list)
+    motivation = models.TextField(blank=True, default='')
     motivation_image = models.ImageField(upload_to='motivation_images/', blank=True, null=True)
 
 # create journal Entry field 

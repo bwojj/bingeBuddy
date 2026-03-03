@@ -28,7 +28,7 @@ function useSheetAnimation(visible) {
 
 const TAG_STYLES = {
   Victory:    { color: '#4CAF50', bg: '#e8f5e9' },
-  Reflection: { color: '#7B1FA2', bg: '#ede7f6' },
+  Reflection: { color: '#502c58', bg: '#e8e3ea' },
   Struggle:   { color: '#E65100', bg: '#fff3e0' },
 };
 
@@ -331,7 +331,7 @@ export default function Journal() {
           <Text style={styles.tabLabel}>Progress</Text>
         </TouchableOpacity>
         <View style={styles.tabItem}>
-          <Ionicons name="document-text" size={24} color="#7B1FA2" />
+          <Ionicons name="document-text" size={24} color="#502c58" />
           <Text style={[styles.tabLabel, styles.tabLabelActive]}>Journal</Text>
         </View>
         <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/settings')}>
@@ -354,10 +354,10 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 1000,
-    backgroundColor: '#7B1FA2',
+    backgroundColor: '#502c58',
   },
   headerBg: {
-    backgroundColor: '#7B1FA2',
+    backgroundColor: '#502c58',
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
     paddingBottom: 16,
@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   filterChipTextActive: {
-    color: '#7B1FA2',
+    color: '#502c58',
     fontWeight: '600',
   },
 
@@ -550,12 +550,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   typeChipActive: {
-    backgroundColor: '#7B1FA2',
+    backgroundColor: '#502c58',
   },
   typeChipText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#7B1FA2',
+    color: '#502c58',
   },
   typeChipTextActive: {
     color: 'white',
@@ -569,7 +569,7 @@ const styles = StyleSheet.create({
     color: '#1a1a1a',
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#ede7f6',
+    borderColor: '#e8e3ea',
   },
   bodyInput: {
     backgroundColor: '#f9f5fc',
@@ -581,14 +581,14 @@ const styles = StyleSheet.create({
     height: 130,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#ede7f6',
+    borderColor: '#e8e3ea',
   },
   saveBtn: {
-    backgroundColor: '#7B1FA2',
+    backgroundColor: '#502c58',
     borderRadius: 14,
     paddingVertical: 16,
     alignItems: 'center',
-    shadowColor: '#7B1FA2',
+    shadowColor: '#502c58',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -696,6 +696,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   tabLabelActive: {
-    color: '#7B1FA2',
+    color: '#502c58',
   },
 });

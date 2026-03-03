@@ -15,8 +15,8 @@ const PRIVACY_ITEMS = [
   {
     icon: 'eye-off-outline',
     lib: 'ion',
-    color: '#7B1FA2',
-    bg: '#ede7f6',
+    color: '#502c58',
+    bg: '#e8e3ea',
     title: 'Private by Default',
     description: 'Your recovery data is never shared with third parties or advertisers.',
   },
@@ -106,8 +106,8 @@ export default function PrivacySecurity() {
             style={styles.menuRow}
             onPress={() => Alert.alert('Terms of Service', 'Full terms available at bingebuddy.app/terms')}
           >
-            <View style={[styles.iconWrap, { backgroundColor: '#f3e8ff' }]}>
-              <Ionicons name="document-text-outline" size={20} color="#7B1FA2" />
+            <View style={[styles.iconWrap, { backgroundColor: '#ede9ee' }]}>
+              <Ionicons name="document-text-outline" size={20} color="#502c58" />
             </View>
             <Text style={styles.menuLabel}>Terms of Service</Text>
             <Ionicons name="chevron-forward" size={18} color="#bbb" />
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
 
   /* Header */
   header: {
-    backgroundColor: '#7B1FA2',
+    backgroundColor: '#502c58',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

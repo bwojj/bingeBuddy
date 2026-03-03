@@ -44,7 +44,7 @@ const HomeQuoteBox = () => {
   return (
     <View style={styles.card}>
       <View style={styles.iconRow}>
-        <Ionicons name="sparkles" size={16} color="#7B1FA2" />
+        <Ionicons name="sparkles" size={16} color="#502c58" />
         <Text style={styles.label}>Daily Inspiration</Text>
       </View>
       <Text style={styles.quoteText}>"{quote.text}"</Text>
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#7B1FA2',
+    color: '#502c58',
     letterSpacing: 0.5,
     textTransform: 'uppercase',
   },

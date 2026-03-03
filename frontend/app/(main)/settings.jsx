@@ -34,7 +34,7 @@ export default function Settings() {
         {/* Profile Row — display only, not tappable */}
         <View style={styles.profileCard}>
           <View style={styles.avatarCircle}>
-            <Ionicons name="person" size={28} color="#7B1FA2" />
+            <Ionicons name="person" size={28} color="#502c58" />
           </View>
           <View style={styles.profileInfo}>
             <Text style={styles.profileName}>{displayName}</Text>
@@ -46,8 +46,8 @@ export default function Settings() {
         <Text style={styles.sectionLabel}>ACCOUNT</Text>
         <View style={styles.menuCard}>
           <TouchableOpacity style={styles.menuRow} onPress={() => router.push('/profile-settings')}>
-            <View style={[styles.menuIconWrap, { backgroundColor: '#ede7f6' }]}>
-              <Ionicons name="person-outline" size={20} color="#7B1FA2" />
+            <View style={[styles.menuIconWrap, { backgroundColor: '#e8e3ea' }]}>
+              <Ionicons name="person-outline" size={20} color="#502c58" />
             </View>
             <Text style={styles.menuLabel}>Profile Settings</Text>
             <Ionicons name="chevron-forward" size={18} color="#bbb" style={styles.menuChevron} />
@@ -66,8 +66,8 @@ export default function Settings() {
           <View style={styles.menuDivider} />
 
           <TouchableOpacity style={styles.menuRow} onPress={() => router.push('/personalization')}>
-            <View style={[styles.menuIconWrap, { backgroundColor: '#f3e8ff' }]}>
-              <Ionicons name="color-palette-outline" size={20} color="#7B1FA2" />
+            <View style={[styles.menuIconWrap, { backgroundColor: '#ede9ee' }]}>
+              <Ionicons name="color-palette-outline" size={20} color="#502c58" />
             </View>
             <Text style={styles.menuLabel}>Personalization</Text>
             <Ionicons name="chevron-forward" size={18} color="#bbb" style={styles.menuChevron} />
@@ -105,7 +105,7 @@ export default function Settings() {
           <Text style={styles.tabLabel}>Journal</Text>
         </TouchableOpacity>
         <View style={styles.tabItem}>
-          <Ionicons name="settings" size={24} color="#7B1FA2" />
+          <Ionicons name="settings" size={24} color="#502c58" />
           <Text style={[styles.tabLabel, styles.tabLabelActive]}>Settings</Text>
         </View>
       </View>
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: '#ede7f6',
+    backgroundColor: '#e8e3ea',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 14,
@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   tabLabelActive: {
-    color: '#7B1FA2',
+    color: '#502c58',
   },
 
   /* Logout */

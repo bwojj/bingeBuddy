@@ -210,17 +210,6 @@ def add_data_main_cause(request):
 
     return Response({"Success": True})
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def add_data_coaching_style(request): 
-    data_obj, _ = UserData.objects.update_or_create(
-        user=request.user, 
-        defaults={
-            "coaching_style": request.data.get('coaching_style'),
-        }
-    )
-
-    return Response({"Success": True})
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

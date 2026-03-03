@@ -1,16 +1,10 @@
-import { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Platform, Image } from "react-native";
+import { useState } from 'react';
+import { Text, View, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import * as WebBrowser from 'expo-web-browser';
-import * as Google from 'expo-auth-session/providers/google';
-import { ResponseType } from 'expo-auth-session';
-import * as AppleAuthentication from 'expo-apple-authentication';
-import { login, socialAuth } from '../../components/AuthApi';
+import { login } from '../../components/AuthApi';
 import { useAuth } from '../../context/AuthContext';
-
-WebBrowser.maybeCompleteAuthSession();
 
 export default function Login() {
   const insets = useSafeAreaInsets();
@@ -19,51 +13,6 @@ export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-
-  // Google OAuth — fill in your client IDs from Google Cloud Console
-  const [request, googleResponse, promptGoogleAsync] = Google.useAuthRequest({
-    webClientId: 'YOUR_GOOGLE_WEB_CLIENT_ID.apps.googleusercontent.com',
-    iosClientId: 'YOUR_GOOGLE_IOS_CLIENT_ID.apps.googleusercontent.com',
-    responseType: ResponseType.Token,
-    scopes: ['email', 'profile'],
-  });
-
-  useEffect(() => {
-    if (googleResponse?.type === 'success') {
-      const accessToken = googleResponse.params?.access_token;
-      if (accessToken) handleSocialAuth('google', accessToken);
-    }
-  }, [googleResponse]);
-
-  const handleSocialAuth = async (provider, token) => {
-    const result = await socialAuth(provider, token);
-    if (!result?.success) {
-      Alert.alert('Sign in failed', 'Could not sign in with ' + provider + '. Please try again.');
-      return;
-    }
-    setIsAuthenticated(true);
-    if (result.is_new) {
-      router.replace('/(auth)/(onboarding)/maincause');
-    }
-  };
-
-  const handleAppleSignIn = async () => {
-    try {
-      const credential = await AppleAuthentication.signInAsync({
-        requestedScopes: [
-          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
-          AppleAuthentication.AppleAuthenticationScope.EMAIL,
-        ],
-      });
-      if (credential.identityToken) {
-        await handleSocialAuth('apple', credential.identityToken);
-      }
-    } catch (e) {
-      if (e.code !== 'ERR_REQUEST_CANCELED') {
-        Alert.alert('Apple Sign In failed', 'Please try again.');
-      }
-    }
-  };
 
   const handleLogin = async () => {
     const ok = await login(username, password);
@@ -132,32 +81,6 @@ export default function Login() {
         <Text style={styles.primaryButtonText}>{"Log In  \u2192"}</Text>
       </TouchableOpacity>
 
-      {/* Divider */}
-      <View style={styles.dividerRow}>
-        <View style={styles.dividerLine} />
-        <Text style={styles.dividerText}>OR CONTINUE WITH</Text>
-        <View style={styles.dividerLine} />
-      </View>
-
-      {/* Social buttons */}
-      <View style={styles.socialRow}>
-        <TouchableOpacity style={styles.socialButton} onPress={() => promptGoogleAsync()} disabled={!request}>
-          <MaterialCommunityIcons name="google" size={20} color="#333" />
-          <Text style={styles.socialButtonText}>Google</Text>
-        </TouchableOpacity>
-        {Platform.OS === 'ios' ? (
-          <TouchableOpacity style={styles.socialButton} onPress={handleAppleSignIn}>
-            <Ionicons name="logo-apple" size={20} color="#333" />
-            <Text style={styles.socialButtonText}>Apple</Text>
-          </TouchableOpacity>
-        ) : (
-          <View style={[styles.socialButton, { opacity: 0.4 }]}>
-            <Ionicons name="logo-apple" size={20} color="#333" />
-            <Text style={styles.socialButtonText}>Apple</Text>
-          </View>
-        )}
-      </View>
-
       {/* Sign up link */}
       <View style={styles.bottomLinkRow}>
         <Text style={styles.bottomLinkText}>{"Don't have an account? "}</Text>
@@ -191,7 +114,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#7B1FA2',
+    color: '#502c58',
     marginBottom: 6,
   },
   subtitle: {
@@ -230,7 +153,7 @@ const styles = StyleSheet.create({
   /* Forgot */
   forgotText: {
     fontSize: 13,
-    color: '#7B1FA2',
+    color: '#502c58',
     fontWeight: '600',
     alignSelf: 'flex-end',
     marginBottom: 24,
@@ -241,7 +164,7 @@ const styles = StyleSheet.create({
   primaryButton: {
     width: '100%',
     height: 52,
-    backgroundColor: '#7B1FA2',
+    backgroundColor: '#502c58',
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
@@ -251,50 +174,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: '700',
-  },
-
-  /* Divider */
-  dividerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-    marginBottom: 20,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#e0e0e0',
-  },
-  dividerText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#999',
-    marginHorizontal: 14,
-    letterSpacing: 1,
-  },
-
-  /* Social */
-  socialRow: {
-    flexDirection: 'row',
-    width: '100%',
-    gap: 12,
-    marginBottom: 28,
-  },
-  socialButton: {
-    flex: 1,
-    flexDirection: 'row',
-    height: 48,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  socialButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
   },
 
   /* Bottom link */
@@ -309,6 +188,6 @@ const styles = StyleSheet.create({
   bottomLinkAction: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#7B1FA2',
+    color: '#502c58',
   },
 });

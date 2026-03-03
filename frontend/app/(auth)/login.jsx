@@ -1,10 +1,16 @@
-import { useState } from 'react';
-import { Text, View, StyleSheet, ScrollView, TouchableOpacity, TextInput } from "react-native";
+import { useState, useEffect } from 'react';
+import { Text, View, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Platform, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { login } from '../../components/AuthApi';
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
+import { ResponseType } from 'expo-auth-session';
+import * as AppleAuthentication from 'expo-apple-authentication';
+import { login, socialAuth } from '../../components/AuthApi';
 import { useAuth } from '../../context/AuthContext';
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function Login() {
   const insets = useSafeAreaInsets();
@@ -14,13 +20,57 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
+  // Google OAuth — fill in your client IDs from Google Cloud Console
+  const [request, googleResponse, promptGoogleAsync] = Google.useAuthRequest({
+    webClientId: 'YOUR_GOOGLE_WEB_CLIENT_ID.apps.googleusercontent.com',
+    iosClientId: 'YOUR_GOOGLE_IOS_CLIENT_ID.apps.googleusercontent.com',
+    responseType: ResponseType.Token,
+    scopes: ['email', 'profile'],
+  });
+
+  useEffect(() => {
+    if (googleResponse?.type === 'success') {
+      const accessToken = googleResponse.params?.access_token;
+      if (accessToken) handleSocialAuth('google', accessToken);
+    }
+  }, [googleResponse]);
+
+  const handleSocialAuth = async (provider, token) => {
+    const result = await socialAuth(provider, token);
+    if (!result?.success) {
+      Alert.alert('Sign in failed', 'Could not sign in with ' + provider + '. Please try again.');
+      return;
+    }
+    setIsAuthenticated(true);
+    if (result.is_new) {
+      router.replace('/(auth)/(onboarding)/maincause');
+    }
+  };
+
+  const handleAppleSignIn = async () => {
+    try {
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+      if (credential.identityToken) {
+        await handleSocialAuth('apple', credential.identityToken);
+      }
+    } catch (e) {
+      if (e.code !== 'ERR_REQUEST_CANCELED') {
+        Alert.alert('Apple Sign In failed', 'Please try again.');
+      }
+    }
+  };
+
   const handleLogin = async () => {
     const ok = await login(username, password);
     if (ok === true) {
       setIsAuthenticated(true);
-    }
-    else {
-      console.log('Failed to login');
+    } else {
+      Alert.alert('Login failed', 'Incorrect username or password.');
     }
   };
 
@@ -31,9 +81,10 @@ export default function Login() {
       showsVerticalScrollIndicator={false}
     >
       {/* Logo */}
-      <View style={styles.logoCircle}>
-        <MaterialCommunityIcons name="bandage" size={36} color="white" />
-      </View>
+      <Image
+        source={require('../../assets/images/bblogo.jpg')}
+        style={styles.logoImage}
+      />
 
       {/* Title */}
       <Text style={styles.title}>Welcome Back</Text>
@@ -90,14 +141,21 @@ export default function Login() {
 
       {/* Social buttons */}
       <View style={styles.socialRow}>
-        <TouchableOpacity style={styles.socialButton} onPress={() => {}}>
+        <TouchableOpacity style={styles.socialButton} onPress={() => promptGoogleAsync()} disabled={!request}>
           <MaterialCommunityIcons name="google" size={20} color="#333" />
           <Text style={styles.socialButtonText}>Google</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.socialButton} onPress={() => {}}>
-          <Ionicons name="logo-apple" size={20} color="#333" />
-          <Text style={styles.socialButtonText}>Apple</Text>
-        </TouchableOpacity>
+        {Platform.OS === 'ios' ? (
+          <TouchableOpacity style={styles.socialButton} onPress={handleAppleSignIn}>
+            <Ionicons name="logo-apple" size={20} color="#333" />
+            <Text style={styles.socialButtonText}>Apple</Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={[styles.socialButton, { opacity: 0.4 }]}>
+            <Ionicons name="logo-apple" size={20} color="#333" />
+            <Text style={styles.socialButtonText}>Apple</Text>
+          </View>
+        )}
       </View>
 
       {/* Sign up link */}
@@ -122,13 +180,10 @@ const styles = StyleSheet.create({
   },
 
   /* Logo */
-  logoCircle: {
-    width: 72,
-    height: 72,
+  logoImage: {
+    width: 80,
+    height: 80,
     borderRadius: 20,
-    backgroundColor: '#7B1FA2',
-    alignItems: 'center',
-    justifyContent: 'center',
     marginBottom: 24,
   },
 

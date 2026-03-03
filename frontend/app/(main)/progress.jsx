@@ -2,20 +2,39 @@ import { Text, View, StyleSheet, ScrollView, TouchableOpacity } from "react-nati
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useAuth } from "@/context/AuthContext";
 
-const BAR_DATA = [
-  { day: 'M', height: 45 },
-  { day: 'T', height: 55 },
-  { day: 'W', height: 40 },
-  { day: 'T', height: 50 },
-  { day: 'F', height: 65 },
-  { day: 'S', height: 70 },
-  { day: 'S', height: 35 },
+// Mon=0 ... Sun=6
+const TODAY_IDX = (new Date().getDay() + 6) % 7;
+
+const EMPTY_BARS = ['M','T','W','T','F','S','S'].map(day => ({ day, count: 0 }));
+
+const MILESTONES = [
+  { target: 1,  label: '1 Urge Defeated' },
+  { target: 5,  label: '5 Urges Defeated' },
+  { target: 10, label: '10 Urges Defeated' },
+  { target: 25, label: '25 Urges Defeated' },
+  { target: 50, label: '50 Urges Defeated' },
 ];
 
 export default function Progress() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { urgeCount, urgesByDay } = useAuth();
+  const barData = urgesByDay ?? EMPTY_BARS;
+
+  // Scale counts to pixel heights (max 76px), min 4px for zero so grid is visible
+  const maxCount = Math.max(...barData.map(b => b.count), 1);
+  const scaledBars = barData.map(b => ({
+    ...b,
+    height: b.count === 0 ? 4 : Math.max(12, Math.round((b.count / maxCount) * 76)),
+  }));
+
+  const moneySaved = `$${urgeCount * 15}`;
+  const timeSaved = `${urgeCount * 2}h`;
+
+  // Find the index of the first milestone not yet achieved
+  const nextMilestoneIdx = MILESTONES.findIndex(m => urgeCount < m.target);
 
   return (
     <View style={styles.container}>
@@ -38,8 +57,11 @@ export default function Progress() {
 
           {/* Urges Defeated Count */}
           <View style={styles.countContainer}>
-            <Text style={styles.countNumber}>7</Text>
+            <Text style={styles.countNumber}>{urgeCount}</Text>
             <Text style={styles.countLabel}>URGES DEFEATED</Text>
+            <Text style={styles.countSteps}>
+              You are {urgeCount} steps closer to defeating binge eating
+            </Text>
           </View>
         </View>
 
@@ -54,18 +76,23 @@ export default function Progress() {
 
           {/* Bar Chart */}
           <View style={styles.chartContainer}>
-            {BAR_DATA.map((bar, i) => (
+            {scaledBars.map((bar, i) => (
               <View key={i} style={styles.barColumn}>
+                {bar.count > 0 && (
+                  <Text style={[styles.barCount, i === TODAY_IDX && styles.barCountHighlight]}>
+                    {bar.count}
+                  </Text>
+                )}
                 <View style={styles.barWrapper}>
                   <View style={[
                     styles.bar,
                     { height: bar.height },
-                    i === 5 && styles.barHighlight,
+                    i === TODAY_IDX && styles.barHighlight,
                   ]} />
                 </View>
                 <Text style={[
                   styles.barLabel,
-                  i === 5 && styles.barLabelHighlight,
+                  i === TODAY_IDX && styles.barLabelHighlight,
                 ]}>{bar.day}</Text>
               </View>
             ))}
@@ -76,56 +103,51 @@ export default function Progress() {
         {/* Recovery Milestones */}
         <Text style={styles.sectionTitle}>Recovery Milestones</Text>
 
-        {/* 1 Urge - Achieved */}
-        <View style={styles.milestoneCard}>
-          <View style={styles.milestoneIconCircle}>
-            <MaterialCommunityIcons name="trophy" size={22} color="white" />
-          </View>
-          <View style={styles.milestoneInfo}>
-            <Text style={styles.milestoneName}>1 Urge Defeated</Text>
-            <Text style={styles.milestoneSubtext}>Achieved Nov 15</Text>
-          </View>
-          <Ionicons name="checkmark-circle" size={28} color="#4CAF50" />
-        </View>
-
-        {/* 5 Urges - Achieved */}
-        <View style={styles.milestoneCard}>
-          <View style={styles.milestoneIconCircle}>
-            <MaterialCommunityIcons name="trophy" size={22} color="white" />
-          </View>
-          <View style={styles.milestoneInfo}>
-            <Text style={styles.milestoneName}>5 Urges Defeated</Text>
-            <Text style={styles.milestoneSubtext}>Achieved Nov 18</Text>
-          </View>
-          <Ionicons name="checkmark-circle" size={28} color="#4CAF50" />
-        </View>
-
-        {/* 10 Urges - In Progress */}
-        <View style={styles.milestoneCard}>
-          <View style={[styles.milestoneIconCircle, styles.milestoneIconGray]}>
-            <MaterialCommunityIcons name="lock-outline" size={22} color="#999" />
-          </View>
-          <View style={styles.milestoneInfo}>
-            <Text style={styles.milestoneName}>10 Urges Defeated</Text>
-            <View style={styles.progressBarContainer}>
-              <View style={styles.progressBarTrack}>
-                <View style={styles.progressBarFill} />
+        {MILESTONES.map((milestone, i) => {
+          const achieved = urgeCount >= milestone.target;
+          const isNext = i === nextMilestoneIdx;
+          const progress = isNext ? Math.min(urgeCount / milestone.target, 1) : 0;
+          return (
+            <View key={milestone.target} style={styles.milestoneCard}>
+              <View style={[styles.milestoneIconCircle, !achieved && styles.milestoneIconGray]}>
+                <MaterialCommunityIcons
+                  name={achieved ? 'trophy' : 'lock-outline'}
+                  size={22}
+                  color={achieved ? 'white' : '#999'}
+                />
               </View>
+              <View style={styles.milestoneInfo}>
+                <Text style={styles.milestoneName}>{milestone.label}</Text>
+                {achieved ? (
+                  <Text style={styles.milestoneSubtext}>Achieved</Text>
+                ) : isNext ? (
+                  <View style={styles.progressBarContainer}>
+                    <View style={styles.progressBarTrack}>
+                      <View style={[styles.progressBarFill, { width: `${progress * 100}%` }]} />
+                    </View>
+                  </View>
+                ) : null}
+              </View>
+              {achieved
+                ? <Ionicons name="checkmark-circle" size={28} color="#4CAF50" />
+                : isNext
+                  ? <Text style={styles.milestoneDays}>{urgeCount}/{milestone.target}</Text>
+                  : <MaterialCommunityIcons name="lock-outline" size={22} color="#ccc" />
+              }
             </View>
-          </View>
-          <Text style={styles.milestoneDays}>7/10 Urges</Text>
-        </View>
+          );
+        })}
 
         {/* Stats Row */}
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
-            <MaterialCommunityIcons name="trophy" size={28} color="#7B1FA2" />
-            <Text style={styles.statValue}>$120</Text>
+            <MaterialCommunityIcons name="currency-usd" size={28} color="#7B1FA2" />
+            <Text style={styles.statValue}>{moneySaved}</Text>
             <Text style={styles.statLabel}>MONEY SAVED</Text>
           </View>
           <View style={styles.statCard}>
-            <Ionicons name="heart" size={28} color="#E91E63" />
-            <Text style={styles.statValue}>48h</Text>
+            <Ionicons name="time-outline" size={28} color="#7B1FA2" />
+            <Text style={styles.statValue}>{timeSaved}</Text>
             <Text style={styles.statLabel}>TIME GAINED</Text>
           </View>
         </View>
@@ -150,10 +172,6 @@ export default function Progress() {
           <Ionicons name="bar-chart" size={24} color="#7B1FA2" />
           <Text style={[styles.tabLabel, styles.tabLabelActive]}>Progress</Text>
         </View>
-        <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/coach')}>
-          <Ionicons name="chatbubble-ellipses-outline" size={24} color="#999" />
-          <Text style={styles.tabLabel}>AI Coach</Text>
-        </TouchableOpacity>
         <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/journal')}>
           <Ionicons name="document-text-outline" size={24} color="#999" />
           <Text style={styles.tabLabel}>Journal</Text>
@@ -224,6 +242,13 @@ const styles = StyleSheet.create({
     marginTop: -4,
     textAlign: 'center',
   },
+  countSteps: {
+    fontSize: 13,
+    fontStyle: 'italic',
+    color: 'rgba(255,255,255,0.75)',
+    textAlign: 'center',
+    marginTop: 8,
+  },
 
   /* Card */
   card: {
@@ -284,6 +309,16 @@ const styles = StyleSheet.create({
   },
   barHighlight: {
     backgroundColor: '#7B1FA2',
+  },
+  barCount: {
+    fontSize: 10,
+    color: '#CE93D8',
+    fontWeight: '600',
+    marginBottom: 2,
+    textAlign: 'center',
+  },
+  barCountHighlight: {
+    color: '#7B1FA2',
   },
   barLabel: {
     fontSize: 12,

@@ -1,25 +1,36 @@
 import { Text, View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter, useFocusEffect } from "expo-router";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import HomeQuoteBox from '../components/HomeQuoteBox';
 import HomeMotivation from '../components/HomeMotivation';
 import { useAuth } from "@/context/AuthContext";
+import LoadingScreen from '@/components/LoadingScreen';
+import { getEntries } from '@/components/JournalAPI';
 
 export default function Index() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const [lastEntry, setLastEntry] = useState(null);
 
-  const { userCredentials, userPreferences, userLoading, refreshUserData } = useAuth();
+  const { userCredentials, userPreferences, userLoading, urgeCount, refreshUserData } = useAuth();
 
   useFocusEffect(
     useCallback(() => {
       refreshUserData();
+      getEntries().then(data => {
+        if (data?.length) {
+          const sorted = [...data].sort((a, b) => b.id - a.id);
+          setLastEntry(sorted[0]);
+        } else {
+          setLastEntry(null);
+        }
+      });
     }, [refreshUserData])
   );
 
-  if (userLoading) return null;
+  if (userLoading) return <LoadingScreen />;
 
   return (
     <View style={styles.container}>
@@ -53,37 +64,37 @@ export default function Index() {
         <HomeMotivation userPreferences={userPreferences}/>
 
         {/* Progress Snapshot Card */}
-        <View style={styles.progressCard}>
+        <TouchableOpacity style={styles.progressCard} onPress={() => router.push('/progress')} activeOpacity={0.85}>
           <Text style={styles.progressTitle}>Progress Snapshot</Text>
-          <View style={styles.ringContainer}>
-            <View style={styles.ringTrack} />
-            <View style={styles.ringFill} />
-            <View style={styles.ringCenter}>
-              <Text style={styles.ringLabel}>Recovery Rate:</Text>
-              <Text style={styles.ringPercent}>90%</Text>
-            </View>
+          <View style={styles.urgeCountRow}>
+            <MaterialCommunityIcons name="trophy" size={38} color="#7B1FA2" />
+            <Text style={styles.urgeCountBig}>{urgeCount}</Text>
           </View>
-          <Text style={styles.progressSubtext}>{"You've defeated 12 urges and counting!"}</Text>
-        </View>
+          <Text style={styles.urgeCountLabel}>URGES DEFEATED</Text>
+          <Text style={styles.progressSubtext}>Keep going — every urge beaten counts.</Text>
+        </TouchableOpacity>
 
-        {/* Quick Actions Section */}
-        <Text style={styles.sectionTitle}>Quick Actions</Text>
-        <View style={styles.quickActionsWrapper}>
-          <View style={styles.quickActionsRow}>
-            <View style={[styles.quickActionBtn, styles.quickActionPrimary]}>
-              <Ionicons name="chatbubble-ellipses" size={26} color="white" />
+        {/* Latest Journal Entry */}
+        <Text style={[styles.sectionTitle, { marginHorizontal: 24 }]}>Latest Journal Entry</Text>
+        <TouchableOpacity style={styles.journalCard} onPress={() => router.push('/journal')} activeOpacity={0.85}>
+          {lastEntry ? (
+            <>
+              <View style={styles.journalCardHeader}>
+                <Text style={styles.journalEntryTitle} numberOfLines={1}>{lastEntry.title}</Text>
+                <View style={styles.journalTypeBadge}>
+                  <Text style={styles.journalTypeText}>{lastEntry.entry_type}</Text>
+                </View>
+              </View>
+              <Text style={styles.journalEntrySnippet} numberOfLines={3}>{lastEntry.entry}</Text>
+            </>
+          ) : (
+            <View style={styles.journalEmptyRow}>
+              <Ionicons name="document-text-outline" size={22} color="#bbb" />
+              <Text style={styles.journalEmptyText}>No entries yet — write your first one.</Text>
             </View>
-            <View style={[styles.quickActionBtn, styles.quickActionSecondary]}>
-              <Ionicons name="create-outline" size={26} color="#7B1FA2" />
-            </View>
-            <View style={[styles.quickActionBtn, styles.quickActionSecondary]}>
-              <MaterialCommunityIcons name="dice-multiple-outline" size={26} color="#7B1FA2" />
-            </View>
-            <View style={[styles.quickActionBtn, styles.quickActionSecondary]}>
-              <Ionicons name="grid-outline" size={26} color="#7B1FA2" />
-            </View>
-          </View>
-        </View>
+          )}
+          <Text style={styles.journalLink}>View Journal →</Text>
+        </TouchableOpacity>
 
         {/* Bottom spacer for tab bar */}
         <View style={{ height: 90 }} />
@@ -104,10 +115,6 @@ export default function Index() {
         <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/progress')}>
           <Ionicons name="bar-chart-outline" size={24} color="#999" />
           <Text style={styles.tabLabel}>Progress</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/coach')}>
-          <Ionicons name="chatbubble-ellipses-outline" size={24} color="#999" />
-          <Text style={styles.tabLabel}>AI Coach</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/journal')}>
           <Ionicons name="document-text-outline" size={24} color="#999" />
@@ -192,70 +199,87 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginBottom: 16,
   },
-  ringContainer: {
-    width: 130,
-    height: 130,
+  urgeCountRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 14,
+    gap: 12,
+    marginBottom: 4,
   },
-  ringTrack: {
-    position: 'absolute',
-    width: 130,
-    height: 130,
-    borderRadius: 65,
-    borderWidth: 10,
-    borderColor: '#ece3f0',
-  },
-  ringFill: {
-    position: 'absolute',
-    width: 130,
-    height: 130,
-    borderRadius: 65,
-    borderWidth: 10,
-    borderColor: '#7B1FA2',
-    borderTopColor: '#ece3f0',
-    transform: [{ rotate: '-20deg' }],
-  },
-  ringCenter: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  ringLabel: {
-    fontSize: 11,
-    color: '#666',
-  },
-  ringPercent: {
-    fontSize: 34,
+  urgeCountBig: {
+    fontSize: 56,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#7B1FA2',
+  },
+  urgeCountLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#7B1FA2',
+    letterSpacing: 1.5,
+    marginBottom: 10,
   },
   progressSubtext: {
-    fontSize: 14,
-    color: '#555',
+    fontSize: 13,
+    color: '#888',
+  },
+  /* Journal Card */
+  journalCard: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    marginHorizontal: 24,
+    marginTop: 0,
+    padding: 18,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  journalCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  journalEntryTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#333',
+    flex: 1,
+    marginRight: 8,
+  },
+  journalTypeBadge: {
+    backgroundColor: '#ede7f6',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+  },
+  journalTypeText: {
+    fontSize: 11,
+    color: '#7B1FA2',
+    fontWeight: '600',
+  },
+  journalEntrySnippet: {
+    fontSize: 13,
+    color: '#666',
+    lineHeight: 19,
+    marginBottom: 12,
+  },
+  journalEmptyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 12,
+  },
+  journalEmptyText: {
+    fontSize: 13,
+    color: '#bbb',
+  },
+  journalLink: {
+    fontSize: 13,
+    color: '#7B1FA2',
+    fontWeight: '600',
   },
 
-  /* Quick Actions */
-  quickActionsWrapper: {
-    marginHorizontal: 20,
-  },
-  quickActionsRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  quickActionBtn: {
-    flex: 1,
-    height: 68,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  quickActionPrimary: {
-    backgroundColor: '#7B1FA2',
-  },
-  quickActionSecondary: {
-    backgroundColor: '#f0e6f6',
-  },
   sosButton: {
     position: 'absolute',
     right: 10,

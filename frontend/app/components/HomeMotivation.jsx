@@ -14,10 +14,9 @@ const HomeMotivation = ({ userPreferences }) => {
       activeOpacity={0.9}
       onPress={() => router.push('/personalization')}
     >
-      {imageUri ? (
+      <View style={styles.imagePlaceholder} />
+      {imageUri && (
         <Image source={{ uri: imageUri }} style={StyleSheet.absoluteFill} resizeMode="cover" />
-      ) : (
-        <View style={styles.imagePlaceholder} />
       )}
       <View style={styles.overlay} />
 

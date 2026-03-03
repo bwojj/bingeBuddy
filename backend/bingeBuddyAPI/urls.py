@@ -3,12 +3,13 @@ from rest_framework import routers
 from .views import (CustomTokenObtainPairView, CustomTokenRefreshView,
                     is_authenticated, UserDataView, UserView, register, logout, add_data_main_cause,
                     add_data_coaching_style, add_data_motivation, set_motivation_image, JournalEntryView, add_journal_entry,
-                    delete_entry)
+                    delete_entry, UrgesView, log_urge, update_profile, urges_by_day, social_auth)
 
 router = routers.DefaultRouter()
 router.register(r'data', UserDataView, 'data')
 router.register(r'credentials', UserView, 'credentials')
 router.register(r'journal', JournalEntryView, 'entries')
+router.register(r'urges', UrgesView, 'urges')
 
 urlpatterns = [
     path('api/', include(router.urls)),
@@ -22,5 +23,9 @@ urlpatterns = [
     path('api/add-data-motivation', add_data_motivation, name="motivation"),
     path('api/add-motivation-image', set_motivation_image, name="motivation-image"),
     path('api/add-journal-entry', add_journal_entry, name="add-journal-entry"),
-    path('api/delete-journal-entry', delete_entry, name="delete-journal-entry")
+    path('api/delete-journal-entry', delete_entry, name="delete-journal-entry"),
+    path('api/log-urge', log_urge, name="log-urge"),
+    path('api/update-profile', update_profile, name="update-profile"),
+    path('api/urges-by-day', urges_by_day, name="urges-by-day"),
+    path('api/social-auth', social_auth, name="social-auth"),
 ]

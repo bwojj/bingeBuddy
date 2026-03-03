@@ -1,16 +1,23 @@
-import { Text, View, StyleSheet, ScrollView, TouchableOpacity, Switch } from "react-native";
+import { Text, View, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useAuth } from "@/context/AuthContext";
 
 export default function Settings() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { userCredentials, logout } = useAuth();
 
-  const [darkMode, setDarkMode] = useState(false);
-  const [sosAccess, setSosAccess] = useState(true);
-  const [dailyReminders, setDailyReminders] = useState(true);
+  const handleLogout = () => {
+    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Sign Out', style: 'destructive', onPress: logout },
+    ]);
+  };
+
+  const displayName = userCredentials?.first_name || userCredentials?.username || 'Your Profile';
+  const displaySub = userCredentials?.email || '';
 
   return (
     <View style={styles.container}>
@@ -24,22 +31,21 @@ export default function Settings() {
           <Text style={styles.title}>Settings</Text>
         </View>
 
-        {/* Profile Row */}
-        <TouchableOpacity style={styles.profileCard}>
+        {/* Profile Row — display only, not tappable */}
+        <View style={styles.profileCard}>
           <View style={styles.avatarCircle}>
             <Ionicons name="person" size={28} color="#7B1FA2" />
           </View>
           <View style={styles.profileInfo}>
-            <Text style={styles.profileName}>Alex Johnson</Text>
-            <Text style={styles.profileSub}>Day 3 of Recovery</Text>
+            <Text style={styles.profileName}>{displayName}</Text>
+            <Text style={styles.profileSub}>{displaySub}</Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color="#bbb" />
-        </TouchableOpacity>
+        </View>
 
         {/* ACCOUNT Section */}
         <Text style={styles.sectionLabel}>ACCOUNT</Text>
         <View style={styles.menuCard}>
-          <TouchableOpacity style={styles.menuRow}>
+          <TouchableOpacity style={styles.menuRow} onPress={() => router.push('/profile-settings')}>
             <View style={[styles.menuIconWrap, { backgroundColor: '#ede7f6' }]}>
               <Ionicons name="person-outline" size={20} color="#7B1FA2" />
             </View>
@@ -49,17 +55,7 @@ export default function Settings() {
 
           <View style={styles.menuDivider} />
 
-          <TouchableOpacity style={styles.menuRow}>
-            <View style={[styles.menuIconWrap, { backgroundColor: '#fff3e0' }]}>
-              <Ionicons name="notifications-outline" size={20} color="#F57C00" />
-            </View>
-            <Text style={styles.menuLabel}>Notification Preferences</Text>
-            <Ionicons name="chevron-forward" size={18} color="#bbb" style={styles.menuChevron} />
-          </TouchableOpacity>
-
-          <View style={styles.menuDivider} />
-
-          <TouchableOpacity style={styles.menuRow}>
+          <TouchableOpacity style={styles.menuRow} onPress={() => router.push('/privacy-security')}>
             <View style={[styles.menuIconWrap, { backgroundColor: '#e8f5e9' }]}>
               <Ionicons name="lock-closed-outline" size={20} color="#388E3C" />
             </View>
@@ -78,55 +74,11 @@ export default function Settings() {
           </TouchableOpacity>
         </View>
 
-        {/* PREFERENCES Section */}
-        <Text style={styles.sectionLabel}>PREFERENCES</Text>
-        <View style={styles.menuCard}>
-          <View style={styles.menuRow}>
-            <View style={[styles.menuIconWrap, { backgroundColor: '#ede7f6' }]}>
-              <Ionicons name="moon-outline" size={20} color="#7B1FA2" />
-            </View>
-            <Text style={styles.menuLabel}>Dark Mode</Text>
-            <Switch
-              value={darkMode}
-              onValueChange={setDarkMode}
-              trackColor={{ false: '#ddd', true: '#7B1FA2' }}
-              thumbColor="white"
-              style={styles.toggle}
-            />
-          </View>
-
-          <View style={styles.menuDivider} />
-
-          <View style={styles.menuRow}>
-            <View style={[styles.menuIconWrap, { backgroundColor: '#fce4ec' }]}>
-              <MaterialCommunityIcons name="lifebuoy" size={20} color="#C62828" />
-            </View>
-            <Text style={styles.menuLabel}>SOS Quick Access</Text>
-            <Switch
-              value={sosAccess}
-              onValueChange={setSosAccess}
-              trackColor={{ false: '#ddd', true: '#7B1FA2' }}
-              thumbColor="white"
-              style={styles.toggle}
-            />
-          </View>
-
-          <View style={styles.menuDivider} />
-
-          <View style={styles.menuRow}>
-            <View style={[styles.menuIconWrap, { backgroundColor: '#e8f5e9' }]}>
-              <Ionicons name="notifications-circle-outline" size={20} color="#388E3C" />
-            </View>
-            <Text style={styles.menuLabel}>Daily Reminders</Text>
-            <Switch
-              value={dailyReminders}
-              onValueChange={setDailyReminders}
-              trackColor={{ false: '#ddd', true: '#7B1FA2' }}
-              thumbColor="white"
-              style={styles.toggle}
-            />
-          </View>
-        </View>
+        {/* Sign Out */}
+        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.8}>
+          <Ionicons name="log-out-outline" size={20} color="#C62828" />
+          <Text style={styles.logoutText}>Sign Out</Text>
+        </TouchableOpacity>
 
         {/* Bottom spacer */}
         <View style={{ height: 90 }} />
@@ -147,10 +99,6 @@ export default function Settings() {
         <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/progress')}>
           <Ionicons name="bar-chart-outline" size={24} color="#999" />
           <Text style={styles.tabLabel}>Progress</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/coach')}>
-          <Ionicons name="chatbubble-ellipses-outline" size={24} color="#999" />
-          <Text style={styles.tabLabel}>AI Coach</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/journal')}>
           <Ionicons name="document-text-outline" size={24} color="#999" />
@@ -272,9 +220,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#f3edf7',
     marginLeft: 66,
   },
-  toggle: {
-    marginLeft: 8,
-  },
 
   /* SOS Button */
   sosButton: {
@@ -321,5 +266,28 @@ const styles = StyleSheet.create({
   },
   tabLabelActive: {
     color: '#7B1FA2',
+  },
+
+  /* Logout */
+  logoutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    marginHorizontal: 20,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+    gap: 12,
+  },
+  logoutText: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#C62828',
   },
 });

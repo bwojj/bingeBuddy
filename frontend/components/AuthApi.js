@@ -1,4 +1,4 @@
-import { getToken, setToken, delToken } from './authStorage.js'
+import { getToken, setToken } from './authStorage.js'
 
 
 const BASEURL = 'https://unluxuriating-alysa-vengefully.ngrok-free.dev';
@@ -48,7 +48,27 @@ export const login = async (username, password) => {
     }
 }
 
-// register function 
+// social OAuth login — provider is 'google' or 'apple', token is the access/identity token
+export const socialAuth = async (provider, token) => {
+    try {
+        const response = await fetch(`${BASEURL}/api/social-auth`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ provider, token }),
+        });
+        if (response.ok) {
+            const data = await response.json();
+            if (data.access) await setToken(data.access);
+            return data; // { success, access, is_new }
+        }
+    } catch (e) {
+        console.log('Social auth error', e);
+    }
+    return null;
+};
+
+// register function
 export const register = async (username, first_name, email, password) => {
     try {
         const response = await fetch(`${BASEURL}/api/register`, {

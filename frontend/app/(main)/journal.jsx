@@ -1,9 +1,30 @@
-import { Text, View, StyleSheet, ScrollView, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView, Platform, Pressable } from "react-native";
+import { Text, View, StyleSheet, ScrollView, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView, Platform, Pressable, Animated, Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { addEntry, getEntries, deleteEntry } from "../../components/JournalAPI";
+
+const SCREEN_HEIGHT = Dimensions.get('window').height;
+
+function useSheetAnimation(visible) {
+  const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
+
+  useEffect(() => {
+    if (visible) {
+      Animated.spring(translateY, {
+        toValue: 0,
+        useNativeDriver: true,
+        bounciness: 4,
+        speed: 14,
+      }).start();
+    } else {
+      translateY.setValue(SCREEN_HEIGHT);
+    }
+  }, [visible, translateY]);
+
+  return translateY;
+}
 
 const TAG_STYLES = {
   Victory:    { color: '#4CAF50', bg: '#e8f5e9' },
@@ -34,6 +55,10 @@ export default function Journal() {
   const [actionMenuVisible, setActionMenuVisible] = useState(false);
   const [viewEntry, setViewEntry] = useState(null);
   const [viewModalVisible, setViewModalVisible] = useState(false);
+
+  const newEntrySlide = useSheetAnimation(modalVisible);
+  const actionSlide = useSheetAnimation(actionMenuVisible);
+  const viewSlide = useSheetAnimation(viewModalVisible);
 
   async function fetchEntries() {
     const data = await getEntries();
@@ -169,7 +194,7 @@ export default function Journal() {
       {/* New Entry Modal */}
       <Modal
         visible={modalVisible}
-        animationType="slide"
+        animationType="fade"
         transparent={true}
         onRequestClose={() => setModalVisible(false)}
       >
@@ -178,7 +203,7 @@ export default function Journal() {
           style={styles.modalOverlay}
         >
           <Pressable style={{ flex: 1 }} onPress={() => setModalVisible(false)} />
-          <View style={[styles.modalSheet, { paddingBottom: insets.bottom + 20 }]}>
+          <Animated.View style={[styles.modalSheet, { paddingBottom: insets.bottom + 20, transform: [{ translateY: newEntrySlide }] }]}>
             {/* Handle */}
             <View style={styles.modalHandle} />
 
@@ -233,19 +258,19 @@ export default function Journal() {
             <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
               <Text style={styles.saveBtnText}>Save Entry</Text>
             </TouchableOpacity>
-          </View>
+          </Animated.View>
         </KeyboardAvoidingView>
       </Modal>
 
       {/* Action Menu Modal */}
       <Modal
         visible={actionMenuVisible}
-        animationType="slide"
+        animationType="fade"
         transparent={true}
         onRequestClose={() => setActionMenuVisible(false)}
       >
         <Pressable style={styles.modalOverlay} onPress={() => setActionMenuVisible(false)}>
-          <View style={[styles.actionSheet, { paddingBottom: insets.bottom + 12 }]}>
+          <Animated.View style={[styles.actionSheet, { paddingBottom: insets.bottom + 12, transform: [{ translateY: actionSlide }] }]}>
             <View style={styles.modalHandle} />
             <TouchableOpacity style={styles.actionRow} onPress={() => openViewEntry(selectedEntry)}>
               <Ionicons name="eye-outline" size={22} color="#333" />
@@ -256,20 +281,20 @@ export default function Journal() {
               <Ionicons name="trash-outline" size={22} color="#C62828" />
               <Text style={[styles.actionRowText, { color: '#C62828' }]}>Delete Entry</Text>
             </TouchableOpacity>
-          </View>
+          </Animated.View>
         </Pressable>
       </Modal>
 
       {/* View Full Entry Modal */}
       <Modal
         visible={viewModalVisible}
-        animationType="slide"
+        animationType="fade"
         transparent={true}
         onRequestClose={() => setViewModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
           <Pressable style={{ flex: 1 }} onPress={() => setViewModalVisible(false)} />
-          <View style={[styles.viewSheet, { paddingBottom: insets.bottom + 20 }]}>
+          <Animated.View style={[styles.viewSheet, { paddingBottom: insets.bottom + 20, transform: [{ translateY: viewSlide }] }]}>
             <View style={styles.modalHandle} />
             {viewEntry && (() => {
               const tag = TAG_STYLES[viewEntry.entry_type] || TAG_STYLES.Reflection;
@@ -291,7 +316,7 @@ export default function Journal() {
                 </>
               );
             })()}
-          </View>
+          </Animated.View>
         </View>
       </Modal>
 
@@ -304,10 +329,6 @@ export default function Journal() {
         <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/progress')}>
           <Ionicons name="bar-chart-outline" size={24} color="#999" />
           <Text style={styles.tabLabel}>Progress</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/coach')}>
-          <Ionicons name="chatbubble-ellipses-outline" size={24} color="#999" />
-          <Text style={styles.tabLabel}>AI Coach</Text>
         </TouchableOpacity>
         <View style={styles.tabItem}>
           <Ionicons name="document-text" size={24} color="#7B1FA2" />

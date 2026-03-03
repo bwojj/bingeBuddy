@@ -1,6 +1,7 @@
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { useEffect } from 'react';
 import { AuthProvider, useAuth } from '../context/AuthContext';
+import LoadingScreen from '../components/LoadingScreen';
 
 function RootLayoutNav() {
     const { isAuthenticated } = useAuth();
@@ -19,7 +20,12 @@ function RootLayoutNav() {
         }
     }, [isAuthenticated, segments]);
 
-    return <Stack screenOptions={{ headerShown: false }} />;
+    return (
+        <>
+            <Stack screenOptions={{ headerShown: false, animation: 'fade' }} />
+            {isAuthenticated === null && <LoadingScreen overlay />}
+        </>
+    );
 }
 
 export default function RootLayout() {

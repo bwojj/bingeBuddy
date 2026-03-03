@@ -1,21 +1,22 @@
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-# creates custom authentication class via cookies 
-class CookiesJWTAuthentication(JWTAuthentication): 
+class CookiesJWTAuthentication(JWTAuthentication):
     def authenticate(self, request):
-        # tries to get access token 
+        # Prefer cookie; fall back to Authorization Bearer header
         access_token = request.COOKIES.get('access_token')
 
-        # returns none if no token 
         if not access_token:
-            return None 
-        
-        # sets the validated token 
-        validated_token = self.get_validated_token(access_token)
+            auth_header = request.headers.get('Authorization', '')
+            if auth_header.startswith('Bearer '):
+                access_token = auth_header[7:]
+
+        if not access_token:
+            return None
 
         try:
-            # validates user using cookies 
+            validated_token = self.get_validated_token(access_token)
             user = self.get_user(validated_token)
-        except:
-            return None 
-        return (user, validated_token) 
+        except Exception:
+            return None
+
+        return (user, validated_token)

@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
 
   /* Header */
   header: {
-    backgroundColor: '#7B1FA2',
+    backgroundColor: '#502c58',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -212,12 +212,12 @@ const styles = StyleSheet.create({
 
   /* Save Button */
   saveBtn: {
-    backgroundColor: '#7B1FA2',
+    backgroundColor: '#502c58',
     marginHorizontal: 20,
     borderRadius: 14,
     paddingVertical: 16,
     alignItems: 'center',
-    shadowColor: '#7B1FA2',
+    shadowColor: '#502c58',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,

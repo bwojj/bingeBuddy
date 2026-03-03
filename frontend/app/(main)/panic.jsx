@@ -51,7 +51,7 @@ export default function Panic() {
         {/* 5 Steps to Reset */}
         <View style={styles.stepsCard}>
           <View style={styles.stepsHeader}>
-            <Ionicons name="checkmark-circle" size={20} color="#7B1FA2" />
+            <Ionicons name="checkmark-circle" size={20} color="#502c58" />
             <Text style={styles.stepsTitle}>5 Steps to Reset</Text>
           </View>
 
@@ -77,7 +77,7 @@ export default function Panic() {
         {/* Action Buttons */}
         <TouchableOpacity style={styles.journalBtn} onPress={() => router.push('/journal')} activeOpacity={0.75}>
           <View style={styles.actionIconWrap}>
-            <Ionicons name="document-text" size={26} color="#7B1FA2" />
+            <Ionicons name="document-text" size={26} color="#502c58" />
           </View>
           <Text style={styles.actionLabel}>Open Journal</Text>
         </TouchableOpacity>
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     width: 148,
     height: 148,
     borderRadius: 74,
-    backgroundColor: '#7B1FA2',
+    backgroundColor: '#502c58',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 18,
@@ -216,8 +216,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   checkboxChecked: {
-    backgroundColor: '#7B1FA2',
-    borderColor: '#7B1FA2',
+    backgroundColor: '#502c58',
+    borderColor: '#502c58',
   },
   stepText: {
     fontSize: 15,

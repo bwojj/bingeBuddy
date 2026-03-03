@@ -38,9 +38,9 @@ export default function MainCause() {
   const [selected, setSelected] = useState('stress');
 
   const handleMainCause = async () => {
-    const ok = await mainCause(selected); 
+    const ok = await mainCause(selected);
     if(ok === true){
-      router.push('/(auth)/(onboarding)/taught')
+      router.push('/(auth)/(onboarding)/motivation')
     }
   }
 
@@ -58,7 +58,7 @@ export default function MainCause() {
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="chevron-back" size={26} color="#333" />
         </TouchableOpacity>
-        <Text style={styles.stepText}>STEP 2 OF 5</Text>
+        <Text style={styles.stepText}>STEP 2 OF 3</Text>
         <View style={{ width: 26 }} />
       </View>
 
@@ -89,7 +89,7 @@ export default function MainCause() {
             activeOpacity={0.7}
           >
             <View style={[styles.iconCircle, isSelected && styles.iconCircleSelected]}>
-              {option.icon(isSelected ? "#7B1FA2" : "#888")}
+              {option.icon(isSelected ? "#502c58" : "#888")}
             </View>
             <View style={styles.optionText}>
               <Text style={[styles.optionTitle, isSelected && styles.optionTitleSelected]}>
@@ -97,7 +97,7 @@ export default function MainCause() {
               </Text>
               <Text style={styles.optionSubtitle}>{option.subtitle}</Text>
             </View>
-            {isSelected && <Ionicons name="checkmark-circle" size={22} color="#7B1FA2" />}
+            {isSelected && <Ionicons name="checkmark-circle" size={22} color="#502c58" />}
           </TouchableOpacity>
         );
       })}
@@ -108,7 +108,7 @@ export default function MainCause() {
       </TouchableOpacity>
 
       {/* Not sure link */}
-      <TouchableOpacity onPress={() => router.push('/(auth)/(onboarding)/taught')}>
+      <TouchableOpacity onPress={() => router.push('/(auth)/(onboarding)/motivation')}>
         <Text style={styles.notSureText}>{"I'm not sure yet"}</Text>
       </TouchableOpacity>
     </ScrollView>
@@ -134,21 +134,21 @@ const styles = StyleSheet.create({
   stepText: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#7B1FA2",
+    color: "#502c58",
     letterSpacing: 1,
   },
 
   /* Progress bar */
   progressTrack: {
     height: 4,
-    backgroundColor: "#e8d5f5",
+    backgroundColor: "#dcd4de",
     borderRadius: 2,
     marginBottom: 32,
   },
   progressFill: {
     height: 4,
     width: "40%",
-    backgroundColor: "#7B1FA2",
+    backgroundColor: "#502c58",
     borderRadius: 2,
   },
 
@@ -161,13 +161,13 @@ const styles = StyleSheet.create({
     lineHeight: 34,
   },
   titleHighlight: {
-    color: "#7B1FA2",
+    color: "#502c58",
   },
 
   /* Subtitle */
   subtitle: {
     fontSize: 14,
-    color: "#7B1FA2",
+    color: "#502c58",
     lineHeight: 22,
     marginBottom: 28,
     textAlign: "center",
@@ -186,8 +186,8 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   optionCardSelected: {
-    borderColor: "#7B1FA2",
-    backgroundColor: "#F8F2FF",
+    borderColor: "#502c58",
+    backgroundColor: "#f2edf3",
   },
   iconCircle: {
     width: 44,
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   iconCircleSelected: {
-    backgroundColor: "#EDE0FA",
+    backgroundColor: "#e4dfe6",
   },
   optionText: {
     flex: 1,
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
     marginBottom: 3,
   },
   optionTitleSelected: {
-    color: "#7B1FA2",
+    color: "#502c58",
   },
   optionSubtitle: {
     fontSize: 13,
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
   nextButton: {
     width: "100%",
     height: 52,
-    backgroundColor: "#7B1FA2",
+    backgroundColor: "#502c58",
     borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
   /* Not sure */
   notSureText: {
     textAlign: "center",
-    color: "#7B1FA2",
+    color: "#502c58",
     fontSize: 14,
     fontWeight: "500",
   },

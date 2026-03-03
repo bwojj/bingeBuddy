@@ -18,11 +18,6 @@ const TRIGGERS = [
   { id: 'social',   title: 'Social Situations',   subtitle: 'Pressure from friends or family events', icon: (c) => <Ionicons name="people-outline" size={20} color={c} /> },
 ];
 
-const COACHING_STYLES = [
-  { id: 'gentle',     title: 'Gentle & Supportive', subtitle: 'Encouraging words and a soft touch.', icon: (c) => <Ionicons name="heart-outline" size={20} color={c} /> },
-  { id: 'firm',       title: 'Firm & Direct',        subtitle: 'Honest feedback and clear accountability.', icon: (c) => <Ionicons name="shield-outline" size={20} color={c} /> },
-  { id: 'analytical', title: 'Analytical',           subtitle: 'Data-driven insights and milestones.', icon: (c) => <MaterialCommunityIcons name="chart-line-variant" size={20} color={c} /> },
-];
 
 const MOTIVATION_CHIPS = [
   { id: 'health',        label: 'Health' },
@@ -43,7 +38,6 @@ export default function Personalization() {
   const [photoAsset, setPhotoAsset]   = useState(null);
   const [myWhy, setMyWhy]             = useState('');
   const [trigger, setTrigger]         = useState('stress');
-  const [coachStyle, setCoachStyle]   = useState('gentle');
   const [motivations, setMotivations] = useState(new Set(['health']));
 
   const toggleMotivation = (id) => {
@@ -61,7 +55,7 @@ export default function Personalization() {
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [16, 9],
       quality: 0.8,
@@ -110,7 +104,7 @@ export default function Personalization() {
           ) : (
             <View style={styles.photoPlaceholder}>
               <View style={styles.cameraCircle}>
-                <Ionicons name="camera-outline" size={32} color="#7B1FA2" />
+                <Ionicons name="camera-outline" size={32} color="#502c58" />
               </View>
               <Text style={styles.photoPlaceholderText}>Tap to add your motivation photo</Text>
               <Text style={styles.photoPlaceholderSub}>This image will appear on your dashboard</Text>
@@ -157,38 +151,13 @@ export default function Personalization() {
                 activeOpacity={0.75}
               >
                 <View style={[styles.optionIconCircle, sel && styles.optionIconCircleSel]}>
-                  {opt.icon(sel ? '#7B1FA2' : '#888')}
+                  {opt.icon(sel ? '#502c58' : '#888')}
                 </View>
                 <View style={styles.optionText}>
                   <Text style={[styles.optionTitle, sel && styles.optionTitleSel]}>{opt.title}</Text>
                   <Text style={styles.optionSubtitle}>{opt.subtitle}</Text>
                 </View>
-                {sel && <Ionicons name="checkmark-circle" size={20} color="#7B1FA2" />}
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        {/* ── Coaching Style ── */}
-        <SectionLabel icon="school-outline" label="Coaching Style" />
-        <View style={styles.optionGroup}>
-          {COACHING_STYLES.map((opt) => {
-            const sel = coachStyle === opt.id;
-            return (
-              <TouchableOpacity
-                key={opt.id}
-                style={[styles.optionCard, sel && styles.optionCardSel]}
-                onPress={() => setCoachStyle(opt.id)}
-                activeOpacity={0.75}
-              >
-                <View style={[styles.optionIconCircle, sel && styles.optionIconCircleSel]}>
-                  {opt.icon(sel ? '#7B1FA2' : '#888')}
-                </View>
-                <View style={styles.optionText}>
-                  <Text style={[styles.optionTitle, sel && styles.optionTitleSel]}>{opt.title}</Text>
-                  <Text style={styles.optionSubtitle}>{opt.subtitle}</Text>
-                </View>
-                {sel && <Ionicons name="checkmark-circle" size={20} color="#7B1FA2" />}
+                {sel && <Ionicons name="checkmark-circle" size={20} color="#502c58" />}
               </TouchableOpacity>
             );
           })}
@@ -233,8 +202,8 @@ function SectionLabel({ icon, label, iconLib }) {
   return (
     <View style={styles.sectionLabelRow}>
       {iconLib === 'material'
-        ? <MaterialCommunityIcons name={icon} size={16} color="#7B1FA2" style={{ marginRight: 6 }} />
-        : <Ionicons name={icon} size={16} color="#7B1FA2" style={{ marginRight: 6 }} />
+        ? <MaterialCommunityIcons name={icon} size={16} color="#502c58" style={{ marginRight: 6 }} />
+        : <Ionicons name={icon} size={16} color="#502c58" style={{ marginRight: 6 }} />
       }
       <Text style={styles.sectionLabel}>{label}</Text>
     </View>
@@ -267,7 +236,7 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#7B1FA2',
+    color: '#502c58',
     letterSpacing: 0.8,
     textTransform: 'uppercase',
   },
@@ -278,7 +247,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
     height: 180,
-    backgroundColor: '#ede7f6',
+    backgroundColor: '#e8e3ea',
   },
   photoPlaceholder: {
     flex: 1,
@@ -294,14 +263,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
-    shadowColor: '#7B1FA2',
+    shadowColor: '#502c58',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 6,
     elevation: 3,
   },
-  photoPlaceholderText: { fontSize: 15, fontWeight: '600', color: '#7B1FA2', textAlign: 'center' },
-  photoPlaceholderSub:  { fontSize: 12, color: '#9E6CB2', marginTop: 4, textAlign: 'center' },
+  photoPlaceholderText: { fontSize: 15, fontWeight: '600', color: '#502c58', textAlign: 'center' },
+  photoPlaceholderSub:  { fontSize: 12, color: '#7a5080', marginTop: 4, textAlign: 'center' },
   photoImage: { width: '100%', height: '100%' },
   photoOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -340,7 +309,7 @@ const styles = StyleSheet.create({
     minHeight: 72,
     textAlignVertical: 'top',
     borderWidth: 1.5,
-    borderColor: '#ede7f6',
+    borderColor: '#e8e3ea',
     borderRadius: 12,
     padding: 12,
   },
@@ -363,7 +332,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 1,
   },
-  optionCardSel: { borderColor: '#7B1FA2', backgroundColor: '#F8F2FF' },
+  optionCardSel: { borderColor: '#502c58', backgroundColor: '#f2edf3' },
   optionIconCircle: {
     width: 40,
     height: 40,
@@ -372,10 +341,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  optionIconCircleSel: { backgroundColor: '#EDE0FA' },
+  optionIconCircleSel: { backgroundColor: '#e4dfe6' },
   optionText: { flex: 1 },
   optionTitle:    { fontSize: 14, fontWeight: '700', color: '#111', marginBottom: 2 },
-  optionTitleSel: { color: '#7B1FA2' },
+  optionTitleSel: { color: '#502c58' },
   optionSubtitle: { fontSize: 12, color: '#888', lineHeight: 17 },
 
   /* Motivation chips */
@@ -402,7 +371,7 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
     backgroundColor: 'white',
   },
-  chipSel: { backgroundColor: '#7B1FA2', borderColor: '#7B1FA2' },
+  chipSel: { backgroundColor: '#502c58', borderColor: '#502c58' },
   chipText:    { fontSize: 13, fontWeight: '500', color: '#333' },
   chipTextSel: { color: 'white' },
 
@@ -415,8 +384,8 @@ const styles = StyleSheet.create({
     marginTop: 32,
     paddingVertical: 16,
     borderRadius: 28,
-    backgroundColor: '#7B1FA2',
-    shadowColor: '#7B1FA2',
+    backgroundColor: '#502c58',
+    shadowColor: '#502c58',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
     shadowRadius: 10,

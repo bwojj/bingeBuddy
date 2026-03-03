@@ -1,43 +1,48 @@
 import { useState } from 'react';
-import { Text, View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { Text, View, StyleSheet, ScrollView, TouchableOpacity, TextInput, Image, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
 import { motivation } from '../../../components/OnboardingApi';
+import { addMotivationImage } from '../../../components/DataAPI';
 import { useAuth } from '../../../context/AuthContext';
-
-const INITIAL_CHIPS = [
-  { id: "health", label: "Health" },
-  { id: "weight", label: "Weight Loss" },
-  { id: "confidence", label: "Confidence" },
-  { id: "mental", label: "Mental Clarity" },
-  { id: "money", label: "Save Money" },
-  { id: "relationships", label: "Relationships" },
-  { id: "sleep", label: "Sleep Quality" },
-  { id: "career", label: "Career Goals" },
-];
 
 export default function Motivation() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { setIsAuthenticated } = useAuth();
-  const [selected, setSelected] = useState(new Set(['health']));
+  const [myWhy, setMyWhy] = useState('');
+  const [photoAsset, setPhotoAsset] = useState(null);
 
-  const toggleChip = (id) => {
-    setSelected(prev => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
+  const pickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission needed', 'Allow photo library access to set a motivation image.');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [16, 9],
+      quality: 0.8,
     });
+    if (!result.canceled) {
+      setPhotoAsset(result.assets[0]);
+    }
   };
 
-  const handleMotivation = async () => {
-    const ok = await motivation(Array.from(selected));
-    if(ok === true)
-    {
+  const handleFinish = async () => {
+    const [whyOk, imageOk] = await Promise.all([
+      motivation(myWhy),
+      addMotivationImage(photoAsset),
+    ]);
+    if (whyOk && imageOk) {
       setIsAuthenticated(true);
+    } else {
+      Alert.alert('Error', 'Something went wrong. Please try again.');
     }
-  }
+  };
 
   return (
     <ScrollView
@@ -47,6 +52,7 @@ export default function Motivation() {
         { paddingTop: insets.top + 10, paddingBottom: insets.bottom + 30 },
       ]}
       showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
     >
       {/* Top row */}
       <View style={styles.topRow}>
@@ -66,57 +72,65 @@ export default function Motivation() {
         <View style={styles.progressFill} />
       </View>
 
-      {/* Heart icon */}
+      {/* Icon */}
       <View style={styles.iconWrapper}>
         <View style={styles.iconCircle}>
-          <Ionicons name="heart-outline" size={32} color="#7B1FA2" />
+          <Ionicons name="heart-outline" size={32} color="#502c58" />
         </View>
       </View>
 
       {/* Title */}
-      <Text style={styles.title}>Why do you want to stop?</Text>
-
-      {/* Subtitle */}
+      <Text style={styles.title}>{"What's your \"why\"?"}</Text>
       <Text style={styles.subtitle}>
-        Select the motivations that matter most to you. This helps us personalize your recovery journey.
+        Write a personal reminder of why you want to change, and add a photo that inspires you.
       </Text>
 
-      {/* Chips grid */}
-      <View style={styles.chipsGrid}>
-        {INITIAL_CHIPS.map((chip) => {
-          const isSelected = selected.has(chip.id);
-          return (
-            <TouchableOpacity
-              key={chip.id}
-              style={[styles.chip, isSelected && styles.chipSelected]}
-              onPress={() => toggleChip(chip.id)}
-              activeOpacity={0.7}
-            >
-              {isSelected && (
-                <Ionicons name="shield-checkmark" size={14} color="white" style={{ marginRight: 5 }} />
-              )}
-              <Text style={[styles.chipText, isSelected && styles.chipTextSelected]}>
-                {chip.label}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-
-        {/* Other chip */}
-        <TouchableOpacity style={styles.chipOther} onPress={() => {}}>
-          <MaterialCommunityIcons name="plus" size={14} color="#7B1FA2" style={{ marginRight: 4 }} />
-          <Text style={styles.chipOtherText}>Other</Text>
-        </TouchableOpacity>
+      {/* My Why input */}
+      <Text style={styles.fieldLabel}>My Why</Text>
+      <View style={styles.whyCard}>
+        <TextInput
+          style={styles.whyInput}
+          placeholder="e.g. Being present for my kids..."
+          placeholderTextColor="#bbb"
+          value={myWhy}
+          onChangeText={setMyWhy}
+          multiline
+          maxLength={200}
+        />
+        <Text style={styles.charCount}>{myWhy.length}/200</Text>
       </View>
 
-      {/* Finish button */}
-      <TouchableOpacity style={styles.finishButton} onPress={handleMotivation}>
-        <Text style={styles.finishButtonText}>Finish</Text>
-        <MaterialCommunityIcons name="check-bold" size={18} color="white" style={{ marginLeft: 8 }} />
+      {/* Motivation photo */}
+      <Text style={styles.fieldLabel}>Motivation Photo</Text>
+      <TouchableOpacity style={styles.photoCard} onPress={pickImage} activeOpacity={0.85}>
+        {photoAsset ? (
+          <Image source={{ uri: photoAsset.uri }} style={styles.photoImage} resizeMode="cover" />
+        ) : (
+          <View style={styles.photoPlaceholder}>
+            <View style={styles.cameraCircle}>
+              <Ionicons name="camera-outline" size={28} color="#502c58" />
+            </View>
+            <Text style={styles.photoPlaceholderText}>Tap to add a photo</Text>
+            <Text style={styles.photoPlaceholderSub}>Optional — appears on your dashboard</Text>
+          </View>
+        )}
+        {photoAsset && (
+          <View style={styles.photoOverlay}>
+            <View style={styles.changePhotoBadge}>
+              <Ionicons name="camera-outline" size={13} color="white" />
+              <Text style={styles.changePhotoText}>Change</Text>
+            </View>
+          </View>
+        )}
       </TouchableOpacity>
 
-      {/* Footer note */}
-      <Text style={styles.footerNote}>You can always change these later in settings.</Text>
+      {/* Finish button */}
+      <TouchableOpacity style={styles.finishButton} onPress={handleFinish}>
+        <Text style={styles.finishButtonText}>Finish</Text>
+        <Ionicons name="checkmark" size={18} color="white" style={{ marginLeft: 8 }} />
+      </TouchableOpacity>
+
+      <Text style={styles.footerNote}>You can update these anytime in Settings.</Text>
     </ScrollView>
   );
 }
@@ -156,22 +170,22 @@ const styles = StyleSheet.create({
   finalStepLabel: {
     fontSize: 11,
     fontWeight: "700",
-    color: "#7B1FA2",
+    color: "#502c58",
     letterSpacing: 0.5,
   },
   progressPercent: {
     fontSize: 11,
     fontWeight: "600",
-    color: "#7B1FA2",
+    color: "#502c58",
   },
   progressFill: {
     height: 4,
     width: "100%",
-    backgroundColor: "#7B1FA2",
+    backgroundColor: "#502c58",
     borderRadius: 2,
   },
 
-  /* Heart icon */
+  /* Icon */
   iconWrapper: {
     alignItems: "center",
     marginBottom: 20,
@@ -180,7 +194,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: "#F3E8FF",
+    backgroundColor: "#ede9ee",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -194,60 +208,104 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     lineHeight: 34,
   },
-
-  /* Subtitle */
   subtitle: {
     fontSize: 14,
     color: "#666",
     lineHeight: 22,
     textAlign: "center",
-    marginBottom: 28,
-  },
-
-  /* Chips */
-  chipsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10,
     marginBottom: 32,
   },
-  chip: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-    borderRadius: 50,
+
+  /* Field label */
+  fieldLabel: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#502c58",
+    letterSpacing: 0.5,
+    marginBottom: 10,
+  },
+
+  /* My Why */
+  whyCard: {
+    backgroundColor: '#fafafa',
     borderWidth: 1.5,
-    borderColor: "#E5E7EB",
-    backgroundColor: "white",
+    borderColor: '#e8e3ea',
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 24,
   },
-  chipSelected: {
-    backgroundColor: "#7B1FA2",
-    borderColor: "#7B1FA2",
+  whyInput: {
+    fontSize: 15,
+    color: '#1a1a1a',
+    lineHeight: 22,
+    minHeight: 88,
+    textAlignVertical: 'top',
   },
-  chipText: {
+  charCount: {
+    fontSize: 11,
+    color: '#bbb',
+    textAlign: 'right',
+    marginTop: 6,
+  },
+
+  /* Photo */
+  photoCard: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    height: 170,
+    backgroundColor: '#ede9ee',
+    marginBottom: 32,
+  },
+  photoPlaceholder: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  cameraCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  photoPlaceholderText: {
     fontSize: 14,
-    fontWeight: "500",
-    color: "#333",
+    fontWeight: '600',
+    color: '#502c58',
+    textAlign: 'center',
   },
-  chipTextSelected: {
-    color: "white",
+  photoPlaceholderSub: {
+    fontSize: 12,
+    color: '#7a5080',
+    marginTop: 4,
+    textAlign: 'center',
   },
-  chipOther: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-    borderRadius: 50,
-    borderWidth: 1.5,
-    borderColor: "#C084FC",
-    borderStyle: "dashed",
-    backgroundColor: "white",
+  photoImage: {
+    width: '100%',
+    height: '100%',
   },
-  chipOtherText: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#7B1FA2",
+  photoOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'flex-end',
+    padding: 10,
+  },
+  changePhotoBadge: {
+    alignSelf: 'flex-end',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    gap: 5,
+  },
+  changePhotoText: {
+    fontSize: 12,
+    color: 'white',
+    fontWeight: '600',
   },
 
   /* Finish button */
@@ -255,7 +313,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     width: "100%",
     height: 52,
-    backgroundColor: "#7B1FA2",
+    backgroundColor: "#502c58",
     borderRadius: 28,
     alignItems: "center",
     justifyContent: "center",

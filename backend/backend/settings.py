@@ -88,8 +88,15 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'neondb',
+        'USER': 'neondb_owner',
+        'PASSWORD': 'npg_N8Y2jCIDgnmk',
+        'HOST': 'ep-polished-math-ai6as5t4-pooler.c-4.us-east-1.aws.neon.tech',
+        'PORT': '5432',
+        'OPTIONS': {
+            'sslmode': 'require',
+        },
     }
 }
 
@@ -154,6 +161,3 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True,
 }
 
-# OAuth client IDs — fill in your values from each developer console
-GOOGLE_OAUTH_CLIENT_ID = 'YOUR_GOOGLE_WEB_CLIENT_ID.apps.googleusercontent.com'
-APPLE_BUNDLE_ID = 'com.yourcompany.bingebuddy'  # must match your Expo/Apple app bundle ID

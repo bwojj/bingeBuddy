@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, ScrollView, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView, Platform, Pressable, Animated, Dimensions } from "react-native";
+import { Text, View, StyleSheet, ScrollView, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView, Platform, Pressable, Animated, Dimensions, ActivityIndicator } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -51,6 +51,7 @@ export default function Journal() {
   const [entryTitle, setEntryTitle] = useState('');
   const [entryBody, setEntryBody] = useState('');
   const [entries, setEntries] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [actionMenuVisible, setActionMenuVisible] = useState(false);
   const [viewEntry, setViewEntry] = useState(null);
@@ -61,8 +62,10 @@ export default function Journal() {
   const viewSlide = useSheetAnimation(viewModalVisible);
 
   async function fetchEntries() {
+    setLoading(true);
     const data = await getEntries();
     if (data) setEntries(data);
+    setLoading(false);
   }
 
   useEffect(() => {
@@ -159,27 +162,39 @@ export default function Journal() {
         </TouchableOpacity>
 
         {/* Journal Entries */}
-        {entries.map((entry) => {
-          const tag = TAG_STYLES[entry.entry_type] || TAG_STYLES.Reflection;
-          return (
-            <View key={entry.id} style={styles.entryCard}>
-              <View style={styles.entryHeader}>
-                <Text style={styles.entryDate}>{formatDate(entry.created_at)}</Text>
-                <TouchableOpacity onPress={() => openActionMenu(entry)}>
-                  <Text style={styles.entryMore}>•••</Text>
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.entryTitle}>{entry.title}</Text>
-              <Text style={styles.entryPreview}>{entry.entry}</Text>
-              <View style={styles.entryFooter}>
-                <View style={[styles.tagBadge, { backgroundColor: tag.bg }]}>
-                  <Text style={[styles.tagText, { color: tag.color }]}>{entry.entry_type.toUpperCase()}</Text>
+        {loading ? (
+          <ActivityIndicator size="large" color="#502c58" style={{ marginTop: 40 }} />
+        ) : (
+          entries
+            .filter((entry) => {
+              if (activeFilter === 'All Entries') return true;
+              if (activeFilter === 'Reflections') return entry.entry_type === 'Reflection';
+              if (activeFilter === 'Victories') return entry.entry_type === 'Victory';
+              if (activeFilter === 'Struggles') return entry.entry_type === 'Struggle';
+              return true;
+            })
+            .map((entry) => {
+              const tag = TAG_STYLES[entry.entry_type] || TAG_STYLES.Reflection;
+              return (
+                <View key={entry.id} style={styles.entryCard}>
+                  <View style={styles.entryHeader}>
+                    <Text style={styles.entryDate}>{formatDate(entry.created_at)}</Text>
+                    <TouchableOpacity onPress={() => openActionMenu(entry)}>
+                      <Text style={styles.entryMore}>•••</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <Text style={styles.entryTitle}>{entry.title}</Text>
+                  <Text style={styles.entryPreview}>{entry.entry}</Text>
+                  <View style={styles.entryFooter}>
+                    <View style={[styles.tagBadge, { backgroundColor: tag.bg }]}>
+                      <Text style={[styles.tagText, { color: tag.color }]}>{entry.entry_type.toUpperCase()}</Text>
+                    </View>
+                    <Text style={styles.entryTime}>{formatTime(entry.created_at)}</Text>
+                  </View>
                 </View>
-                <Text style={styles.entryTime}>{formatTime(entry.created_at)}</Text>
-              </View>
-            </View>
-          );
-        })}
+              );
+            })
+        )}
 
         {/* Bottom spacer */}
         <View style={{ height: 90 }} />

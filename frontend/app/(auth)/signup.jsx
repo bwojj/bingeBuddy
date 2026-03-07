@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Text, View, StyleSheet, ScrollView, TouchableOpacity, TextInput } from "react-native";
+import { Text, View, StyleSheet, ScrollView, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -14,35 +14,45 @@ export default function Signup() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [agreed, setAgreed] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  // calls signup API 
+  // calls signup API
   const handleSignup = async () => {
+    setSubmitting(true);
     const ok = await register(username, name, email, password);
     if (ok === true) {
-      const res = await login(username, password); 
+      const res = await login(username, password);
       if (res === true) {
         router.push('/(auth)/(onboarding)/maincause');
       }
       else {
-        console.log("Failed to Login"); 
+        console.log("Failed to Login");
         console.log(email);
         console.log(username);
+        setSubmitting(false);
       }
+    } else {
+      setSubmitting(false);
     }
   };
 
   return (
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: 'white' }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
     <ScrollView
       style={styles.container}
       contentContainerStyle={[styles.content, { paddingTop: insets.top + 10, paddingBottom: insets.bottom + 30 }]}
       showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
     >
       {/* Top row */}
       <View style={styles.topRow}>
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="chevron-back" size={26} color="#333" />
         </TouchableOpacity>
-        <Text style={styles.stepText}>STEP 1 OF 4</Text>
+        <Text style={styles.stepText}>STEP 1 OF 3</Text>
         <View style={{ width: 26 }} />
       </View>
 
@@ -141,11 +151,19 @@ export default function Signup() {
         </Text>
       </View>
 
-      {/* Continue button router.push('/(auth)/(onboarding)/maincause')*/}
-      <TouchableOpacity style={[styles.primaryButton, !agreed && { opacity: 0.4 }]} onPress={handleSignup} disabled={!agreed}>
-        <Text style={styles.primaryButtonText}>Continue</Text>
+      <TouchableOpacity
+        style={[styles.primaryButton, (!agreed || submitting) && { opacity: 0.6 }]}
+        onPress={handleSignup}
+        disabled={!agreed || submitting}
+      >
+        {submitting ? (
+          <ActivityIndicator color="white" />
+        ) : (
+          <Text style={styles.primaryButtonText}>Continue</Text>
+        )}
       </TouchableOpacity>
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -181,8 +199,8 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: 4,
-    width: '25%',
-    backgroundColor: '#4CAF50',
+    width: '33%',
+    backgroundColor: '#502c58',
     borderRadius: 2,
   },
 

@@ -10,7 +10,7 @@ const STEPS = [
   "Acknowledge the urge as JUNK",
   "Seperate your higher brain from the urge",
   "Do not REACT",
-  "Do not ACT!",
+  "Do not ACT",
   "Celebrate!",
 ];
 

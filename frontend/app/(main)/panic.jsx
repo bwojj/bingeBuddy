@@ -7,11 +7,11 @@ import { logUrge } from '../../components/UrgeAPI';
 import { useAuth } from '@/context/AuthContext';
 
 const STEPS = [
-  "Acknowledge the urge",
-  "Take 5 deep breaths",
-  "Drink a glass of water",
-  "Step into a different room",
-  "Write down how you feel",
+  "Acknowledge the urge as JUNK",
+  "Seperate your higher brain from the urge",
+  "Do not REACT",
+  "Do not ACT!",
+  "Celebrate!",
 ];
 
 export default function Panic() {

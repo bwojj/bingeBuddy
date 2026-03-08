@@ -16,7 +16,7 @@ DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = os.environ.get(
     'ALLOWED_HOSTS',
-    'localhost,127.0.0.1'
+    'localhost,127.0.0.1,bingebuddy-production.up.railway.app'
 ).split(',')
 
 INSTALLED_APPS = [

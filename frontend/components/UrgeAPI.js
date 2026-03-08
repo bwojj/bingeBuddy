@@ -1,6 +1,6 @@
 import { getToken } from './authStorage';
 
-const BASEURL = 'https://unluxuriating-alysa-vengefully.ngrok-free.dev';
+const BASEURL = 'https://bingebuddy-production.up.railway.app';
 
 export const logUrge = async () => {
     const token = await getToken();

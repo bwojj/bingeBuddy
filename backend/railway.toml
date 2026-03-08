@@ -2,5 +2,5 @@
 builder = "nixpacks"
 
 [deploy]
-startCommand = "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn backend.wsgi --bind 0.0.0.0:$PORT"
+startCommand = "python manage.py migrate && gunicorn backend.wsgi --bind 0.0.0.0:$PORT"
 restartPolicyType = "on_failure"

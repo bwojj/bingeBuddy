@@ -1,0 +1,8 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "gunicorn backend.wsgi --bind 0.0.0.0:$PORT"
+healthcheckPath = "/api/authenticated"
+healthcheckTimeout = 100
+restartPolicyType = "on_failure"

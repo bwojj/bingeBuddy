@@ -26,9 +26,7 @@ const HomeMotivation = ({ userPreferences }) => {
         <Text style={styles.editText}>Edit</Text>
       </View>
 
-      <Text style={styles.caption}>
-        {myWhy ? `My Why: ${myWhy}` : 'My Why: Being present for my kids.'}
-      </Text>
+      {myWhy ? <Text style={styles.caption}>My Why: {myWhy}</Text> : null}
     </TouchableOpacity>
   )
 }

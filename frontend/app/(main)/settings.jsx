@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
+import { Text, View, StyleSheet, ScrollView, TouchableOpacity, Alert, Linking } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -55,7 +55,7 @@ export default function Settings() {
 
           <View style={styles.menuDivider} />
 
-          <TouchableOpacity style={styles.menuRow} onPress={() => router.push('/privacy-security')}>
+          <TouchableOpacity style={styles.menuRow} onPress={() => Linking.openURL('https://www.termsfeed.com/live/f5a24d58-4141-4ba4-9da0-49fe059479bc')}>
             <View style={[styles.menuIconWrap, { backgroundColor: '#e8f5e9' }]}>
               <Ionicons name="lock-closed-outline" size={20} color="#388E3C" />
             </View>

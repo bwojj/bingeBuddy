@@ -72,6 +72,16 @@ export default function Settings() {
             <Text style={styles.menuLabel}>Personalization</Text>
             <Ionicons name="chevron-forward" size={18} color="#bbb" style={styles.menuChevron} />
           </TouchableOpacity>
+
+          <View style={styles.menuDivider} />
+
+          <TouchableOpacity style={styles.menuRow} onPress={() => router.push('/audio-recording')}>
+            <View style={[styles.menuIconWrap, { backgroundColor: '#fce4ec' }]}>
+              <Ionicons name="mic-outline" size={20} color="#C62828" />
+            </View>
+            <Text style={styles.menuLabel}>Add / Update Audio Recording</Text>
+            <Ionicons name="chevron-forward" size={18} color="#bbb" style={styles.menuChevron} />
+          </TouchableOpacity>
         </View>
 
         {/* Sign Out */}

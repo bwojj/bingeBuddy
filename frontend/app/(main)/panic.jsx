@@ -2,9 +2,11 @@ import { Text, View, StyleSheet, TouchableOpacity, ScrollView } from "react-nati
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { Audio } from 'expo-av';
 import { logUrge } from '../../components/UrgeAPI';
 import { useAuth } from '@/context/AuthContext';
+import { getPanicAudio } from '@/components/DataAPI';
 
 const STEPS = [
   "Acknowledge the urge as JUNK",
@@ -19,6 +21,38 @@ export default function Panic() {
   const router = useRouter();
   const { refreshUserData } = useAuth();
   const [checked, setChecked] = useState(Array(STEPS.length).fill(false));
+  const [audioUrl, setAudioUrl] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const soundRef = useRef(null);
+
+  useEffect(() => {
+    getPanicAudio().then(url => setAudioUrl(url));
+    return () => { soundRef.current?.unloadAsync(); };
+  }, []);
+
+  async function toggleAudio() {
+    if (isPlaying) {
+      await soundRef.current?.stopAsync();
+      setIsPlaying(false);
+      return;
+    }
+    try {
+      await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+      if (soundRef.current) await soundRef.current.unloadAsync();
+      const { sound } = await Audio.Sound.createAsync({ uri: audioUrl });
+      soundRef.current = sound;
+      setIsPlaying(true);
+      await sound.playAsync();
+      sound.setOnPlaybackStatusUpdate(status => {
+        if (status.didJustFinish) {
+          setIsPlaying(false);
+          sound.unloadAsync();
+        }
+      });
+    } catch {
+      setIsPlaying(false);
+    }
+  }
 
   function toggleStep(i) {
     setChecked(prev => prev.map((v, idx) => idx === i ? !v : v));
@@ -73,6 +107,16 @@ export default function Panic() {
             </View>
           ))}
         </View>
+
+        {/* Personal Audio Message */}
+        {audioUrl && (
+          <TouchableOpacity style={styles.audioBtn} onPress={toggleAudio} activeOpacity={0.75}>
+            <View style={styles.actionIconWrap}>
+              <Ionicons name={isPlaying ? 'stop-circle' : 'headset'} size={26} color="#502c58" />
+            </View>
+            <Text style={styles.actionLabel}>{isPlaying ? 'Stop Message' : 'Play My Audio Message'}</Text>
+          </TouchableOpacity>
+        )}
 
         {/* Action Buttons */}
         <TouchableOpacity style={styles.journalBtn} onPress={() => router.push('/journal')} activeOpacity={0.75}>
@@ -230,6 +274,19 @@ const styles = StyleSheet.create({
   },
 
   /* Action buttons */
+  audioBtn: {
+    alignItems: 'center',
+    backgroundColor: 'white',
+    borderRadius: 20,
+    paddingVertical: 20,
+    gap: 8,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 3,
+  },
   journalBtn: {
     alignItems: 'center',
     backgroundColor: 'white',

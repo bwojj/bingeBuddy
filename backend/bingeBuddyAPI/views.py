@@ -415,3 +415,36 @@ def social_auth(request):
     res.set_cookie(key='refresh_token', value=refresh_token, httponly=True, secure=True,
                    samesite=False, path='/', max_age=60 * 60 * 24 * 365)
     return res
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def set_panic_audio(request):
+    audio = request.FILES.get('panic_audio')
+    if not audio:
+        return Response({'success': False, 'error': 'No audio file provided'}, status=400)
+    UserData.objects.update_or_create(
+        user=request.user,
+        defaults={'panic_audio': audio},
+    )
+    return Response({'success': True})
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_panic_audio(request):
+    user_data = UserData.objects.filter(user=request.user).first()
+    if not user_data or not user_data.panic_audio:
+        return Response({'url': None})
+    return Response({'url': user_data.panic_audio.url})
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def delete_account(request):
+    user = request.user
+    res = Response({'success': True})
+    res.delete_cookie('access_token', path='/', samesite='None')
+    res.delete_cookie('refresh_token', path='/', samesite='None')
+    user.delete()
+    return res

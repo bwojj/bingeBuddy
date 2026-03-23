@@ -67,6 +67,63 @@ export const updateProfile = async ({ first_name, email, current_password, new_p
     }
 };
 
+export const deleteAccount = async () => {
+    const token = await getToken();
+    try {
+        const response = await fetch(`${BASEURL}/api/delete-account`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : '',
+            },
+        });
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.log('Failed to delete account', error);
+        return { success: false };
+    }
+};
+
+export const getPanicAudio = async () => {
+    const token = await getToken();
+    try {
+        const response = await fetch(`${BASEURL}/api/get-panic-audio`, {
+            headers: { 'Authorization': token ? `Bearer ${token}` : '' },
+        });
+        if (response.ok) {
+            const data = await response.json();
+            return data.url ?? null;
+        }
+    } catch (error) {
+        console.log('Failed to fetch panic audio', error);
+    }
+    return null;
+};
+
+export const addPanicAudio = async (uri) => {
+    if (!uri) return false;
+    const token = await getToken();
+    try {
+        const form = new FormData();
+        form.append('panic_audio', {
+            uri,
+            type: 'audio/m4a',
+            name: 'panic_audio.m4a',
+        });
+        const response = await fetch(`${BASEURL}/api/set-panic-audio`, {
+            method: 'POST',
+            headers: { 'Authorization': token ? `Bearer ${token}` : '' },
+            body: form,
+            credentials: 'include',
+        });
+        return response.ok;
+    } catch (error) {
+        console.log('Failed to upload panic audio', error);
+        return false;
+    }
+};
+
 export const addMotivationImage = async (image) => {
     if (!image) return true;
     const token = await getToken();

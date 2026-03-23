@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "frontend",
+    "name": "My Binge Buddy",
     "slug": "frontend",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -13,9 +13,11 @@
       "infoPlist": {
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
-        }
+        },
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSPhotoLibraryUsageDescription": "My Binge Buddy uses your photo library to let you select a personal motivation photo that appears on your home dashboard to encourage you on your recovery journey. For example, you might choose a photo of your family or a goal you are working toward."
       },
-      "bundleIdentifier": "com.anonymous.frontend"
+      "bundleIdentifier": "com.pixacor.mybingebuddy"
     },
     "android": {
       "adaptiveIcon": {
@@ -52,6 +54,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "9348175a-433e-4050-be59-978a5069a054"
+      }
+    },
+    "owner": "wojobeemer"
   }
 }

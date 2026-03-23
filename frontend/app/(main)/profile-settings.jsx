@@ -4,12 +4,12 @@ import { useRouter } from "expo-router";
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { useAuth } from "@/context/AuthContext";
-import { updateProfile } from "@/components/DataAPI";
+import { updateProfile, deleteAccount } from "@/components/DataAPI";
 
 export default function ProfileSettings() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { userCredentials, refreshUserData } = useAuth();
+  const { userCredentials, refreshUserData, logout } = useAuth();
 
   const [firstName, setFirstName] = useState(userCredentials?.first_name ?? '');
   const [email, setEmail] = useState(userCredentials?.email ?? '');
@@ -17,6 +17,7 @@ export default function ProfileSettings() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const handleSave = async () => {
     if (newPassword && newPassword !== confirmPassword) {
@@ -45,6 +46,30 @@ export default function ProfileSettings() {
     } else {
       Alert.alert('Error', result?.error ?? 'Failed to save changes. Please try again.');
     }
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Delete Account',
+      'This will permanently delete your account and all your data. This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete Account',
+          style: 'destructive',
+          onPress: async () => {
+            setDeleting(true);
+            const result = await deleteAccount();
+            setDeleting(false);
+            if (result?.success) {
+              await logout();
+            } else {
+              Alert.alert('Error', 'Failed to delete account. Please try again.');
+            }
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -128,6 +153,15 @@ export default function ProfileSettings() {
           {saving
             ? <ActivityIndicator color="white" />
             : <Text style={styles.saveBtnText}>Save Changes</Text>
+          }
+        </TouchableOpacity>
+
+        {/* Danger Zone */}
+        <Text style={[styles.sectionLabel, { marginTop: 16 }]}>DANGER ZONE</Text>
+        <TouchableOpacity style={styles.deleteBtn} onPress={handleDeleteAccount} disabled={deleting} activeOpacity={0.85}>
+          {deleting
+            ? <ActivityIndicator color="#C62828" />
+            : <Text style={styles.deleteBtnText}>Delete Account</Text>
           }
         </TouchableOpacity>
 
@@ -225,6 +259,23 @@ const styles = StyleSheet.create({
   },
   saveBtnText: {
     color: 'white',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+
+  /* Delete Button */
+  deleteBtn: {
+    backgroundColor: 'white',
+    marginHorizontal: 20,
+    borderRadius: 14,
+    paddingVertical: 16,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#C62828',
+    marginBottom: 8,
+  },
+  deleteBtnText: {
+    color: '#C62828',
     fontSize: 16,
     fontWeight: '700',
   },

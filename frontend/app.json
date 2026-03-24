@@ -4,7 +4,7 @@
     "slug": "frontend",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/bingebuddy2.jpg",
     "scheme": "frontend",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -15,17 +15,21 @@
           "NSAllowsArbitraryLoads": true
         },
         "ITSAppUsesNonExemptEncryption": false,
-        "NSPhotoLibraryUsageDescription": "My Binge Buddy uses your photo library to let you select a personal motivation photo that appears on your home dashboard to encourage you on your recovery journey. For example, you might choose a photo of your family or a goal you are working toward."
+        "NSPhotoLibraryUsageDescription": "My Binge Buddy uses your photo library to let you select a personal motivation photo that appears on your home dashboard to encourage you on your recovery journey. For example, you might choose a photo of your family or a goal you are working toward.",
+        "NSMicrophoneUsageDescription": "My Binge Buddy uses your microphone to record a personal audio message that plays during your SOS emergency support session, helping you stay motivated and overcome urges in difficult moments."
       },
       "bundleIdentifier": "com.pixacor.mybingebuddy"
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#502c58",
+        "backgroundColor": "#7e1f8c",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ],
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.anonymous.frontend"
@@ -39,12 +43,12 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/bingebuddy2.jpg",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#502c58",
+          "backgroundColor": "#7e1f8c",
           "dark": {
-            "backgroundColor": "#502c58"
+            "backgroundColor": "#7e1f8c"
           }
         }
       ],

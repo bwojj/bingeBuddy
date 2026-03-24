@@ -3,7 +3,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useState, useEffect } from 'react';
-import { useAudioPlayer, useAudioPlayerStatus, AudioModule } from 'expo-audio';
+import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { logUrge } from '../../components/UrgeAPI';
 import { useAuth } from '@/context/AuthContext';
 import { getPanicAudio } from '@/components/DataAPI';
@@ -31,22 +31,13 @@ export default function Panic() {
     getPanicAudio().then(url => setAudioUrl(url));
   }, []);
 
-  useEffect(() => {
-    return () => { player.remove(); };
-  }, [player]);
-
   async function toggleAudio() {
     if (isPlaying) {
       player.pause();
       return;
     }
-    try {
-      await AudioModule.setAudioModeAsync({ playsInSilentMode: true });
-      player.seekTo(0);
-      player.play();
-    } catch {
-      // ignore
-    }
+    player.seekTo(0);
+    player.play();
   }
 
   function toggleStep(i) {
@@ -66,21 +57,27 @@ export default function Panic() {
           <View style={styles.headerSpacer} />
         </View>
 
-        {/* Breathe Button */}
-        <View style={styles.breatheSection}>
-          <TouchableOpacity activeOpacity={0.85} style={styles.breatheOuter}>
-            <View style={styles.breatheInner}>
-              <MaterialCommunityIcons name="weather-windy" size={34} color="white" />
-              <Text style={styles.breatheLabel}>BREATHE</Text>
+        {/* Personal Audio Message — top of screen */}
+        {audioUrl ? (
+          <TouchableOpacity style={styles.audioBtn} onPress={toggleAudio} activeOpacity={0.75}>
+            <View style={styles.actionIconWrap}>
+              <Ionicons name={isPlaying ? 'stop-circle' : 'headset'} size={26} color="#7e1f8c" />
             </View>
+            <Text style={styles.actionLabel}>{isPlaying ? 'Stop Message' : 'Play My Audio Message'}</Text>
           </TouchableOpacity>
-          <Text style={styles.breatheSubtitle}>Take a moment to center yourself</Text>
-        </View>
+        ) : (
+          <TouchableOpacity style={styles.audioBtn} onPress={() => router.push('/audio-recording')} activeOpacity={0.75}>
+            <View style={styles.actionIconWrap}>
+              <Ionicons name="mic-outline" size={26} color="#7e1f8c" />
+            </View>
+            <Text style={styles.actionLabel}>Record a Personal Audio Message</Text>
+          </TouchableOpacity>
+        )}
 
         {/* 5 Steps to Reset */}
         <View style={styles.stepsCard}>
           <View style={styles.stepsHeader}>
-            <Ionicons name="checkmark-circle" size={20} color="#502c58" />
+            <Ionicons name="checkmark-circle" size={20} color="#7e1f8c" />
             <Text style={styles.stepsTitle}>5 Steps to Reset</Text>
           </View>
 
@@ -103,27 +100,17 @@ export default function Panic() {
           ))}
         </View>
 
-        {/* Personal Audio Message */}
-        {audioUrl ? (
-          <TouchableOpacity style={styles.audioBtn} onPress={toggleAudio} activeOpacity={0.75}>
-            <View style={styles.actionIconWrap}>
-              <Ionicons name={isPlaying ? 'stop-circle' : 'headset'} size={26} color="#502c58" />
-            </View>
-            <Text style={styles.actionLabel}>{isPlaying ? 'Stop Message' : 'Play My Audio Message'}</Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity style={styles.audioBtn} onPress={() => router.push('/audio-recording')} activeOpacity={0.75}>
-            <View style={styles.actionIconWrap}>
-              <Ionicons name="mic-outline" size={26} color="#502c58" />
-            </View>
-            <Text style={styles.actionLabel}>Record a Personal Audio Message</Text>
-          </TouchableOpacity>
-        )}
+        {/* Affirmation box */}
+        <View style={styles.affirmationBox}>
+          <Text style={styles.affirmationText}>
+            {"You NEVER want to binge, it isn't worth it, you clicking this button proves that"}
+          </Text>
+        </View>
 
         {/* Action Buttons */}
         <TouchableOpacity style={styles.journalBtn} onPress={() => router.push('/journal')} activeOpacity={0.75}>
           <View style={styles.actionIconWrap}>
-            <Ionicons name="document-text" size={26} color="#502c58" />
+            <Ionicons name="document-text" size={26} color="#7e1f8c" />
           </View>
           <Text style={styles.actionLabel}>Open Journal</Text>
         </TouchableOpacity>
@@ -181,40 +168,20 @@ const styles = StyleSheet.create({
     width: 36,
   },
 
-  /* Breathe section */
-  breatheSection: {
+  /* Affirmation box */
+  affirmationBox: {
+    backgroundColor: '#7e1f8c',
+    borderRadius: 20,
+    padding: 24,
+    marginBottom: 16,
     alignItems: 'center',
-    marginTop: 8,
-    marginBottom: 32,
   },
-  breatheOuter: {
-    width: 148,
-    height: 148,
-    borderRadius: 74,
-    backgroundColor: '#502c58',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 18,
-  },
-  breatheInner: {
-    width: 116,
-    height: 116,
-    borderRadius: 58,
-    backgroundColor: '#9C27B0',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-  },
-  breatheLabel: {
-    fontSize: 14,
+  affirmationText: {
+    fontSize: 22,
     fontWeight: '800',
     color: 'white',
-    letterSpacing: 2,
-  },
-  breatheSubtitle: {
-    fontSize: 14,
-    color: '#888',
-    fontWeight: '400',
+    textAlign: 'center',
+    lineHeight: 30,
   },
 
   /* Steps card */
@@ -262,8 +229,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   checkboxChecked: {
-    backgroundColor: '#502c58',
-    borderColor: '#502c58',
+    backgroundColor: '#7e1f8c',
+    borderColor: '#7e1f8c',
   },
   stepText: {
     fontSize: 15,

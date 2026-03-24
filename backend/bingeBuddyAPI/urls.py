@@ -4,7 +4,7 @@ from .views import (CustomTokenObtainPairView, CustomTokenRefreshView,
                     is_authenticated, UserDataView, UserView, register, logout, add_data_main_cause,
                     add_data_motivation, set_motivation_image, JournalEntryView, add_journal_entry,
                     delete_entry, UrgesView, log_urge, update_profile, urges_by_day, social_auth,
-                    delete_account, set_panic_audio, get_panic_audio)
+                    delete_account, set_panic_audio, get_panic_audio, delete_panic_audio)
 
 router = routers.DefaultRouter()
 router.register(r'data', UserDataView, 'data')
@@ -31,4 +31,5 @@ path('api/add-data-motivation', add_data_motivation, name="motivation"),
     path('api/delete-account', delete_account, name="delete-account"),
     path('api/set-panic-audio', set_panic_audio, name="set-panic-audio"),
     path('api/get-panic-audio', get_panic_audio, name="get-panic-audio"),
+    path('api/delete-panic-audio', delete_panic_audio, name="delete-panic-audio"),
 ]

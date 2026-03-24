@@ -67,7 +67,7 @@ export default function Index() {
         <TouchableOpacity style={styles.progressCard} onPress={() => router.push('/progress')} activeOpacity={0.85}>
           <Text style={styles.progressTitle}>Progress Snapshot</Text>
           <View style={styles.urgeCountRow}>
-            <MaterialCommunityIcons name="trophy" size={38} color="#502c58" />
+            <MaterialCommunityIcons name="trophy" size={38} color="#7e1f8c" />
             <Text style={styles.urgeCountBig}>{urgeCount}</Text>
           </View>
           <Text style={styles.urgeCountLabel}>URGES DEFEATED</Text>
@@ -109,7 +109,7 @@ export default function Index() {
       {/* Bottom Tab Bar */}
       <View style={[styles.tabBar, { paddingBottom: insets.bottom || 10 }]}>
         <View style={styles.tabItem}>
-          <Ionicons name="home" size={24} color="#502c58" />
+          <Ionicons name="home" size={24} color="#7e1f8c" />
           <Text style={[styles.tabLabel, styles.tabLabelActive]}>Dashboard</Text>
         </View>
         <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/progress')}>
@@ -141,10 +141,10 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 1000,
-    backgroundColor: '#502c58',
+    backgroundColor: '#6e1c7a',
   },
   headerBg: {
-    backgroundColor: '#502c58',
+    backgroundColor: '#7e1f8c',
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
     paddingBottom: 68,
@@ -208,12 +208,12 @@ const styles = StyleSheet.create({
   urgeCountBig: {
     fontSize: 56,
     fontWeight: 'bold',
-    color: '#502c58',
+    color: '#7e1f8c',
   },
   urgeCountLabel: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#502c58',
+    color: '#7e1f8c',
     letterSpacing: 1.5,
     marginBottom: 10,
   },
@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
   },
   journalTypeText: {
     fontSize: 11,
-    color: '#502c58',
+    color: '#7e1f8c',
     fontWeight: '600',
   },
   journalEntrySnippet: {
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
   },
   journalLink: {
     fontSize: 13,
-    color: '#502c58',
+    color: '#7e1f8c',
     fontWeight: '600',
   },
 
@@ -323,6 +323,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   tabLabelActive: {
-    color: '#502c58',
+    color: '#7e1f8c',
   },
 });

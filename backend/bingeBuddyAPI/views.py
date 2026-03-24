@@ -445,6 +445,13 @@ def get_panic_audio(request):
     return Response({'url': user_data.panic_audio})
 
 
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_panic_audio(request):
+    UserData.objects.filter(user=request.user).update(panic_audio=None)
+    return Response({'success': True})
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def delete_account(request):

@@ -69,7 +69,7 @@ export default function Signup() {
 
       {/* Quote card */}
       <View style={styles.quoteCard}>
-        <MaterialCommunityIcons name="format-quote-open" size={24} color="#502c58" />
+        <MaterialCommunityIcons name="format-quote-open" size={24} color="#7e1f8c" />
         <Text style={styles.quoteText}>
           {"\"Recovery is not for people who need it, it's for people who want it. We are so glad you're here.\""}
         </Text>
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
   progressFill: {
     height: 4,
     width: '33%',
-    backgroundColor: '#502c58',
+    backgroundColor: '#7e1f8c',
     borderRadius: 2,
   },
 
@@ -282,8 +282,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   checkboxChecked: {
-    backgroundColor: '#502c58',
-    borderColor: '#502c58',
+    backgroundColor: '#7e1f8c',
+    borderColor: '#7e1f8c',
   },
   termsText: {
     flex: 1,
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
     lineHeight: 19,
   },
   termsLink: {
-    color: '#502c58',
+    color: '#7e1f8c',
     fontWeight: '600',
   },
 
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
   primaryButton: {
     width: '100%',
     height: 52,
-    backgroundColor: '#502c58',
+    backgroundColor: '#7e1f8c',
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',

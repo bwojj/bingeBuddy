@@ -65,7 +65,7 @@ export default function LoadingScreen({ overlay = false }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#502c58',
+    backgroundColor: '#7e1f8c',
     alignItems: 'center',
     justifyContent: 'center',
   },

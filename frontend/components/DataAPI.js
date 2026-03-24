@@ -128,6 +128,21 @@ export const addPanicAudio = async (uri) => {
     }
 };
 
+export const deletePanicAudio = async () => {
+    const token = await getToken();
+    try {
+        const response = await fetch(`${BASEURL}/api/delete-panic-audio`, {
+            method: 'DELETE',
+            headers: { 'Authorization': token ? `Bearer ${token}` : '' },
+            credentials: 'include',
+        });
+        return response.ok;
+    } catch (error) {
+        console.log('Failed to delete panic audio', error);
+        return false;
+    }
+};
+
 export const addMotivationImage = async (image) => {
     if (!image) return true;
     const token = await getToken();

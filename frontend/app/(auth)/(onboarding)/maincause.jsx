@@ -89,7 +89,7 @@ export default function MainCause() {
             activeOpacity={0.7}
           >
             <View style={[styles.iconCircle, isSelected && styles.iconCircleSelected]}>
-              {option.icon(isSelected ? "#502c58" : "#888")}
+              {option.icon(isSelected ? "#7e1f8c" : "#888")}
             </View>
             <View style={styles.optionText}>
               <Text style={[styles.optionTitle, isSelected && styles.optionTitleSelected]}>
@@ -97,7 +97,7 @@ export default function MainCause() {
               </Text>
               <Text style={styles.optionSubtitle}>{option.subtitle}</Text>
             </View>
-            {isSelected && <Ionicons name="checkmark-circle" size={22} color="#502c58" />}
+            {isSelected && <Ionicons name="checkmark-circle" size={22} color="#7e1f8c" />}
           </TouchableOpacity>
         );
       })}
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
   stepText: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#502c58",
+    color: "#7e1f8c",
     letterSpacing: 1,
   },
 
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
   progressFill: {
     height: 4,
     width: "40%",
-    backgroundColor: "#502c58",
+    backgroundColor: "#7e1f8c",
     borderRadius: 2,
   },
 
@@ -161,13 +161,13 @@ const styles = StyleSheet.create({
     lineHeight: 34,
   },
   titleHighlight: {
-    color: "#502c58",
+    color: "#7e1f8c",
   },
 
   /* Subtitle */
   subtitle: {
     fontSize: 14,
-    color: "#502c58",
+    color: "#7e1f8c",
     lineHeight: 22,
     marginBottom: 28,
     textAlign: "center",
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   optionCardSelected: {
-    borderColor: "#502c58",
+    borderColor: "#7e1f8c",
     backgroundColor: "#f2edf3",
   },
   iconCircle: {
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
     marginBottom: 3,
   },
   optionTitleSelected: {
-    color: "#502c58",
+    color: "#7e1f8c",
   },
   optionSubtitle: {
     fontSize: 13,
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
   nextButton: {
     width: "100%",
     height: 52,
-    backgroundColor: "#502c58",
+    backgroundColor: "#7e1f8c",
     borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
   /* Not sure */
   notSureText: {
     textAlign: "center",
-    color: "#502c58",
+    color: "#7e1f8c",
     fontSize: 14,
     fontWeight: "500",
   },

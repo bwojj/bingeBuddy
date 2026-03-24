@@ -141,12 +141,12 @@ export default function Progress() {
         {/* Stats Row */}
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
-            <MaterialCommunityIcons name="currency-usd" size={28} color="#502c58" />
+            <MaterialCommunityIcons name="currency-usd" size={28} color="#7e1f8c" />
             <Text style={styles.statValue}>{moneySaved}</Text>
             <Text style={styles.statLabel}>MONEY SAVED</Text>
           </View>
           <View style={styles.statCard}>
-            <Ionicons name="time-outline" size={28} color="#502c58" />
+            <Ionicons name="time-outline" size={28} color="#7e1f8c" />
             <Text style={styles.statValue}>{timeSaved}</Text>
             <Text style={styles.statLabel}>TIME GAINED</Text>
           </View>
@@ -169,7 +169,7 @@ export default function Progress() {
           <Text style={styles.tabLabel}>Dashboard</Text>
         </TouchableOpacity>
         <View style={styles.tabItem}>
-          <Ionicons name="bar-chart" size={24} color="#502c58" />
+          <Ionicons name="bar-chart" size={24} color="#7e1f8c" />
           <Text style={[styles.tabLabel, styles.tabLabelActive]}>Progress</Text>
         </View>
         <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/journal')}>
@@ -196,10 +196,10 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 1000,
-    backgroundColor: '#502c58',
+    backgroundColor: '#7e1f8c',
   },
   headerBg: {
-    backgroundColor: '#502c58',
+    backgroundColor: '#7e1f8c',
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
     paddingBottom: 36,
@@ -275,14 +275,14 @@ const styles = StyleSheet.create({
   },
   thisWeekBadge: {
     borderWidth: 1,
-    borderColor: '#502c58',
+    borderColor: '#7e1f8c',
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 4,
   },
   thisWeekText: {
     fontSize: 12,
-    color: '#502c58',
+    color: '#7e1f8c',
     fontWeight: '500',
   },
 
@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#CE93D8',
   },
   barHighlight: {
-    backgroundColor: '#502c58',
+    backgroundColor: '#7e1f8c',
   },
   barCount: {
     fontSize: 10,
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   barCountHighlight: {
-    color: '#502c58',
+    color: '#7e1f8c',
   },
   barLabel: {
     fontSize: 12,
@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   barLabelHighlight: {
-    color: '#502c58',
+    color: '#7e1f8c',
     fontWeight: '600',
   },
   /* Section Title */
@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
   },
   milestoneDays: {
     fontSize: 12,
-    color: '#502c58',
+    color: '#7e1f8c',
     fontWeight: '600',
   },
   progressBarContainer: {
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
   progressBarFill: {
     height: 6,
     width: '70%',
-    backgroundColor: '#502c58',
+    backgroundColor: '#7e1f8c',
     borderRadius: 3,
   },
 
@@ -476,6 +476,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   tabLabelActive: {
-    color: '#502c58',
+    color: '#7e1f8c',
   },
 });

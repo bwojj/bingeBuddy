@@ -11,8 +11,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useState, useRef, useEffect } from 'react';
-import { useAudioRecorder, useAudioPlayer, useAudioPlayerStatus, AudioModule, RecordingPresets } from 'expo-audio';
-import { addPanicAudio, getPanicAudio } from '@/components/DataAPI';
+import { useAudioRecorder, useAudioPlayer, useAudioPlayerStatus, setAudioModeAsync, requestRecordingPermissionsAsync, RecordingPresets } from 'expo-audio';
+import { addPanicAudio, getPanicAudio, deletePanicAudio } from '@/components/DataAPI';
 
 const TIPS = [
   'Remind yourself why you want to stop binge eating.',
@@ -26,34 +26,39 @@ export default function AudioRecording() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
-  const [hasExisting, setHasExisting] = useState(false);
+  const [existingUrl, setExistingUrl] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
   const [recordedUri, setRecordedUri] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [duration, setDuration] = useState(0);
   const timerRef = useRef(null);
 
   const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
-  const player = useAudioPlayer(null);
-  const playerStatus = useAudioPlayerStatus(player);
-  const isPlaying = playerStatus.playing;
+
+  // Player for the saved recording on the server
+  const savedPlayer = useAudioPlayer(existingUrl ? { uri: existingUrl } : null);
+  const savedStatus = useAudioPlayerStatus(savedPlayer);
+  const savedPlaying = savedStatus.playing;
+
+  // Player for the freshly recorded preview
+  const previewPlayer = useAudioPlayer(recordedUri ? { uri: recordedUri } : null);
+  const previewStatus = useAudioPlayerStatus(previewPlayer);
+  const previewPlaying = previewStatus.playing;
 
   useEffect(() => {
-    getPanicAudio().then(url => setHasExisting(!!url));
-    return () => {
-      clearInterval(timerRef.current);
-      player.remove();
-    };
+    getPanicAudio().then(url => setExistingUrl(url));
+    return () => { clearInterval(timerRef.current); };
   }, []);
 
   async function startRecording() {
     try {
-      const { granted } = await AudioModule.requestRecordingPermissionsAsync();
+      const { granted } = await requestRecordingPermissionsAsync();
       if (!granted) {
         Alert.alert('Permission Required', 'Microphone access is needed to record audio.');
         return;
       }
-      await AudioModule.setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
+      await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
       await audioRecorder.prepareToRecordAsync();
       audioRecorder.record();
       setIsRecording(true);
@@ -69,24 +74,53 @@ export default function AudioRecording() {
     clearInterval(timerRef.current);
     try {
       await audioRecorder.stop();
-      await AudioModule.setAudioModeAsync({ allowsRecording: false });
-      const uri = audioRecorder.uri;
-      setRecordedUri(uri);
-      player.replace({ uri });
+      await setAudioModeAsync({ allowsRecording: false });
+      setRecordedUri(audioRecorder.uri);
     } catch (err) {
       Alert.alert('Error', 'Could not stop recording.');
     }
     setIsRecording(false);
   }
 
+  function toggleSavedPlayback() {
+    if (savedPlaying) {
+      savedPlayer.pause();
+    } else {
+      savedPlayer.seekTo(0);
+      savedPlayer.play();
+    }
+  }
+
+  function handleDelete() {
+    Alert.alert(
+      'Delete Recording',
+      'Are you sure you want to delete your saved audio message? This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete', style: 'destructive', onPress: async () => {
+            setDeleting(true);
+            const success = await deletePanicAudio();
+            setDeleting(false);
+            if (success) {
+              setExistingUrl(null);
+            } else {
+              Alert.alert('Error', 'Could not delete the recording. Please try again.');
+            }
+          },
+        },
+      ]
+    );
+  }
+
   async function playPreview() {
     if (!recordedUri) return;
-    if (isPlaying) {
-      player.pause();
+    if (previewPlaying) {
+      previewPlayer.pause();
       return;
     }
-    player.seekTo(0);
-    player.play();
+    previewPlayer.seekTo(0);
+    previewPlayer.play();
   }
 
   async function handleSave() {
@@ -95,6 +129,9 @@ export default function AudioRecording() {
     const success = await addPanicAudio(recordedUri);
     setUploading(false);
     if (success) {
+      const url = await getPanicAudio();
+      setExistingUrl(url);
+      setRecordedUri(null);
       Alert.alert('Saved', 'Your audio message has been saved. It will play during your SOS session.', [
         { text: 'Done', onPress: () => router.back() },
       ]);
@@ -112,12 +149,12 @@ export default function AudioRecording() {
   return (
     <View style={styles.container}>
       <ScrollView
-        contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 10 }]}
+        contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
             <Ionicons name="chevron-back" size={26} color="white" />
           </TouchableOpacity>
@@ -125,18 +162,42 @@ export default function AudioRecording() {
           <View style={{ width: 40 }} />
         </View>
 
-        {hasExisting && (
-          <View style={styles.existingBanner}>
-            <Ionicons name="checkmark-circle" size={16} color="#4CAF50" />
-            <Text style={styles.existingText}>You have a saved recording — record a new one to replace it.</Text>
-          </View>
+        {/* Saved Recording */}
+        {existingUrl && (
+          <>
+            <Text style={styles.sectionLabel}>SAVED RECORDING</Text>
+            <View style={styles.card}>
+              <View style={styles.savedRow}>
+                <View style={[styles.savedIconWrap]}>
+                  <Ionicons name="mic" size={20} color="#7e1f8c" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.savedTitle}>Your Audio Message</Text>
+                  <Text style={styles.savedSub}>Plays on your SOS screen</Text>
+                </View>
+                <TouchableOpacity style={styles.savedPlayBtn} onPress={toggleSavedPlayback} activeOpacity={0.75}>
+                  <Ionicons name={savedPlaying ? 'pause' : 'play'} size={20} color="#7e1f8c" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.savedDeleteBtn}
+                  onPress={handleDelete}
+                  disabled={deleting}
+                  activeOpacity={0.75}
+                >
+                  {deleting
+                    ? <ActivityIndicator size="small" color="#C62828" />
+                    : <Ionicons name="trash-outline" size={20} color="#C62828" />}
+                </TouchableOpacity>
+              </View>
+            </View>
+          </>
         )}
 
         {/* Tips Card */}
         <Text style={styles.sectionLabel}>RECORDING GUIDANCE</Text>
         <View style={styles.card}>
           <View style={styles.cardTitleRow}>
-            <Ionicons name="mic" size={18} color="#502c58" />
+            <Ionicons name="mic" size={18} color="#7e1f8c" />
             <Text style={styles.cardTitle}>What to Say</Text>
           </View>
           <Text style={styles.cardSubtitle}>
@@ -179,8 +240,8 @@ export default function AudioRecording() {
           {/* Playback preview */}
           {recordedUri && (
             <TouchableOpacity style={styles.previewBtn} onPress={playPreview} activeOpacity={0.75}>
-              <Ionicons name={isPlaying ? 'stop-circle-outline' : 'play-circle-outline'} size={22} color="#502c58" />
-              <Text style={styles.previewLabel}>{isPlaying ? 'Stop Preview' : 'Preview Recording'}</Text>
+              <Ionicons name={previewPlaying ? 'stop-circle-outline' : 'play-circle-outline'} size={22} color="#7e1f8c" />
+              <Text style={styles.previewLabel}>{previewPlaying ? 'Stop Preview' : 'Preview Recording'}</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -212,15 +273,17 @@ export default function AudioRecording() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f3edf7',
+    backgroundColor: '#7e1f8c',
   },
   scroll: {
+    flexGrow: 1,
+    backgroundColor: '#f3edf7',
     paddingBottom: 20,
   },
 
   /* Header */
   header: {
-    backgroundColor: '#502c58',
+    backgroundColor: '#7e1f8c',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -240,23 +303,45 @@ const styles = StyleSheet.create({
     color: 'white',
   },
 
-  /* Existing banner */
-  existingBanner: {
+  /* Saved recording card */
+  savedRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    backgroundColor: '#e8f5e9',
-    marginHorizontal: 20,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    marginBottom: 20,
+    gap: 12,
   },
-  existingText: {
-    flex: 1,
-    fontSize: 13,
-    color: '#2E7D32',
-    lineHeight: 18,
+  savedIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#ede9ee',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  savedTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1a1a1a',
+  },
+  savedSub: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 2,
+  },
+  savedPlayBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#ede9ee',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  savedDeleteBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#ffebee',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   /* Section Label */
@@ -309,7 +394,7 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#502c58',
+    backgroundColor: '#7e1f8c',
     marginTop: 6,
     flexShrink: 0,
   },
@@ -354,7 +439,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
-    backgroundColor: '#502c58',
+    backgroundColor: '#7e1f8c',
     borderRadius: 14,
     paddingVertical: 16,
     marginBottom: 12,
@@ -375,14 +460,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
     borderWidth: 1.5,
-    borderColor: '#502c58',
+    borderColor: '#7e1f8c',
     borderRadius: 12,
     paddingVertical: 12,
   },
   previewLabel: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#502c58',
+    color: '#7e1f8c',
   },
 
   /* Save */

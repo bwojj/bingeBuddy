@@ -12,7 +12,7 @@ export default function Coach() {
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={26} color="#502c58" />
+          <Ionicons name="chevron-back" size={26} color="#7e1f8c" />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <View style={styles.avatarCircle}>
@@ -98,7 +98,7 @@ export default function Coach() {
       {/* Input bar */}
       <View style={styles.inputBar}>
         <View style={styles.plusButton}>
-          <Ionicons name="add" size={24} color="#502c58" />
+          <Ionicons name="add" size={24} color="#7e1f8c" />
         </View>
         <View style={styles.inputField}>
           <Text style={styles.inputPlaceholder}>Type a message...</Text>
@@ -125,7 +125,7 @@ export default function Coach() {
           <Text style={styles.tabLabel}>Progress</Text>
         </TouchableOpacity>
         <View style={styles.tabItem}>
-          <Ionicons name="chatbubble-ellipses" size={24} color="#502c58" />
+          <Ionicons name="chatbubble-ellipses" size={24} color="#7e1f8c" />
           <Text style={[styles.tabLabel, styles.tabLabelActive]}>AI Coach</Text>
         </View>
         <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/journal')}>
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#502c58',
+    backgroundColor: '#7e1f8c',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#502c58',
+    backgroundColor: '#7e1f8c',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 8,
@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   userBubble: {
-    backgroundColor: '#502c58',
+    backgroundColor: '#7e1f8c',
     borderRadius: 16,
     borderBottomRightRadius: 4,
     padding: 14,
@@ -304,14 +304,14 @@ const styles = StyleSheet.create({
   },
   chip: {
     borderWidth: 1.5,
-    borderColor: '#502c58',
+    borderColor: '#7e1f8c',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 8,
   },
   chipText: {
     fontSize: 13,
-    color: '#502c58',
+    color: '#7e1f8c',
     fontWeight: '500',
   },
 
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: '#502c58',
+    backgroundColor: '#7e1f8c',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -399,6 +399,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   tabLabelActive: {
-    color: '#502c58',
+    color: '#7e1f8c',
   },
 });

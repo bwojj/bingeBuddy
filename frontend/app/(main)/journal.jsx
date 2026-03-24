@@ -28,7 +28,7 @@ function useSheetAnimation(visible) {
 
 const TAG_STYLES = {
   Victory:    { color: '#4CAF50', bg: '#e8f5e9' },
-  Reflection: { color: '#502c58', bg: '#e8e3ea' },
+  Reflection: { color: '#7e1f8c', bg: '#e8e3ea' },
   Struggle:   { color: '#E65100', bg: '#fff3e0' },
 };
 
@@ -163,7 +163,7 @@ export default function Journal() {
 
         {/* Journal Entries */}
         {loading ? (
-          <ActivityIndicator size="large" color="#502c58" style={{ marginTop: 40 }} />
+          <ActivityIndicator size="large" color="#7e1f8c" style={{ marginTop: 40 }} />
         ) : (
           entries
             .filter((entry) => {
@@ -346,7 +346,7 @@ export default function Journal() {
           <Text style={styles.tabLabel}>Progress</Text>
         </TouchableOpacity>
         <View style={styles.tabItem}>
-          <Ionicons name="document-text" size={24} color="#502c58" />
+          <Ionicons name="document-text" size={24} color="#7e1f8c" />
           <Text style={[styles.tabLabel, styles.tabLabelActive]}>Journal</Text>
         </View>
         <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/settings')}>
@@ -369,10 +369,10 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 1000,
-    backgroundColor: '#502c58',
+    backgroundColor: '#7e1f8c',
   },
   headerBg: {
-    backgroundColor: '#502c58',
+    backgroundColor: '#7e1f8c',
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
     paddingBottom: 16,
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   filterChipTextActive: {
-    color: '#502c58',
+    color: '#7e1f8c',
     fontWeight: '600',
   },
 
@@ -565,12 +565,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   typeChipActive: {
-    backgroundColor: '#502c58',
+    backgroundColor: '#7e1f8c',
   },
   typeChipText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#502c58',
+    color: '#7e1f8c',
   },
   typeChipTextActive: {
     color: 'white',
@@ -599,11 +599,11 @@ const styles = StyleSheet.create({
     borderColor: '#e8e3ea',
   },
   saveBtn: {
-    backgroundColor: '#502c58',
+    backgroundColor: '#7e1f8c',
     borderRadius: 14,
     paddingVertical: 16,
     alignItems: 'center',
-    shadowColor: '#502c58',
+    shadowColor: '#7e1f8c',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -711,6 +711,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   tabLabelActive: {
-    color: '#502c58',
+    color: '#7e1f8c',
   },
 });

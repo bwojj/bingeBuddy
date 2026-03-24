@@ -174,15 +174,17 @@ export default function ProfileSettings() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f3edf7',
+    backgroundColor: '#7e1f8c',
   },
   scrollContent: {
+    flexGrow: 1,
+    backgroundColor: '#f3edf7',
     paddingBottom: 20,
   },
 
   /* Header */
   header: {
-    backgroundColor: '#502c58',
+    backgroundColor: '#7e1f8c',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -246,12 +248,12 @@ const styles = StyleSheet.create({
 
   /* Save Button */
   saveBtn: {
-    backgroundColor: '#502c58',
+    backgroundColor: '#7e1f8c',
     marginHorizontal: 20,
     borderRadius: 14,
     paddingVertical: 16,
     alignItems: 'center',
-    shadowColor: '#502c58',
+    shadowColor: '#7e1f8c',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,

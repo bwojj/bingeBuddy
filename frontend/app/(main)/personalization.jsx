@@ -83,14 +83,14 @@ export default function Personalization() {
     <View style={styles.container}>
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 10 }]}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <Ionicons name="chevron-back" size={26} color="#1a1a1a" />
+            <Ionicons name="chevron-back" size={26} color="white" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Personalization</Text>
           <View style={{ width: 40 }} />
@@ -104,7 +104,7 @@ export default function Personalization() {
           ) : (
             <View style={styles.photoPlaceholder}>
               <View style={styles.cameraCircle}>
-                <Ionicons name="camera-outline" size={32} color="#502c58" />
+                <Ionicons name="camera-outline" size={32} color="#7e1f8c" />
               </View>
               <Text style={styles.photoPlaceholderText}>Tap to add your motivation photo</Text>
               <Text style={styles.photoPlaceholderSub}>This image will appear on your dashboard</Text>
@@ -151,13 +151,13 @@ export default function Personalization() {
                 activeOpacity={0.75}
               >
                 <View style={[styles.optionIconCircle, sel && styles.optionIconCircleSel]}>
-                  {opt.icon(sel ? '#502c58' : '#888')}
+                  {opt.icon(sel ? '#7e1f8c' : '#888')}
                 </View>
                 <View style={styles.optionText}>
                   <Text style={[styles.optionTitle, sel && styles.optionTitleSel]}>{opt.title}</Text>
                   <Text style={styles.optionSubtitle}>{opt.subtitle}</Text>
                 </View>
-                {sel && <Ionicons name="checkmark-circle" size={20} color="#502c58" />}
+                {sel && <Ionicons name="checkmark-circle" size={20} color="#7e1f8c" />}
               </TouchableOpacity>
             );
           })}
@@ -202,8 +202,8 @@ function SectionLabel({ icon, label, iconLib }) {
   return (
     <View style={styles.sectionLabelRow}>
       {iconLib === 'material'
-        ? <MaterialCommunityIcons name={icon} size={16} color="#502c58" style={{ marginRight: 6 }} />
-        : <Ionicons name={icon} size={16} color="#502c58" style={{ marginRight: 6 }} />
+        ? <MaterialCommunityIcons name={icon} size={16} color="#7e1f8c" style={{ marginRight: 6 }} />
+        : <Ionicons name={icon} size={16} color="#7e1f8c" style={{ marginRight: 6 }} />
       }
       <Text style={styles.sectionLabel}>{label}</Text>
     </View>
@@ -211,19 +211,23 @@ function SectionLabel({ icon, label, iconLib }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f3edf7' },
-  scrollContent: { paddingBottom: 20 },
+  container: { flex: 1, backgroundColor: '#7e1f8c' },
+  scrollContent: { flexGrow: 1, backgroundColor: '#f3edf7', paddingBottom: 20 },
 
   /* Header */
   header: {
+    backgroundColor: '#7e1f8c',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
+    paddingBottom: 20,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
     marginBottom: 24,
   },
-  backBtn: { padding: 4 },
-  headerTitle: { fontSize: 22, fontWeight: '700', color: '#1a1a1a' },
+  backBtn: { width: 40, alignItems: 'flex-start' },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: 'white' },
 
   /* Section label */
   sectionLabelRow: {
@@ -236,7 +240,7 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#502c58',
+    color: '#7e1f8c',
     letterSpacing: 0.8,
     textTransform: 'uppercase',
   },
@@ -263,13 +267,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
-    shadowColor: '#502c58',
+    shadowColor: '#7e1f8c',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 6,
     elevation: 3,
   },
-  photoPlaceholderText: { fontSize: 15, fontWeight: '600', color: '#502c58', textAlign: 'center' },
+  photoPlaceholderText: { fontSize: 15, fontWeight: '600', color: '#7e1f8c', textAlign: 'center' },
   photoPlaceholderSub:  { fontSize: 12, color: '#7a5080', marginTop: 4, textAlign: 'center' },
   photoImage: { width: '100%', height: '100%' },
   photoOverlay: {
@@ -332,7 +336,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 1,
   },
-  optionCardSel: { borderColor: '#502c58', backgroundColor: '#f2edf3' },
+  optionCardSel: { borderColor: '#7e1f8c', backgroundColor: '#f2edf3' },
   optionIconCircle: {
     width: 40,
     height: 40,
@@ -344,7 +348,7 @@ const styles = StyleSheet.create({
   optionIconCircleSel: { backgroundColor: '#e4dfe6' },
   optionText: { flex: 1 },
   optionTitle:    { fontSize: 14, fontWeight: '700', color: '#111', marginBottom: 2 },
-  optionTitleSel: { color: '#502c58' },
+  optionTitleSel: { color: '#7e1f8c' },
   optionSubtitle: { fontSize: 12, color: '#888', lineHeight: 17 },
 
   /* Motivation chips */
@@ -371,7 +375,7 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
     backgroundColor: 'white',
   },
-  chipSel: { backgroundColor: '#502c58', borderColor: '#502c58' },
+  chipSel: { backgroundColor: '#7e1f8c', borderColor: '#7e1f8c' },
   chipText:    { fontSize: 13, fontWeight: '500', color: '#333' },
   chipTextSel: { color: 'white' },
 
@@ -384,8 +388,8 @@ const styles = StyleSheet.create({
     marginTop: 32,
     paddingVertical: 16,
     borderRadius: 28,
-    backgroundColor: '#502c58',
-    shadowColor: '#502c58',
+    backgroundColor: '#7e1f8c',
+    shadowColor: '#7e1f8c',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
     shadowRadius: 10,

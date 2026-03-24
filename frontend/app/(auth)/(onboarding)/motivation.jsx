@@ -75,7 +75,7 @@ export default function Motivation() {
       {/* Icon */}
       <View style={styles.iconWrapper}>
         <View style={styles.iconCircle}>
-          <Ionicons name="heart-outline" size={32} color="#502c58" />
+          <Ionicons name="heart-outline" size={32} color="#7e1f8c" />
         </View>
       </View>
 
@@ -108,7 +108,7 @@ export default function Motivation() {
         ) : (
           <View style={styles.photoPlaceholder}>
             <View style={styles.cameraCircle}>
-              <Ionicons name="camera-outline" size={28} color="#502c58" />
+              <Ionicons name="camera-outline" size={28} color="#7e1f8c" />
             </View>
             <Text style={styles.photoPlaceholderText}>Tap to add a photo</Text>
             <Text style={styles.photoPlaceholderSub}>Optional — appears on your dashboard</Text>
@@ -170,18 +170,18 @@ const styles = StyleSheet.create({
   finalStepLabel: {
     fontSize: 11,
     fontWeight: "700",
-    color: "#502c58",
+    color: "#7e1f8c",
     letterSpacing: 0.5,
   },
   progressPercent: {
     fontSize: 11,
     fontWeight: "600",
-    color: "#502c58",
+    color: "#7e1f8c",
   },
   progressFill: {
     height: 4,
     width: "100%",
-    backgroundColor: "#502c58",
+    backgroundColor: "#7e1f8c",
     borderRadius: 2,
   },
 
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
   fieldLabel: {
     fontSize: 13,
     fontWeight: "700",
-    color: "#502c58",
+    color: "#7e1f8c",
     letterSpacing: 0.5,
     marginBottom: 10,
   },
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
   photoPlaceholderText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#502c58',
+    color: '#7e1f8c',
     textAlign: 'center',
   },
   photoPlaceholderSub: {
@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     width: "100%",
     height: 52,
-    backgroundColor: "#502c58",
+    backgroundColor: "#7e1f8c",
     borderRadius: 28,
     alignItems: "center",
     justifyContent: "center",

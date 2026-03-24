@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#502c58',
+    color: '#7e1f8c',
     marginBottom: 6,
   },
   subtitle: {
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
   /* Forgot */
   forgotText: {
     fontSize: 13,
-    color: '#502c58',
+    color: '#7e1f8c',
     fontWeight: '600',
     alignSelf: 'flex-end',
     marginBottom: 24,
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   primaryButton: {
     width: '100%',
     height: 52,
-    backgroundColor: '#502c58',
+    backgroundColor: '#7e1f8c',
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
@@ -188,6 +188,6 @@ const styles = StyleSheet.create({
   bottomLinkAction: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#502c58',
+    color: '#7e1f8c',
   },
 });

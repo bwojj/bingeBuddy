@@ -1,12 +1,13 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, Image, ActivityIndicator } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
-import React from 'react'
+import React, { useState } from 'react'
 
 const HomeMotivation = ({ userPreferences }) => {
   const router = useRouter();
   const imageUri = userPreferences?.motivation_image ?? null;
   const myWhy = userPreferences?.motivation ?? null;
+  const [imageLoading, setImageLoading] = useState(!!imageUri);
 
   return (
     <TouchableOpacity
@@ -16,7 +17,16 @@ const HomeMotivation = ({ userPreferences }) => {
     >
       <View style={styles.imagePlaceholder} />
       {imageUri && (
-        <Image source={{ uri: imageUri }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+        <Image
+          source={{ uri: imageUri }}
+          style={StyleSheet.absoluteFill}
+          resizeMode="cover"
+          onLoadStart={() => setImageLoading(true)}
+          onLoadEnd={() => setImageLoading(false)}
+        />
+      )}
+      {imageLoading && (
+        <ActivityIndicator size="small" color="rgba(255,255,255,0.6)" style={styles.loader} />
       )}
       <View style={styles.overlay} />
 
@@ -54,6 +64,13 @@ const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.28)',
+  },
+  loader: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    marginTop: -8,
+    marginLeft: -8,
   },
   editBadge: {
     position: 'absolute',

@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, ScrollView, TouchableOpacity, Alert, Linking } from "react-native";
+import { Text, View, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -34,7 +34,7 @@ export default function Settings() {
         {/* Profile Row — display only, not tappable */}
         <View style={styles.profileCard}>
           <View style={styles.avatarCircle}>
-            <Ionicons name="person" size={28} color="#502c58" />
+            <Ionicons name="person" size={28} color="#7e1f8c" />
           </View>
           <View style={styles.profileInfo}>
             <Text style={styles.profileName}>{displayName}</Text>
@@ -47,7 +47,7 @@ export default function Settings() {
         <View style={styles.menuCard}>
           <TouchableOpacity style={styles.menuRow} onPress={() => router.push('/profile-settings')}>
             <View style={[styles.menuIconWrap, { backgroundColor: '#e8e3ea' }]}>
-              <Ionicons name="person-outline" size={20} color="#502c58" />
+              <Ionicons name="person-outline" size={20} color="#7e1f8c" />
             </View>
             <Text style={styles.menuLabel}>Profile Settings</Text>
             <Ionicons name="chevron-forward" size={18} color="#bbb" style={styles.menuChevron} />
@@ -55,7 +55,7 @@ export default function Settings() {
 
           <View style={styles.menuDivider} />
 
-          <TouchableOpacity style={styles.menuRow} onPress={() => Linking.openURL('https://www.termsfeed.com/live/f5a24d58-4141-4ba4-9da0-49fe059479bc')}>
+          <TouchableOpacity style={styles.menuRow} onPress={() => router.push('/privacy-security')}>
             <View style={[styles.menuIconWrap, { backgroundColor: '#e8f5e9' }]}>
               <Ionicons name="lock-closed-outline" size={20} color="#388E3C" />
             </View>
@@ -67,7 +67,7 @@ export default function Settings() {
 
           <TouchableOpacity style={styles.menuRow} onPress={() => router.push('/personalization')}>
             <View style={[styles.menuIconWrap, { backgroundColor: '#ede9ee' }]}>
-              <Ionicons name="color-palette-outline" size={20} color="#502c58" />
+              <Ionicons name="color-palette-outline" size={20} color="#7e1f8c" />
             </View>
             <Text style={styles.menuLabel}>Personalization</Text>
             <Ionicons name="chevron-forward" size={18} color="#bbb" style={styles.menuChevron} />
@@ -115,7 +115,7 @@ export default function Settings() {
           <Text style={styles.tabLabel}>Journal</Text>
         </TouchableOpacity>
         <View style={styles.tabItem}>
-          <Ionicons name="settings" size={24} color="#502c58" />
+          <Ionicons name="settings" size={24} color="#7e1f8c" />
           <Text style={[styles.tabLabel, styles.tabLabelActive]}>Settings</Text>
         </View>
       </View>
@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   tabLabelActive: {
-    color: '#502c58',
+    color: '#7e1f8c',
   },
 
   /* Logout */

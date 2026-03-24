@@ -11,7 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useState, useRef, useEffect } from 'react';
-import { Audio } from 'expo-av';
+import { useAudioRecorder, useAudioPlayer, useAudioPlayerStatus, AudioModule, RecordingPresets } from 'expo-audio';
 import { addPanicAudio, getPanicAudio } from '@/components/DataAPI';
 
 const TIPS = [
@@ -27,38 +27,35 @@ export default function AudioRecording() {
   const router = useRouter();
 
   const [hasExisting, setHasExisting] = useState(false);
-  const [recording, setRecording] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
   const [recordedUri, setRecordedUri] = useState(null);
-  const [sound, setSound] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [duration, setDuration] = useState(0);
   const timerRef = useRef(null);
+
+  const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  const player = useAudioPlayer(null);
+  const playerStatus = useAudioPlayerStatus(player);
+  const isPlaying = playerStatus.playing;
 
   useEffect(() => {
     getPanicAudio().then(url => setHasExisting(!!url));
     return () => {
       clearInterval(timerRef.current);
-      sound?.unloadAsync();
+      player.remove();
     };
   }, []);
 
   async function startRecording() {
     try {
-      const { granted } = await Audio.requestPermissionsAsync();
+      const { granted } = await AudioModule.requestRecordingPermissionsAsync();
       if (!granted) {
         Alert.alert('Permission Required', 'Microphone access is needed to record audio.');
         return;
       }
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-      });
-      const { recording: rec } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
-      );
-      setRecording(rec);
+      await AudioModule.setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
+      await audioRecorder.prepareToRecordAsync();
+      audioRecorder.record();
       setIsRecording(true);
       setRecordedUri(null);
       setDuration(0);
@@ -71,34 +68,25 @@ export default function AudioRecording() {
   async function stopRecording() {
     clearInterval(timerRef.current);
     try {
-      await recording.stopAndUnloadAsync();
-      await Audio.setAudioModeAsync({ allowsRecordingIOS: false });
-      const uri = recording.getURI();
+      await audioRecorder.stop();
+      await AudioModule.setAudioModeAsync({ allowsRecording: false });
+      const uri = audioRecorder.uri;
       setRecordedUri(uri);
+      player.replace({ uri });
     } catch (err) {
       Alert.alert('Error', 'Could not stop recording.');
     }
-    setRecording(null);
     setIsRecording(false);
   }
 
   async function playPreview() {
     if (!recordedUri) return;
     if (isPlaying) {
-      await sound?.stopAsync();
-      setIsPlaying(false);
+      player.pause();
       return;
     }
-    const { sound: s } = await Audio.Sound.createAsync({ uri: recordedUri });
-    setSound(s);
-    setIsPlaying(true);
-    await s.playAsync();
-    s.setOnPlaybackStatusUpdate(status => {
-      if (status.didJustFinish) {
-        setIsPlaying(false);
-        s.unloadAsync();
-      }
-    });
+    player.seekTo(0);
+    player.play();
   }
 
   async function handleSave() {

@@ -2,8 +2,8 @@ import { Text, View, StyleSheet, TouchableOpacity, ScrollView } from "react-nati
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useState, useEffect, useRef } from 'react';
-import { Audio } from 'expo-av';
+import { useState, useEffect } from 'react';
+import { useAudioPlayer, useAudioPlayerStatus, AudioModule } from 'expo-audio';
 import { logUrge } from '../../components/UrgeAPI';
 import { useAuth } from '@/context/AuthContext';
 import { getPanicAudio } from '@/components/DataAPI';
@@ -22,35 +22,30 @@ export default function Panic() {
   const { refreshUserData } = useAuth();
   const [checked, setChecked] = useState(Array(STEPS.length).fill(false));
   const [audioUrl, setAudioUrl] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const soundRef = useRef(null);
+
+  const player = useAudioPlayer(audioUrl ? { uri: audioUrl } : null);
+  const playerStatus = useAudioPlayerStatus(player);
+  const isPlaying = playerStatus.playing;
 
   useEffect(() => {
     getPanicAudio().then(url => setAudioUrl(url));
-    return () => { soundRef.current?.unloadAsync(); };
   }, []);
+
+  useEffect(() => {
+    return () => { player.remove(); };
+  }, [player]);
 
   async function toggleAudio() {
     if (isPlaying) {
-      await soundRef.current?.stopAsync();
-      setIsPlaying(false);
+      player.pause();
       return;
     }
     try {
-      await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
-      if (soundRef.current) await soundRef.current.unloadAsync();
-      const { sound } = await Audio.Sound.createAsync({ uri: audioUrl });
-      soundRef.current = sound;
-      setIsPlaying(true);
-      await sound.playAsync();
-      sound.setOnPlaybackStatusUpdate(status => {
-        if (status.didJustFinish) {
-          setIsPlaying(false);
-          sound.unloadAsync();
-        }
-      });
+      await AudioModule.setAudioModeAsync({ playsInSilentMode: true });
+      player.seekTo(0);
+      player.play();
     } catch {
-      setIsPlaying(false);
+      // ignore
     }
   }
 

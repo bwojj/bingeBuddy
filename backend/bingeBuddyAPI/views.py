@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.conf import settings as django_settings
 from datetime import timedelta, datetime
 from zoneinfo import ZoneInfo
+import cloudinary.uploader
 import base64
 import jwt as pyjwt
 import requests as http_requests
@@ -423,9 +424,14 @@ def set_panic_audio(request):
     audio = request.FILES.get('panic_audio')
     if not audio:
         return Response({'success': False, 'error': 'No audio file provided'}, status=400)
+    try:
+        result = cloudinary.uploader.upload(audio, resource_type='video', folder='panic_audio')
+        url = result.get('secure_url')
+    except Exception as e:
+        return Response({'success': False, 'error': str(e)}, status=500)
     UserData.objects.update_or_create(
         user=request.user,
-        defaults={'panic_audio': audio},
+        defaults={'panic_audio': url},
     )
     return Response({'success': True})
 
@@ -436,7 +442,7 @@ def get_panic_audio(request):
     user_data = UserData.objects.filter(user=request.user).first()
     if not user_data or not user_data.panic_audio:
         return Response({'url': None})
-    return Response({'url': user_data.panic_audio.url})
+    return Response({'url': user_data.panic_audio})
 
 
 @api_view(['POST'])

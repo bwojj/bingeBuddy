@@ -7,7 +7,7 @@ class UserData(models.Model):
     main_cause = models.CharField(max_length=64)
     motivation = models.TextField(blank=True, default='')
     motivation_image = models.ImageField(upload_to='motivation_images/', blank=True, null=True)
-    panic_audio = models.FileField(upload_to='panic_audio/', blank=True, null=True)
+    panic_audio = models.URLField(blank=True, null=True)
 
 # create journal Entry field 
 class JournalEntry(models.Model):

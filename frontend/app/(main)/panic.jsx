@@ -109,12 +109,19 @@ export default function Panic() {
         </View>
 
         {/* Personal Audio Message */}
-        {audioUrl && (
+        {audioUrl ? (
           <TouchableOpacity style={styles.audioBtn} onPress={toggleAudio} activeOpacity={0.75}>
             <View style={styles.actionIconWrap}>
               <Ionicons name={isPlaying ? 'stop-circle' : 'headset'} size={26} color="#502c58" />
             </View>
             <Text style={styles.actionLabel}>{isPlaying ? 'Stop Message' : 'Play My Audio Message'}</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity style={styles.audioBtn} onPress={() => router.push('/audio-recording')} activeOpacity={0.75}>
+            <View style={styles.actionIconWrap}>
+              <Ionicons name="mic-outline" size={26} color="#502c58" />
+            </View>
+            <Text style={styles.actionLabel}>Record a Personal Audio Message</Text>
           </TouchableOpacity>
         )}
 

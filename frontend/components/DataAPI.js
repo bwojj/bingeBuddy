@@ -117,6 +117,10 @@ export const addPanicAudio = async (uri) => {
             body: form,
             credentials: 'include',
         });
+        if (!response.ok) {
+            const text = await response.text();
+            console.log('Panic audio upload failed', response.status, text);
+        }
         return response.ok;
     } catch (error) {
         console.log('Failed to upload panic audio', error);

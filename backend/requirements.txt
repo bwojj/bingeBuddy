@@ -11,3 +11,6 @@ gunicorn
 whitenoise
 cloudinary
 django-cloudinary-storage
+langchain_google_genai
+langchain_core
+dotenv

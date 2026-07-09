@@ -2,7 +2,11 @@ import { Text, View, StyleSheet, ScrollView, TouchableOpacity } from "react-nati
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from "@/context/AuthContext";
+import TabBar from '../components/TabBar';
+import SOSButton from '../components/SOSButton';
+import { Colors, FontFamily, FontSize, Radii, Shadows, Gradients } from '@/constants/theme';
 
 // Mon=0 ... Sun=6
 const TODAY_IDX = (new Date().getDay() + 6) % 7;
@@ -43,16 +47,23 @@ export default function Progress() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Overscroll fix: fills iOS bounce area with purple */}
+        {/* Overscroll fix: fills iOS bounce area with plum */}
         <View style={styles.overscrollFill} />
 
-        {/* Purple header - scrolls with content */}
-        <View style={[styles.headerBg, { paddingTop: insets.top + 10 }]}>
+        {/* Plum gradient header - scrolls with content */}
+        <LinearGradient
+          colors={Gradients.hero.colors}
+          start={Gradients.hero.start}
+          end={Gradients.hero.end}
+          style={[styles.headerBg, { paddingTop: insets.top + 10 }]}
+        >
           {/* Header */}
           <View style={styles.headerRow}>
-            <Ionicons name="chevron-back" size={26} color="white" />
+            <TouchableOpacity onPress={() => router.back()}>
+              <Ionicons name="chevron-back" size={26} color="white" />
+            </TouchableOpacity>
             <Text style={styles.headerTitle}>Progress History</Text>
-            <Ionicons name="share-outline" size={22} color="white" />
+            <View style={{ width: 22 }} />
           </View>
 
           {/* Urges Defeated Count */}
@@ -63,7 +74,7 @@ export default function Progress() {
               You are {urgeCount} steps closer to defeating binge eating
             </Text>
           </View>
-        </View>
+        </LinearGradient>
 
         {/* Urges Beat Card */}
         <View style={[styles.card, { marginTop: 20 }]}>
@@ -109,11 +120,14 @@ export default function Progress() {
           const progress = isNext ? Math.min(urgeCount / milestone.target, 1) : 0;
           return (
             <View key={milestone.target} style={styles.milestoneCard}>
-              <View style={[styles.milestoneIconCircle, !achieved && styles.milestoneIconGray]}>
-                <MaterialCommunityIcons
-                  name={achieved ? 'trophy' : 'lock-outline'}
-                  size={22}
-                  color={achieved ? 'white' : '#999'}
+              <View style={[
+                styles.milestoneIconCircle,
+                achieved ? styles.milestoneIconDone : isNext ? styles.milestoneIconTint : styles.milestoneIconLock,
+              ]}>
+                <Ionicons
+                  name={achieved ? 'checkmark' : isNext ? 'flag' : 'lock-closed-outline'}
+                  size={20}
+                  color={achieved ? 'white' : isNext ? Colors.plum : Colors.inkFaint}
                 />
               </View>
               <View style={styles.milestoneInfo}>
@@ -126,13 +140,15 @@ export default function Progress() {
                       <View style={[styles.progressBarFill, { width: `${progress * 100}%` }]} />
                     </View>
                   </View>
-                ) : null}
+                ) : (
+                  <Text style={styles.milestoneSubtext}>Locked</Text>
+                )}
               </View>
               {achieved
-                ? <Ionicons name="checkmark-circle" size={28} color="#4CAF50" />
+                ? <Ionicons name="checkmark-circle" size={26} color={Colors.sage} />
                 : isNext
                   ? <Text style={styles.milestoneDays}>{urgeCount}/{milestone.target}</Text>
-                  : <MaterialCommunityIcons name="lock-outline" size={22} color="#ccc" />
+                  : <Ionicons name="lock-closed-outline" size={20} color={Colors.inkFaint} />
               }
             </View>
           );
@@ -141,12 +157,12 @@ export default function Progress() {
         {/* Stats Row */}
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
-            <MaterialCommunityIcons name="currency-usd" size={28} color="#7e1f8c" />
+            <MaterialCommunityIcons name="currency-usd" size={26} color={Colors.plum} />
             <Text style={styles.statValue}>{moneySaved}</Text>
             <Text style={styles.statLabel}>MONEY SAVED</Text>
           </View>
           <View style={styles.statCard}>
-            <Ionicons name="time-outline" size={28} color="#7e1f8c" />
+            <Ionicons name="time-outline" size={26} color={Colors.plum} />
             <Text style={styles.statValue}>{timeSaved}</Text>
             <Text style={styles.statLabel}>TIME GAINED</Text>
           </View>
@@ -156,31 +172,8 @@ export default function Progress() {
         <View style={{ height: 90 }} />
       </ScrollView>
 
-      {/* SOS Button */}
-      <TouchableOpacity style={styles.sosButton} onPress={() => router.push('/panic')}>
-        <MaterialCommunityIcons name="lifebuoy" size={26} color="white" />
-        <Text style={styles.sosText}>SOS</Text>
-      </TouchableOpacity>
-
-      {/* Bottom Tab Bar */}
-      <View style={[styles.tabBar, { paddingBottom: insets.bottom || 10 }]}>
-        <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/')}>
-          <Ionicons name="home-outline" size={24} color="#999" />
-          <Text style={styles.tabLabel}>Dashboard</Text>
-        </TouchableOpacity>
-        <View style={styles.tabItem}>
-          <Ionicons name="bar-chart" size={24} color="#7e1f8c" />
-          <Text style={[styles.tabLabel, styles.tabLabelActive]}>Progress</Text>
-        </View>
-        <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/journal')}>
-          <Ionicons name="document-text-outline" size={24} color="#999" />
-          <Text style={styles.tabLabel}>Journal</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/settings')}>
-          <Ionicons name="settings-outline" size={24} color="#999" />
-          <Text style={styles.tabLabel}>Settings</Text>
-        </TouchableOpacity>
-      </View>
+      <SOSButton />
+      <TabBar activeTab="progress" />
     </View>
   );
 }
@@ -188,7 +181,7 @@ export default function Progress() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f3edf7',
+    backgroundColor: Colors.bg,
   },
   overscrollFill: {
     position: 'absolute',
@@ -196,12 +189,11 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 1000,
-    backgroundColor: '#7e1f8c',
+    backgroundColor: Colors.plumDeep,
   },
   headerBg: {
-    backgroundColor: '#7e1f8c',
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
     paddingBottom: 36,
   },
   scrollContent: {
@@ -217,8 +209,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: FontFamily.serifMedium,
+    fontSize: FontSize.topbarTitle,
     color: 'white',
   },
 
@@ -229,38 +221,34 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   countNumber: {
-    fontSize: 64,
-    fontWeight: 'bold',
+    fontFamily: FontFamily.serifMedium,
+    fontSize: FontSize.statHuge,
     color: 'white',
     textAlign: 'center',
   },
   countLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: 'rgba(255,255,255,0.85)',
-    letterSpacing: 2,
-    marginTop: -4,
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.eyebrow,
+    color: 'rgba(255,255,255,0.8)',
+    letterSpacing: 2.5,
+    marginTop: 6,
     textAlign: 'center',
   },
   countSteps: {
-    fontSize: 13,
-    fontStyle: 'italic',
-    color: 'rgba(255,255,255,0.75)',
+    fontFamily: FontFamily.serifItalic,
+    fontSize: FontSize.secondary,
+    color: 'rgba(255,255,255,0.7)',
     textAlign: 'center',
-    marginTop: 8,
+    marginTop: 10,
   },
 
   /* Card */
   card: {
-    backgroundColor: 'white',
-    borderRadius: 16,
+    backgroundColor: Colors.surface,
+    borderRadius: Radii.card,
     marginHorizontal: 20,
     padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+    ...Shadows.card,
   },
   cardHeaderRow: {
     flexDirection: 'row',
@@ -269,21 +257,21 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   cardTitle: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#333',
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.cardTitle,
+    color: Colors.ink,
   },
   thisWeekBadge: {
     borderWidth: 1,
-    borderColor: '#7e1f8c',
+    borderColor: Colors.plum,
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 4,
   },
   thisWeekText: {
-    fontSize: 12,
-    color: '#7e1f8c',
-    fontWeight: '500',
+    fontFamily: FontFamily.sansMedium,
+    fontSize: FontSize.eyebrow,
+    color: Colors.plum,
   },
 
   /* Bar Chart */
@@ -304,36 +292,38 @@ const styles = StyleSheet.create({
   },
   bar: {
     width: 24,
-    borderRadius: 4,
-    backgroundColor: '#CE93D8',
+    borderRadius: 5,
+    backgroundColor: '#D8C7DE',
   },
   barHighlight: {
-    backgroundColor: '#7e1f8c',
+    backgroundColor: Colors.plum,
   },
   barCount: {
-    fontSize: 10,
-    color: '#CE93D8',
-    fontWeight: '600',
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.eyebrowSm,
+    color: '#D8C7DE',
     marginBottom: 2,
     textAlign: 'center',
   },
   barCountHighlight: {
-    color: '#7e1f8c',
+    color: Colors.plumSoft,
   },
   barLabel: {
-    fontSize: 12,
-    color: '#999',
+    fontFamily: FontFamily.sansSemibold,
+    fontSize: FontSize.eyebrow,
+    color: Colors.inkFaint,
     marginTop: 6,
   },
   barLabelHighlight: {
-    color: '#7e1f8c',
-    fontWeight: '600',
+    color: Colors.plum,
   },
   /* Section Title */
   sectionTitle: {
-    fontSize: 19,
-    fontWeight: '700',
-    color: '#333',
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.eyebrowSm,
+    textTransform: 'uppercase',
+    letterSpacing: 1.4,
+    color: Colors.inkFaint,
     marginHorizontal: 20,
     marginTop: 24,
     marginBottom: 14,
@@ -341,61 +331,63 @@ const styles = StyleSheet.create({
 
   /* Milestone Cards */
   milestoneCard: {
-    backgroundColor: 'white',
-    borderRadius: 16,
+    backgroundColor: Colors.surface,
+    borderRadius: Radii.card,
     marginHorizontal: 20,
     marginBottom: 12,
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    ...Shadows.soft,
   },
   milestoneIconCircle: {
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: '#4CAF50',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 14,
   },
-  milestoneIconGray: {
-    backgroundColor: '#e0e0e0',
+  milestoneIconDone: {
+    backgroundColor: Colors.sage,
+  },
+  milestoneIconTint: {
+    backgroundColor: Colors.plumTint,
+  },
+  milestoneIconLock: {
+    backgroundColor: '#EAE4EC',
   },
   milestoneInfo: {
     flex: 1,
   },
   milestoneName: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#333',
+    fontFamily: FontFamily.sansSemibold,
+    fontSize: FontSize.bodyMd,
+    color: Colors.ink,
   },
   milestoneSubtext: {
-    fontSize: 12,
-    color: '#999',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.eyebrow,
+    color: Colors.inkSoft,
     marginTop: 2,
   },
   milestoneDays: {
-    fontSize: 12,
-    color: '#7e1f8c',
-    fontWeight: '600',
+    fontFamily: FontFamily.sansSemibold,
+    fontSize: FontSize.eyebrow,
+    color: Colors.plum,
   },
   progressBarContainer: {
     marginTop: 6,
   },
   progressBarTrack: {
     height: 6,
-    backgroundColor: '#ece3f0',
+    backgroundColor: Colors.line,
     borderRadius: 3,
   },
   progressBarFill: {
     height: 6,
     width: '70%',
-    backgroundColor: '#7e1f8c',
+    backgroundColor: Colors.plum,
     borderRadius: 3,
   },
 
@@ -408,74 +400,23 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: 'white',
-    borderRadius: 16,
+    backgroundColor: Colors.surface,
+    borderRadius: Radii.card,
     padding: 20,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    ...Shadows.soft,
   },
   statValue: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
+    fontFamily: FontFamily.serifMedium,
+    fontSize: FontSize.hTitle,
+    color: Colors.ink,
     marginTop: 6,
   },
   statLabel: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#999',
-    letterSpacing: 1,
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.eyebrowSm,
+    color: Colors.inkFaint,
+    letterSpacing: 1.2,
     marginTop: 4,
-  },
-
-  /* SOS Button */
-  sosButton: {
-    position: 'absolute',
-    right: 10,
-    bottom: 95,
-    width: 66,
-    height: 66,
-    borderRadius: 33,
-    backgroundColor: '#C62828',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 6,
-  },
-  sosText: {
-    color: 'white',
-    fontSize: 9,
-    fontWeight: 'bold',
-    marginTop: 1,
-  },
-
-  /* Bottom Tab Bar */
-  tabBar: {
-    flexDirection: 'row',
-    backgroundColor: 'white',
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-    paddingTop: 8,
-    justifyContent: 'space-around',
-  },
-  tabItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  tabLabel: {
-    fontSize: 10,
-    color: '#999',
-    marginTop: 4,
-  },
-  tabLabelActive: {
-    color: '#7e1f8c',
   },
 });

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Binge Buddy — Safety &amp; Account</title>
+<link rel="stylesheet" href="mbb.css" />
+</head>
+<body>
+  <nav class="topnav">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none">
+          <path d="M8.5 17.5 Q16 24.5 23.5 17.5" stroke="#F2E7D5" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M9.5 12.8 Q12 10.6 14.5 12.8" stroke="#F2E7D5" stroke-width="2.4" stroke-linecap="round"/>
+          <ellipse cx="20.4" cy="12" rx="2.1" ry="2.7" fill="#F2E7D5"/>
+        </svg>
+      </span>
+      <div><b>My Binge Buddy</b><small>Frontend redesign · v1</small></div>
+    </div>
+    <a href="index.html">Overview</a>
+    <a href="01-onboarding.html">Onboarding</a>
+    <a href="02-daily.html">Daily Use</a>
+    <a href="03-account.html" class="active">Safety &amp; Account</a>
+  </nav>
+
+  <div class="site">
+    <section class="flow">
+      <div class="flow__head">
+        <div class="flow__eyebrow">Safety &amp; Account</div>
+        <h2 class="flow__title">The moment that matters — and the housekeeping</h2>
+        <p class="flow__sub">The SOS flow is the most important screen in the product, so it stays bright, simple and free of distraction. Behind it, settings, personalization and privacy use the same disciplined cards and a consistent plum header.</p>
+      </div>
+
+      <div class="frames">
+
+        <!-- ============ PANIC / SOS ============ -->
+        <div class="frame-wrap">
+          <div class="phone"><div class="phone__screen" data-ind="dark">
+            <div class="statusbar on-light"><span class="time">9:41</span></div>
+            <div class="app" style="background:var(--bg)">
+              <div class="topbar" style="padding:60px 20px 12px">
+                <span class="iconbtn iconbtn--surface"><i data-lucide="x" class="ic22"></i></span>
+                <h1 class="center">Emergency Support</h1>
+                <span style="width:38px"></span>
+              </div>
+
+              <div class="body" style="padding-top:8px">
+                <div class="action-tile" style="margin-bottom:14px">
+                  <span class="ic"><i data-lucide="headphones"></i></span>
+                  <b>Play My Audio Message</b>
+                </div>
+
+                <div class="card" style="margin-bottom:14px">
+                  <div class="row-flex gap8" style="margin-bottom:6px">
+                    <i data-lucide="check-circle-2" class="ic20 cl-plum"></i>
+                    <b class="card-title">5 Steps to Reset</b>
+                  </div>
+                  <div class="stepitem done">
+                    <span class="cbox cbox--round cbox--on"><i data-lucide="check"></i></span>
+                    <span class="txt">1. Acknowledge the urge as JUNK</span>
+                  </div>
+                  <div class="stepitem done">
+                    <span class="cbox cbox--round cbox--on"><i data-lucide="check"></i></span>
+                    <span class="txt">2. Separate your higher brain from the urge</span>
+                  </div>
+                  <div class="stepitem">
+                    <span class="cbox cbox--round"></span>
+                    <span class="txt">3. Do not REACT</span>
+                  </div>
+                  <div class="stepitem">
+                    <span class="cbox cbox--round"></span>
+                    <span class="txt">4. Do not ACT</span>
+                  </div>
+                  <div class="stepitem">
+                    <span class="cbox cbox--round"></span>
+                    <span class="txt">5. Celebrate!</span>
+                  </div>
+                </div>
+
+                <div class="action-tile" style="margin-bottom:20px">
+                  <span class="ic"><i data-lucide="book-open"></i></span>
+                  <b>Open Journal</b>
+                </div>
+
+                <button class="btn btn--primary"><i data-lucide="trophy"></i>I Have Beaten the Urge</button>
+              </div>
+            </div>
+          </div></div>
+          <div class="frame-cap"><b>Emergency Support (SOS)</b><span>Calm, uncluttered, action-first. The audio message sits up top; one tap logs a victory.</span></div>
+        </div>
+
+        <!-- ============ AUDIO RECORDING ============ -->
+        <div class="frame-wrap">
+          <div class="phone"><div class="phone__screen" data-ind="dark">
+            <div class="statusbar on-plum"><span class="time">9:41</span></div>
+            <div class="app">
+              <div class="app__scroll">
+                <div class="hero" style="padding-bottom:22px">
+                  <div class="hero__row" style="gap:8px">
+                    <i data-lucide="chevron-left" class="ic24 cl-white"></i>
+                    <span style="font-family:var(--serif);font-weight:500;font-size:18px;flex:1;text-align:center">Personal Audio Message</span>
+                    <span style="width:24px"></span>
+                  </div>
+                </div>
+
+                <div class="body" style="padding-top:20px">
+                  <div class="section-label">SAVED RECORDING</div>
+                  <div class="card" style="padding:14px 16px">
+                    <div class="row-flex gap12">
+                      <span class="row__ic t-plum"><i data-lucide="mic"></i></span>
+                      <span class="row__t"><b>Your Audio Message</b><span>Plays on your SOS screen</span></span>
+                      <span class="iconbtn" style="background:var(--plum-tint);color:var(--plum);width:36px;height:36px;border-radius:50%"><i data-lucide="play" class="ic20"></i></span>
+                      <span class="iconbtn" style="background:var(--alert-tint);color:var(--alert);width:36px;height:36px;border-radius:50%"><i data-lucide="trash-2" class="ic18"></i></span>
+                    </div>
+                  </div>
+
+                  <div class="section-label" style="margin-top:22px">RECORDING GUIDANCE</div>
+                  <div class="card">
+                    <div class="row-flex gap8" style="margin-bottom:8px"><i data-lucide="mic" class="ic18 cl-plum"></i><b class="card-title">What to Say</b></div>
+                    <p style="font-size:13px;color:var(--ink-soft);line-height:1.5;margin:0 0 14px">Speak to your future self in a moment of struggle. A heartfelt, personal message is far more powerful than a scripted one.</p>
+                    <div class="stack gap10">
+                      <div class="row-flex gap10" style="align-items:flex-start"><span style="width:6px;height:6px;border-radius:50%;background:var(--plum);margin-top:7px;flex:0 0 auto"></span><span style="font-size:13px;color:var(--ink);line-height:1.45">Remind yourself why you want to stop binge eating.</span></div>
+                      <div class="row-flex gap10" style="align-items:flex-start"><span style="width:6px;height:6px;border-radius:50%;background:var(--plum);margin-top:7px;flex:0 0 auto"></span><span style="font-size:13px;color:var(--ink);line-height:1.45">Acknowledge that the urge is neurological noise, not a real need.</span></div>
+                      <div class="row-flex gap10" style="align-items:flex-start"><span style="width:6px;height:6px;border-radius:50%;background:var(--plum);margin-top:7px;flex:0 0 auto"></span><span style="font-size:13px;color:var(--ink);line-height:1.45">State your goals clearly: what you are working toward.</span></div>
+                    </div>
+                  </div>
+
+                  <div class="section-label" style="margin-top:22px">RECORDING</div>
+                  <div class="card">
+                    <div class="row-flex gap10" style="margin-bottom:18px">
+                      <span style="width:10px;height:10px;border-radius:50%;background:#ccc"></span>
+                      <span class="serif" style="font-size:24px;font-weight:500;font-variant-numeric:tabular-nums">00:00</span>
+                    </div>
+                    <button class="btn btn--primary"><i data-lucide="mic"></i>Start Recording</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div></div>
+          <div class="frame-cap"><b>Audio Recording</b><span>Record a message for your future self. Saved clips get a clear, two-action row.</span></div>
+        </div>
+
+        <!-- ============ SETTINGS ============ -->
+        <div class="frame-wrap">
+          <div class="phone"><div class="phone__screen" data-ind="dark">
+            <div class="statusbar on-light"><span class="time">9:41</span></div>
+            <div class="app" style="background:var(--bg)">
+              <div class="app__scroll">
+                <div style="padding:66px 22px 6px">
+                  <h1 class="h-title">Settings</h1>
+                </div>
+                <div class="body" style="padding-top:16px">
+                  <div class="card row" style="gap:14px;padding:16px">
+                    <span style="width:52px;height:52px;border-radius:50%;background:var(--plum-tint);color:var(--plum);display:grid;place-items:center;flex:0 0 auto"><i data-lucide="user" class="ic26"></i></span>
+                    <span class="row__t"><b style="font-size:16px;font-weight:700">Alex Morgan</b><span>alex@example.com</span></span>
+                  </div>
+
+                  <div class="section-label" style="margin-top:22px">ACCOUNT</div>
+                  <div class="list">
+                    <div class="row">
+                      <span class="row__ic t-plum"><i data-lucide="user"></i></span>
+                      <span class="row__t"><b>Profile Settings</b></span>
+                      <span class="chev"><i data-lucide="chevron-right"></i></span>
+                    </div>
+                    <div class="row">
+                      <span class="row__ic t-sage"><i data-lucide="lock"></i></span>
+                      <span class="row__t"><b>Privacy &amp; Security</b></span>
+                      <span class="chev"><i data-lucide="chevron-right"></i></span>
+                    </div>
+                    <div class="row">
+                      <span class="row__ic t-plum"><i data-lucide="palette"></i></span>
+                      <span class="row__t"><b>Personalization</b></span>
+                      <span class="chev"><i data-lucide="chevron-right"></i></span>
+                    </div>
+                    <div class="row">
+                      <span class="row__ic t-alert"><i data-lucide="mic"></i></span>
+                      <span class="row__t"><b>Add / Update Audio Recording</b></span>
+                      <span class="chev"><i data-lucide="chevron-right"></i></span>
+                    </div>
+                  </div>
+
+                  <div class="section-label" style="margin-top:22px">SESSION</div>
+                  <div class="list">
+                    <div class="row" style="gap:12px">
+                      <span class="row__ic t-alert"><i data-lucide="log-out"></i></span>
+                      <span class="row__t"><b style="color:var(--alert)">Sign Out</b></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sos"><i data-lucide="life-buoy"></i><b>SOS</b></div>
+              <div class="tabbar">
+                <span class="tab"><i data-lucide="home"></i><span>Dashboard</span></span>
+                <span class="tab"><i data-lucide="bar-chart-3"></i><span>Progress</span></span>
+                <span class="tab"><i data-lucide="book-open"></i><span>Journal</span></span>
+                <span class="tab tab--active"><i data-lucide="settings"></i><span>Settings</span></span>
+              </div>
+            </div>
+          </div></div>
+          <div class="frame-cap"><b>Settings</b><span>A serif title, a clear profile header, and one tidy list with colour-coded row icons.</span></div>
+        </div>
+
+        <!-- ============ PROFILE SETTINGS ============ -->
+        <div class="frame-wrap">
+          <div class="phone"><div class="phone__screen" data-ind="dark">
+            <div class="statusbar on-plum"><span class="time">9:41</span></div>
+            <div class="app">
+              <div class="app__scroll">
+                <div class="hero" style="padding-bottom:22px">
+                  <div class="hero__row" style="gap:8px">
+                    <i data-lucide="chevron-left" class="ic24 cl-white"></i>
+                    <span style="font-family:var(--serif);font-weight:500;font-size:18px;flex:1;text-align:center">Profile Settings</span>
+                    <span style="width:24px"></span>
+                  </div>
+                </div>
+
+                <div class="body" style="padding-top:22px">
+                  <div class="section-label">PERSONAL INFO</div>
+                  <div class="card" style="padding:6px 16px">
+                    <div style="padding:12px 0">
+                      <div class="field__label" style="margin:0 0 4px">First Name</div>
+                      <div style="font-size:15px;color:var(--ink)">Alex Morgan</div>
+                    </div>
+                    <div class="divider"></div>
+                    <div style="padding:12px 0">
+                      <div class="field__label" style="margin:0 0 4px">Email</div>
+                      <div style="font-size:15px;color:var(--ink)">alex@example.com</div>
+                    </div>
+                  </div>
+
+                  <div class="section-label" style="margin-top:22px">CHANGE PASSWORD</div>
+                  <div class="card" style="padding:6px 16px">
+                    <div style="padding:12px 0">
+                      <div class="field__label" style="margin:0 0 4px">Current Password</div>
+                      <div style="font-size:15px;color:var(--ink-faint)">Enter current password</div>
+                    </div>
+                    <div class="divider"></div>
+                    <div style="padding:12px 0">
+                      <div class="field__label" style="margin:0 0 4px">New Password</div>
+                      <div style="font-size:15px;color:var(--ink-faint)">Enter new password</div>
+                    </div>
+                    <div class="divider"></div>
+                    <div style="padding:12px 0">
+                      <div class="field__label" style="margin:0 0 4px">Confirm New Password</div>
+                      <div style="font-size:15px;color:var(--ink-faint)">Re-enter new password</div>
+                    </div>
+                  </div>
+
+                  <button class="btn btn--primary" style="margin-top:22px">Save Changes</button>
+
+                  <div class="section-label" style="margin-top:22px">DANGER ZONE</div>
+                  <button class="btn btn--danger-ghost">Delete Account</button>
+                </div>
+              </div>
+            </div>
+          </div></div>
+          <div class="frame-cap"><b>Profile Settings</b><span>Grouped fields with hairline dividers; the destructive action is quarantined in its own zone.</span></div>
+        </div>
+
+        <!-- ============ PERSONALIZATION ============ -->
+        <div class="frame-wrap">
+          <div class="phone"><div class="phone__screen" data-ind="dark">
+            <div class="statusbar on-plum"><span class="time">9:41</span></div>
+            <div class="app">
+              <div class="app__scroll">
+                <div class="hero" style="padding-bottom:22px">
+                  <div class="hero__row" style="gap:8px">
+                    <i data-lucide="chevron-left" class="ic24 cl-white"></i>
+                    <span style="font-family:var(--serif);font-weight:500;font-size:18px;flex:1;text-align:center">Personalization</span>
+                    <span style="width:24px"></span>
+                  </div>
+                </div>
+
+                <div class="body" style="padding-top:22px">
+                  <div class="row-flex gap8" style="margin:0 0 10px 4px"><i data-lucide="image" class="ic16 cl-plum"></i><span class="section-label" style="margin:0">MOTIVATION PHOTO</span></div>
+                  <div class="ph" style="height:150px">
+                    <div class="ph__camera">
+                      <span class="c"><i data-lucide="camera"></i></span>
+                      <b>Tap to add your motivation photo</b>
+                      <small>Appears on your dashboard</small>
+                    </div>
+                  </div>
+
+                  <div class="row-flex gap8" style="margin:24px 0 10px 4px"><i data-lucide="heart" class="ic16 cl-plum"></i><span class="section-label" style="margin:0">MY WHY</span></div>
+                  <div class="card">
+                    <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 10px">Write a personal reminder of why you started.</p>
+                    <div class="input input--area"><span style="line-height:1.5">e.g. Being present for my kids…</span></div>
+                  </div>
+
+                  <div class="row-flex gap8" style="margin:24px 0 10px 4px"><i data-lucide="zap" class="ic16 cl-plum"></i><span class="section-label" style="margin:0">MAIN TRIGGER</span></div>
+                  <div class="opt opt--sel">
+                    <span class="opt__ic"><i data-lucide="zap"></i></span>
+                    <span class="opt__t"><b>Stress</b><span>Feeling overwhelmed by work or life</span></span>
+                    <span class="opt__check"><i data-lucide="check-circle-2"></i></span>
+                  </div>
+                  <div class="opt">
+                    <span class="opt__ic"><i data-lucide="clock"></i></span>
+                    <span class="opt__t"><b>Boredom</b><span>Eating when there is nothing to do</span></span>
+                  </div>
+
+                  <div class="row-flex gap8" style="margin:24px 0 10px 4px"><i data-lucide="ribbon" class="ic16 cl-plum"></i><span class="section-label" style="margin:0">MY MOTIVATIONS</span></div>
+                  <div class="card">
+                    <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 12px">Select everything that drives you forward.</p>
+                    <div class="row-flex gap8" style="flex-wrap:wrap">
+                      <span class="chip chip--active"><i data-lucide="shield-check" style="width:13px;height:13px"></i>Health</span>
+                      <span class="chip">Weight Loss</span>
+                      <span class="chip">Confidence</span>
+                      <span class="chip">Mental Clarity</span>
+                      <span class="chip">Save Money</span>
+                      <span class="chip">Sleep Quality</span>
+                    </div>
+                  </div>
+
+                  <button class="btn btn--primary btn--pill" style="margin-top:26px"><i data-lucide="check"></i>Save Changes</button>
+                </div>
+              </div>
+            </div>
+          </div></div>
+          <div class="frame-cap"><b>Personalization</b><span>Photo, “why”, trigger and motivators — the inputs that make the app feel personal.</span></div>
+        </div>
+
+        <!-- ============ PRIVACY & SECURITY ============ -->
+        <div class="frame-wrap">
+          <div class="phone"><div class="phone__screen" data-ind="dark">
+            <div class="statusbar on-plum"><span class="time">9:41</span></div>
+            <div class="app">
+              <div class="app__scroll">
+                <div class="hero" style="padding-bottom:22px">
+                  <div class="hero__row" style="gap:8px">
+                    <i data-lucide="chevron-left" class="ic24 cl-white"></i>
+                    <span style="font-family:var(--serif);font-weight:500;font-size:18px;flex:1;text-align:center">Privacy &amp; Security</span>
+                    <span style="width:24px"></span>
+                  </div>
+                </div>
+
+                <div class="body" style="padding-top:22px">
+                  <div class="section-label">HOW WE PROTECT YOU</div>
+                  <div class="card">
+                    <div class="row-flex gap14" style="align-items:flex-start;padding:6px 0">
+                      <span class="row__ic t-sage"><i data-lucide="shield-check"></i></span>
+                      <span class="row__t"><b style="font-weight:600">Data Encryption</b><span style="line-height:1.45;display:block;margin-top:2px">All data is encrypted in transit with TLS — never sent in plain text.</span></span>
+                    </div>
+                    <div class="divider" style="margin:10px 0 10px 52px"></div>
+                    <div class="row-flex gap14" style="align-items:flex-start;padding:6px 0">
+                      <span class="row__ic t-plum"><i data-lucide="eye-off"></i></span>
+                      <span class="row__t"><b style="font-weight:600">Private by Default</b><span style="line-height:1.45;display:block;margin-top:2px">Your journal and urge history are never sold or shared with advertisers.</span></span>
+                    </div>
+                    <div class="divider" style="margin:10px 0 10px 52px"></div>
+                    <div class="row-flex gap14" style="align-items:flex-start;padding:6px 0">
+                      <span class="row__ic t-blue"><i data-lucide="smartphone"></i></span>
+                      <span class="row__t"><b style="font-weight:600">Secure Token Storage</b><span style="line-height:1.45;display:block;margin-top:2px">Auth tokens live in device-level secure storage, not plain local storage.</span></span>
+                    </div>
+                  </div>
+
+                  <div class="section-label" style="margin-top:22px">YOUR RIGHTS</div>
+                  <div class="card">
+                    <div class="row-flex gap14" style="align-items:flex-start;padding:6px 0">
+                      <span class="row__ic t-blue"><i data-lucide="eye"></i></span>
+                      <span class="row__t"><b style="font-weight:600">Right to Access</b><span style="line-height:1.45;display:block;margin-top:2px">Request a full export of your data at any time.</span></span>
+                    </div>
+                    <div class="divider" style="margin:10px 0 10px 52px"></div>
+                    <div class="row-flex gap14" style="align-items:flex-start;padding:6px 0">
+                      <span class="row__ic t-alert"><i data-lucide="trash-2"></i></span>
+                      <span class="row__t"><b style="font-weight:600">Right to Deletion</b><span style="line-height:1.45;display:block;margin-top:2px">Deleting your account removes all associated data permanently.</span></span>
+                    </div>
+                  </div>
+
+                  <div class="section-label" style="margin-top:22px">MANAGE DATA</div>
+                  <div class="list">
+                    <div class="row">
+                      <span class="row__ic t-alert"><i data-lucide="trash-2"></i></span>
+                      <span class="row__t"><b style="color:var(--alert)">Delete My Account</b></span>
+                      <span class="chev"><i data-lucide="chevron-right"></i></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div></div>
+          <div class="frame-cap"><b>Privacy &amp; Security</b><span>Trust, made legible: short, plain-language rows with calm semantic colour for each topic.</span></div>
+        </div>
+
+      </div>
+    </section>
+
+    <footer style="margin-top:64px;padding-top:28px;border-top:1px solid rgba(37,24,38,.1);color:var(--ink-soft);font-size:13.5px">
+      <b style="color:var(--ink)">That's all 14 screens.</b> &nbsp;Same brand, deeper plum, a serif voice and a calmer grid — a more professional My Binge Buddy. Tell me which direction to push further, or any screen to refine.
+    </footer>
+  </div>
+
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+  <script src="mbb.js"></script>
+</body>
+</html>

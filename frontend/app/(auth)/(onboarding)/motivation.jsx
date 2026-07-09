@@ -7,6 +7,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { motivation } from '../../../components/OnboardingApi';
 import { addMotivationImage } from '../../../components/DataAPI';
 import { useAuth } from '../../../context/AuthContext';
+import { Colors, FontFamily, FontSize, Radii, Shadows } from '../../../constants/theme';
 
 export default function Motivation() {
   const insets = useSafeAreaInsets();
@@ -57,7 +58,7 @@ export default function Motivation() {
       {/* Top row */}
       <View style={styles.topRow}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={26} color="#333" />
+          <Ionicons name="chevron-back" size={26} color={Colors.ink} />
         </TouchableOpacity>
         <Text style={styles.stepText}>STEP 3 OF 3</Text>
         <View style={{ width: 26 }} />
@@ -75,7 +76,7 @@ export default function Motivation() {
       {/* Icon */}
       <View style={styles.iconWrapper}>
         <View style={styles.iconCircle}>
-          <Ionicons name="heart-outline" size={32} color="#7e1f8c" />
+          <Ionicons name="heart-outline" size={32} color={Colors.plum} />
         </View>
       </View>
 
@@ -91,7 +92,7 @@ export default function Motivation() {
         <TextInput
           style={styles.whyInput}
           placeholder="e.g. Being present for my kids..."
-          placeholderTextColor="#bbb"
+          placeholderTextColor={Colors.inkFaint}
           value={myWhy}
           onChangeText={setMyWhy}
           multiline
@@ -108,7 +109,7 @@ export default function Motivation() {
         ) : (
           <View style={styles.photoPlaceholder}>
             <View style={styles.cameraCircle}>
-              <Ionicons name="camera-outline" size={28} color="#7e1f8c" />
+              <Ionicons name="camera-outline" size={28} color={Colors.plum} />
             </View>
             <Text style={styles.photoPlaceholderText}>Tap to add a photo</Text>
             <Text style={styles.photoPlaceholderSub}>Optional — appears on your dashboard</Text>
@@ -138,7 +139,7 @@ export default function Motivation() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: Colors.surface,
   },
   content: {
     paddingHorizontal: 24,
@@ -152,10 +153,10 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   stepText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#555",
-    letterSpacing: 1,
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.eyebrowSm,
+    color: Colors.plumSoft,
+    letterSpacing: 1.5,
   },
 
   /* Progress bar */
@@ -168,21 +169,21 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   finalStepLabel: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: "#7e1f8c",
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.eyebrowSm,
+    color: Colors.plumSoft,
     letterSpacing: 0.5,
   },
   progressPercent: {
-    fontSize: 11,
-    fontWeight: "600",
-    color: "#7e1f8c",
+    fontFamily: FontFamily.sansSemibold,
+    fontSize: FontSize.eyebrowSm,
+    color: Colors.plumSoft,
   },
   progressFill: {
-    height: 4,
+    height: 5,
     width: "100%",
-    backgroundColor: "#7e1f8c",
-    borderRadius: 2,
+    backgroundColor: Colors.plum,
+    borderRadius: 3,
   },
 
   /* Icon */
@@ -194,23 +195,25 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: "#ede9ee",
+    backgroundColor: Colors.plumTint,
     alignItems: "center",
     justifyContent: "center",
   },
 
   /* Title */
   title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    color: "#111",
+    fontFamily: FontFamily.serifMedium,
+    fontSize: FontSize.flowTitle,
+    color: Colors.ink,
     textAlign: "center",
     marginBottom: 12,
-    lineHeight: 34,
+    lineHeight: 40,
+    letterSpacing: -0.4,
   },
   subtitle: {
-    fontSize: 14,
-    color: "#666",
+    fontFamily: FontFamily.sansMedium,
+    fontSize: FontSize.body,
+    color: Colors.inkSoft,
     lineHeight: 22,
     textAlign: "center",
     marginBottom: 32,
@@ -218,32 +221,35 @@ const styles = StyleSheet.create({
 
   /* Field label */
   fieldLabel: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#7e1f8c",
-    letterSpacing: 0.5,
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.secondary,
+    color: Colors.plumSoft,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
     marginBottom: 10,
   },
 
   /* My Why */
   whyCard: {
-    backgroundColor: '#fafafa',
+    backgroundColor: Colors.plumTint2,
     borderWidth: 1.5,
-    borderColor: '#e8e3ea',
+    borderColor: Colors.line,
     borderRadius: 16,
     padding: 14,
     marginBottom: 24,
   },
   whyInput: {
-    fontSize: 15,
-    color: '#1a1a1a',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.body,
+    color: Colors.ink,
     lineHeight: 22,
     minHeight: 88,
     textAlignVertical: 'top',
   },
   charCount: {
-    fontSize: 11,
-    color: '#bbb',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.eyebrowSm,
+    color: Colors.inkFaint,
     textAlign: 'right',
     marginTop: 6,
   },
@@ -253,7 +259,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
     height: 170,
-    backgroundColor: '#ede9ee',
+    backgroundColor: Colors.plumTint2,
     marginBottom: 32,
   },
   photoPlaceholder: {
@@ -263,23 +269,25 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   cameraCircle: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: 'white',
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: Colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 10,
+    ...Shadows.soft,
   },
   photoPlaceholderText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#7e1f8c',
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.secondary,
+    color: Colors.plum,
     textAlign: 'center',
   },
   photoPlaceholderSub: {
-    fontSize: 12,
-    color: '#7a5080',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.eyebrow,
+    color: Colors.plumSoft,
     marginTop: 4,
     textAlign: 'center',
   },
@@ -303,9 +311,9 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   changePhotoText: {
-    fontSize: 12,
+    fontFamily: FontFamily.sansSemibold,
+    fontSize: FontSize.eyebrow,
     color: 'white',
-    fontWeight: '600',
   },
 
   /* Finish button */
@@ -313,22 +321,23 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     width: "100%",
     height: 52,
-    backgroundColor: "#7e1f8c",
-    borderRadius: 28,
+    backgroundColor: Colors.plum,
+    borderRadius: Radii.pill,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
   },
   finishButtonText: {
     color: "white",
-    fontSize: 16,
-    fontWeight: "700",
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.body,
   },
 
   /* Footer */
   footerNote: {
     textAlign: "center",
-    fontSize: 12,
-    color: "#AAA",
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.eyebrow,
+    color: Colors.inkFaint,
   },
 });

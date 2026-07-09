@@ -7,6 +7,7 @@ import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { logUrge } from '../../components/UrgeAPI';
 import { useAuth } from '@/context/AuthContext';
 import { getPanicAudio } from '@/components/DataAPI';
+import { Colors, FontFamily, FontSize, Radii, Shadows } from '@/constants/theme';
 
 const STEPS = [
   "Acknowledge the urge as JUNK",
@@ -51,7 +52,7 @@ export default function Panic() {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.closeBtn}>
-            <Ionicons name="close" size={22} color="#333" />
+            <Ionicons name="close" size={22} color={Colors.ink} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Emergency Support</Text>
           <View style={styles.headerSpacer} />
@@ -61,14 +62,14 @@ export default function Panic() {
         {audioUrl ? (
           <TouchableOpacity style={styles.audioBtn} onPress={toggleAudio} activeOpacity={0.75}>
             <View style={styles.actionIconWrap}>
-              <Ionicons name={isPlaying ? 'stop-circle' : 'headset'} size={26} color="#7e1f8c" />
+              <Ionicons name={isPlaying ? 'stop-circle' : 'headset'} size={25} color={Colors.plum} />
             </View>
             <Text style={styles.actionLabel}>{isPlaying ? 'Stop Message' : 'Play My Audio Message'}</Text>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity style={styles.audioBtn} onPress={() => router.push('/audio-recording')} activeOpacity={0.75}>
             <View style={styles.actionIconWrap}>
-              <Ionicons name="mic-outline" size={26} color="#7e1f8c" />
+              <Ionicons name="mic-outline" size={25} color={Colors.plum} />
             </View>
             <Text style={styles.actionLabel}>Record a Personal Audio Message</Text>
           </TouchableOpacity>
@@ -77,7 +78,7 @@ export default function Panic() {
         {/* 5 Steps to Reset */}
         <View style={styles.stepsCard}>
           <View style={styles.stepsHeader}>
-            <Ionicons name="checkmark-circle" size={20} color="#7e1f8c" />
+            <Ionicons name="checkmark-circle" size={20} color={Colors.plum} />
             <Text style={styles.stepsTitle}>5 Steps to Reset</Text>
           </View>
 
@@ -100,17 +101,10 @@ export default function Panic() {
           ))}
         </View>
 
-        {/* Affirmation box */}
-        <View style={styles.affirmationBox}>
-          <Text style={styles.affirmationText}>
-            {"You NEVER want to binge, it isn't worth it, you clicking this button proves that"}
-          </Text>
-        </View>
-
         {/* Action Buttons */}
         <TouchableOpacity style={styles.journalBtn} onPress={() => router.push('/journal')} activeOpacity={0.75}>
           <View style={styles.actionIconWrap}>
-            <Ionicons name="document-text" size={26} color="#7e1f8c" />
+            <Ionicons name="book-outline" size={25} color={Colors.plum} />
           </View>
           <Text style={styles.actionLabel}>Open Journal</Text>
         </TouchableOpacity>
@@ -130,7 +124,7 @@ export default function Panic() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f3edf7',
+    backgroundColor: Colors.bg,
   },
   scroll: {
     paddingHorizontal: 20,
@@ -148,53 +142,29 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    ...Shadows.soft,
   },
   headerTitle: {
     flex: 1,
     textAlign: 'center',
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1a1a1a',
+    fontFamily: FontFamily.serifMedium,
+    fontSize: FontSize.topbarTitle,
+    color: Colors.ink,
   },
   headerSpacer: {
     width: 36,
   },
 
-  /* Affirmation box */
-  affirmationBox: {
-    backgroundColor: '#7e1f8c',
-    borderRadius: 20,
-    padding: 24,
-    marginBottom: 16,
-    alignItems: 'center',
-  },
-  affirmationText: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: 'white',
-    textAlign: 'center',
-    lineHeight: 30,
-  },
-
   /* Steps card */
   stepsCard: {
-    backgroundColor: 'white',
-    borderRadius: 20,
+    backgroundColor: Colors.surface,
+    borderRadius: Radii.card,
     padding: 20,
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 3,
+    ...Shadows.card,
   },
   stepsHeader: {
     flexDirection: 'row',
@@ -203,13 +173,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   stepsTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#1a1a1a',
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.cardTitle,
+    color: Colors.ink,
   },
   stepDivider: {
     height: 1,
-    backgroundColor: '#f3edf7',
+    backgroundColor: Colors.line,
     marginLeft: 38,
   },
   stepRow: {
@@ -223,63 +193,55 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 12,
     borderWidth: 1.5,
-    borderColor: '#ccc',
+    borderColor: '#cabfce',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
   },
   checkboxChecked: {
-    backgroundColor: '#7e1f8c',
-    borderColor: '#7e1f8c',
+    backgroundColor: Colors.plum,
+    borderColor: Colors.plum,
   },
   stepText: {
-    fontSize: 15,
-    color: '#333',
-    fontWeight: '400',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.bodyMd,
+    color: Colors.ink,
   },
   stepTextDone: {
-    color: '#bbb',
+    color: Colors.inkFaint,
     textDecorationLine: 'line-through',
   },
 
   /* Action buttons */
   audioBtn: {
     alignItems: 'center',
-    backgroundColor: 'white',
-    borderRadius: 20,
+    backgroundColor: Colors.surface,
+    borderRadius: Radii.card,
     paddingVertical: 20,
-    gap: 8,
+    gap: 11,
     marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 3,
+    ...Shadows.card,
   },
   journalBtn: {
     alignItems: 'center',
-    backgroundColor: 'white',
-    borderRadius: 20,
+    backgroundColor: Colors.surface,
+    borderRadius: Radii.card,
     paddingVertical: 20,
-    gap: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 3,
+    gap: 11,
+    ...Shadows.card,
   },
   actionIconWrap: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    backgroundColor: '#f3edf7',
+    width: 50,
+    height: 50,
+    borderRadius: 15,
+    backgroundColor: Colors.plumTint,
     alignItems: 'center',
     justifyContent: 'center',
   },
   actionLabel: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: '#555',
+    fontFamily: FontFamily.sansSemibold,
+    fontSize: FontSize.secondary,
+    color: Colors.inkSoft,
     textAlign: 'center',
   },
 
@@ -289,19 +251,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
-    backgroundColor: '#4CAF50',
-    borderRadius: 16,
+    backgroundColor: Colors.plum,
+    borderRadius: Radii.btn,
     paddingVertical: 18,
     marginTop: 20,
-    shadowColor: '#4CAF50',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 5,
+    ...Shadows.pop,
   },
   victoryText: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.body,
     color: 'white',
   },
 });

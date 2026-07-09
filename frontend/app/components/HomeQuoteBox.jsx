@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { Ionicons } from '@expo/vector-icons'
+import { Colors, FontFamily, FontSize, Radii, Shadows } from '@/constants/theme'
 
 const QUOTES = [
   {
@@ -96,7 +97,7 @@ const HomeQuoteBox = () => {
   return (
     <View style={styles.card}>
       <View style={styles.iconRow}>
-        <Ionicons name="sparkles" size={16} color="#7e1f8c" />
+        <Ionicons name="sparkles" size={15} color={Colors.plum} />
         <Text style={styles.label}>Daily Inspiration</Text>
       </View>
       <Text style={styles.quoteText}>"{quote.text}"</Text>
@@ -109,15 +110,11 @@ export default HomeQuoteBox;
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: 'white',
-    borderRadius: 16,
+    backgroundColor: Colors.surface,
+    borderRadius: Radii.card,
     marginHorizontal: 20,
     padding: 22,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    ...Shadows.card,
   },
   iconRow: {
     flexDirection: 'row',
@@ -126,23 +123,23 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   label: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#7e1f8c',
-    letterSpacing: 0.5,
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.eyebrow,
+    color: Colors.plumSoft,
+    letterSpacing: 1.4,
     textTransform: 'uppercase',
   },
   quoteText: {
-    fontSize: 15,
-    color: '#333',
+    fontFamily: FontFamily.serifItalic,
+    fontSize: FontSize.body,
+    color: Colors.ink,
     lineHeight: 23,
-    fontStyle: 'italic',
     marginBottom: 12,
   },
   author: {
-    fontSize: 13,
-    color: '#999',
-    fontWeight: '500',
+    fontFamily: FontFamily.sansMedium,
+    fontSize: FontSize.secondarySm,
+    color: Colors.inkFaint,
     textAlign: 'right',
   },
 });

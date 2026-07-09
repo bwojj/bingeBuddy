@@ -1,6 +1,8 @@
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import { useEffect, useRef } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { FontFamily, FontSize, Gradients } from '@/constants/theme';
 
 export default function LoadingScreen({ overlay = false }) {
   const iconScale = useRef(new Animated.Value(0.88)).current;
@@ -38,15 +40,20 @@ export default function LoadingScreen({ overlay = false }) {
   }, []);
 
   return (
-    <View style={[styles.container, overlay && styles.overlay]}>
-      {/* Soft radial glow behind icon */}
-      <View style={styles.glowRing} />
-      <View style={styles.glowRingInner} />
-
-      {/* Icon */}
-      <Animated.View style={[styles.iconWrap, { transform: [{ scale: iconScale }] }]}>
-        <MaterialCommunityIcons name="heart-pulse" size={48} color="white" />
-      </Animated.View>
+    <LinearGradient
+      colors={Gradients.hero.colors}
+      start={Gradients.hero.start}
+      end={Gradients.hero.end}
+      style={[styles.container, overlay && styles.overlay]}
+    >
+      {/* Icon, with its glow rings scoped to just this element */}
+      <View style={styles.iconStack}>
+        <View style={styles.glowRing} />
+        <View style={styles.glowRingInner} />
+        <Animated.View style={[styles.iconWrap, { transform: [{ scale: iconScale }] }]}>
+          <MaterialCommunityIcons name="heart-pulse" size={48} color="white" />
+        </Animated.View>
+      </View>
 
       {/* App name */}
       <Text style={styles.appName}>BingeBuddy</Text>
@@ -58,14 +65,13 @@ export default function LoadingScreen({ overlay = false }) {
         <Animated.View style={[styles.dot, { opacity: dot2Opacity }]} />
         <Animated.View style={[styles.dot, { opacity: dot3Opacity }]} />
       </View>
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#7e1f8c',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -78,7 +84,12 @@ const styles = StyleSheet.create({
     zIndex: 9999,
   },
 
-  /* Decorative glow rings */
+  /* Icon + its decorative glow rings, centered as one unit */
+  iconStack: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 28,
+  },
   glowRing: {
     position: 'absolute',
     width: 220,
@@ -102,7 +113,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.18)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 28,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.25,
@@ -112,16 +122,17 @@ const styles = StyleSheet.create({
 
   /* Text */
   appName: {
-    fontSize: 34,
-    fontWeight: 'bold',
+    fontFamily: FontFamily.serifMedium,
+    fontSize: FontSize.flowTitle,
+    lineHeight: FontSize.flowTitle * 1.3,
     color: 'white',
-    letterSpacing: 0.5,
+    letterSpacing: -0.3,
   },
   tagline: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.7)',
+    fontFamily: FontFamily.sansMedium,
+    fontSize: FontSize.bodyMd,
+    color: 'rgba(255,255,255,0.72)',
     marginTop: 8,
-    letterSpacing: 0.3,
   },
 
   /* Dots */

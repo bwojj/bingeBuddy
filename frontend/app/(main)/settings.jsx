@@ -1,8 +1,11 @@
 import { Text, View, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from "@/context/AuthContext";
+import TabBar from '../components/TabBar';
+import SOSButton from '../components/SOSButton';
+import { Colors, FontFamily, FontSize, Radii, Shadows } from '@/constants/theme';
 
 export default function Settings() {
   const insets = useSafeAreaInsets();
@@ -34,7 +37,7 @@ export default function Settings() {
         {/* Profile Row — display only, not tappable */}
         <View style={styles.profileCard}>
           <View style={styles.avatarCircle}>
-            <Ionicons name="person" size={28} color="#7e1f8c" />
+            <Ionicons name="person" size={28} color={Colors.plum} />
           </View>
           <View style={styles.profileInfo}>
             <Text style={styles.profileName}>{displayName}</Text>
@@ -46,47 +49,47 @@ export default function Settings() {
         <Text style={styles.sectionLabel}>ACCOUNT</Text>
         <View style={styles.menuCard}>
           <TouchableOpacity style={styles.menuRow} onPress={() => router.push('/profile-settings')}>
-            <View style={[styles.menuIconWrap, { backgroundColor: '#e8e3ea' }]}>
-              <Ionicons name="person-outline" size={20} color="#7e1f8c" />
+            <View style={[styles.menuIconWrap, { backgroundColor: Colors.plumTint }]}>
+              <Ionicons name="person-outline" size={20} color={Colors.plum} />
             </View>
             <Text style={styles.menuLabel}>Profile Settings</Text>
-            <Ionicons name="chevron-forward" size={18} color="#bbb" style={styles.menuChevron} />
+            <Ionicons name="chevron-forward" size={18} color={Colors.inkFaint} style={styles.menuChevron} />
           </TouchableOpacity>
 
           <View style={styles.menuDivider} />
 
           <TouchableOpacity style={styles.menuRow} onPress={() => router.push('/privacy-security')}>
-            <View style={[styles.menuIconWrap, { backgroundColor: '#e8f5e9' }]}>
-              <Ionicons name="lock-closed-outline" size={20} color="#388E3C" />
+            <View style={[styles.menuIconWrap, { backgroundColor: Colors.sageTint }]}>
+              <Ionicons name="lock-closed-outline" size={20} color={Colors.sage} />
             </View>
             <Text style={styles.menuLabel}>Privacy & Security</Text>
-            <Ionicons name="chevron-forward" size={18} color="#bbb" style={styles.menuChevron} />
+            <Ionicons name="chevron-forward" size={18} color={Colors.inkFaint} style={styles.menuChevron} />
           </TouchableOpacity>
 
           <View style={styles.menuDivider} />
 
           <TouchableOpacity style={styles.menuRow} onPress={() => router.push('/personalization')}>
-            <View style={[styles.menuIconWrap, { backgroundColor: '#ede9ee' }]}>
-              <Ionicons name="color-palette-outline" size={20} color="#7e1f8c" />
+            <View style={[styles.menuIconWrap, { backgroundColor: Colors.plumTint }]}>
+              <Ionicons name="color-palette-outline" size={20} color={Colors.plum} />
             </View>
             <Text style={styles.menuLabel}>Personalization</Text>
-            <Ionicons name="chevron-forward" size={18} color="#bbb" style={styles.menuChevron} />
+            <Ionicons name="chevron-forward" size={18} color={Colors.inkFaint} style={styles.menuChevron} />
           </TouchableOpacity>
 
           <View style={styles.menuDivider} />
 
           <TouchableOpacity style={styles.menuRow} onPress={() => router.push('/audio-recording')}>
-            <View style={[styles.menuIconWrap, { backgroundColor: '#fce4ec' }]}>
-              <Ionicons name="mic-outline" size={20} color="#C62828" />
+            <View style={[styles.menuIconWrap, { backgroundColor: Colors.alertTint }]}>
+              <Ionicons name="mic-outline" size={20} color={Colors.alert} />
             </View>
             <Text style={styles.menuLabel}>Add / Update Audio Recording</Text>
-            <Ionicons name="chevron-forward" size={18} color="#bbb" style={styles.menuChevron} />
+            <Ionicons name="chevron-forward" size={18} color={Colors.inkFaint} style={styles.menuChevron} />
           </TouchableOpacity>
         </View>
 
         {/* Sign Out */}
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.8}>
-          <Ionicons name="log-out-outline" size={20} color="#C62828" />
+          <Ionicons name="log-out-outline" size={20} color={Colors.alert} />
           <Text style={styles.logoutText}>Sign Out</Text>
         </TouchableOpacity>
 
@@ -94,31 +97,8 @@ export default function Settings() {
         <View style={{ height: 90 }} />
       </ScrollView>
 
-      {/* SOS Button */}
-      <TouchableOpacity style={styles.sosButton} onPress={() => router.push('/panic')}>
-        <MaterialCommunityIcons name="lifebuoy" size={26} color="white" />
-        <Text style={styles.sosText}>SOS</Text>
-      </TouchableOpacity>
-
-      {/* Bottom Tab Bar */}
-      <View style={[styles.tabBar, { paddingBottom: insets.bottom || 10 }]}>
-        <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/')}>
-          <Ionicons name="home-outline" size={24} color="#999" />
-          <Text style={styles.tabLabel}>Dashboard</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/progress')}>
-          <Ionicons name="bar-chart-outline" size={24} color="#999" />
-          <Text style={styles.tabLabel}>Progress</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/journal')}>
-          <Ionicons name="document-text-outline" size={24} color="#999" />
-          <Text style={styles.tabLabel}>Journal</Text>
-        </TouchableOpacity>
-        <View style={styles.tabItem}>
-          <Ionicons name="settings" size={24} color="#7e1f8c" />
-          <Text style={[styles.tabLabel, styles.tabLabelActive]}>Settings</Text>
-        </View>
-      </View>
+      <SOSButton />
+      <TabBar activeTab="settings" />
     </View>
   );
 }
@@ -126,7 +106,7 @@ export default function Settings() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f3edf7',
+    backgroundColor: Colors.bg,
   },
   scrollContent: {
     paddingBottom: 20,
@@ -136,31 +116,27 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1a1a1a',
+    fontFamily: FontFamily.serifMedium,
+    fontSize: FontSize.hTitle,
+    color: Colors.ink,
   },
 
   /* Profile Card */
   profileCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
     marginHorizontal: 20,
-    borderRadius: 16,
+    borderRadius: Radii.card,
     padding: 16,
     marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    ...Shadows.soft,
   },
   avatarCircle: {
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: '#e8e3ea',
+    backgroundColor: Colors.plumTint,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 14,
@@ -169,21 +145,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   profileName: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#1a1a1a',
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.cardTitle,
+    color: Colors.ink,
   },
   profileSub: {
-    fontSize: 13,
-    color: '#888',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.secondarySm,
+    color: Colors.inkSoft,
     marginTop: 2,
   },
 
   /* Section Label */
   sectionLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#999',
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.eyebrowSm,
+    color: Colors.inkFaint,
     letterSpacing: 1.2,
     marginHorizontal: 20,
     marginBottom: 8,
@@ -191,16 +168,12 @@ const styles = StyleSheet.create({
 
   /* Menu Card */
   menuCard: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
     marginHorizontal: 20,
-    borderRadius: 16,
+    borderRadius: Radii.card,
     marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
     overflow: 'hidden',
+    ...Shadows.soft,
   },
   menuRow: {
     flexDirection: 'row',
@@ -218,86 +191,35 @@ const styles = StyleSheet.create({
   },
   menuLabel: {
     flex: 1,
-    fontSize: 15,
-    color: '#1a1a1a',
-    fontWeight: '400',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.bodyMd,
+    color: Colors.ink,
   },
   menuChevron: {
     marginLeft: 4,
   },
   menuDivider: {
     height: 1,
-    backgroundColor: '#f3edf7',
+    backgroundColor: Colors.bg,
     marginLeft: 66,
-  },
-
-  /* SOS Button */
-  sosButton: {
-    position: 'absolute',
-    right: 10,
-    bottom: 95,
-    width: 66,
-    height: 66,
-    borderRadius: 33,
-    backgroundColor: '#C62828',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 6,
-  },
-  sosText: {
-    color: 'white',
-    fontSize: 9,
-    fontWeight: 'bold',
-    marginTop: 1,
-  },
-
-  /* Bottom Tab Bar */
-  tabBar: {
-    flexDirection: 'row',
-    backgroundColor: 'white',
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-    paddingTop: 8,
-    justifyContent: 'space-around',
-  },
-  tabItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  tabLabel: {
-    fontSize: 10,
-    color: '#999',
-    marginTop: 4,
-  },
-  tabLabelActive: {
-    color: '#7e1f8c',
   },
 
   /* Logout */
   logoutBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
     marginHorizontal: 20,
-    borderRadius: 16,
+    borderRadius: Radii.card,
     paddingHorizontal: 16,
     paddingVertical: 16,
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
     gap: 12,
+    ...Shadows.soft,
   },
   logoutText: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: '#C62828',
+    fontFamily: FontFamily.sansMedium,
+    fontSize: FontSize.bodyMd,
+    color: Colors.alert,
   },
 });

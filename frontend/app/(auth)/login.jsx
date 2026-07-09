@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { login } from '../../components/AuthApi';
 import { useAuth } from '../../context/AuthContext';
+import { Colors, FontFamily, FontSize, Radii } from '../../constants/theme';
 
 export default function Login() {
   const insets = useSafeAreaInsets();
@@ -31,22 +32,22 @@ export default function Login() {
     >
       {/* Logo */}
       <Image
-        source={require('../../assets/images/bblogo.jpg')}
+        source={require('../../assets/images/bingebuddy3.png')}
         style={styles.logoImage}
       />
 
       {/* Title */}
-      <Text style={styles.title}>Welcome Back</Text>
+      <Text style={styles.title}>Welcome back</Text>
       <Text style={styles.subtitle}>Your recovery journey continues here.</Text>
 
       {/* Username */}
       <Text style={styles.label}>Username</Text>
       <View style={styles.inputRow}>
-        <Ionicons name="at-outline" size={20} color="#999" />
+        <Ionicons name="at-outline" size={19} color={Colors.inkFaint} />
         <TextInput
           style={styles.input}
           placeholder="alex123"
-          placeholderTextColor="#aaa"
+          placeholderTextColor={Colors.inkFaint}
           value={username}
           onChangeText={setUsername}
           autoCapitalize="none"
@@ -56,29 +57,30 @@ export default function Login() {
       {/* Password */}
       <Text style={styles.label}>Password</Text>
       <View style={styles.inputRow}>
-        <Ionicons name="lock-closed-outline" size={20} color="#999" />
+        <Ionicons name="lock-closed-outline" size={19} color={Colors.inkFaint} />
         <TextInput
           style={styles.input}
           placeholder="••••••••"
-          placeholderTextColor="#aaa"
+          placeholderTextColor={Colors.inkFaint}
           value={password}
           onChangeText={setPassword}
           secureTextEntry={!showPassword}
           autoCapitalize="none"
         />
         <TouchableOpacity onPress={() => setShowPassword(v => !v)}>
-          <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color="#999" />
+          <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={19} color={Colors.inkFaint} />
         </TouchableOpacity>
       </View>
 
       {/* Forgot password */}
       <TouchableOpacity onPress={() => {}}>
-        <Text style={styles.forgotText}>Forgot Password?</Text>
+        <Text style={styles.forgotText}>Forgot password?</Text>
       </TouchableOpacity>
 
       {/* Login button */}
-      <TouchableOpacity style={styles.primaryButton} onPress={handleLogin}>
-        <Text style={styles.primaryButtonText}>{"Log In  \u2192"}</Text>
+      <TouchableOpacity style={styles.primaryButton} onPress={handleLogin} activeOpacity={0.85}>
+        <Text style={styles.primaryButtonText}>Log In</Text>
+        <Ionicons name="arrow-forward" size={19} color="white" />
       </TouchableOpacity>
 
       {/* Sign up link */}
@@ -95,66 +97,70 @@ export default function Login() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
   },
   content: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 26,
     alignItems: 'center',
   },
 
   /* Logo */
   logoImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 20,
-    marginBottom: 24,
+    width: 76,
+    height: 76,
+    borderRadius: 22,
+    marginBottom: 22,
   },
 
   /* Title */
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#7e1f8c',
+    fontFamily: FontFamily.serifMedium,
+    fontSize: FontSize.authTitle,
+    letterSpacing: -0.3,
+    color: Colors.ink,
     marginBottom: 6,
   },
   subtitle: {
-    fontSize: 14,
-    color: '#666',
+    fontFamily: FontFamily.sansMedium,
+    fontSize: FontSize.bodyMd,
+    color: Colors.inkSoft,
     marginBottom: 32,
+    textAlign: 'center',
   },
 
   /* Form */
   label: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#333',
+    fontFamily: FontFamily.sansSemibold,
+    fontSize: FontSize.eyebrow,
+    color: Colors.inkSoft,
     alignSelf: 'flex-start',
-    marginBottom: 8,
+    marginBottom: 7,
   },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
     height: 50,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: Colors.line,
+    borderRadius: 13,
     paddingHorizontal: 14,
     marginBottom: 18,
-    backgroundColor: '#fafafa',
+    backgroundColor: Colors.surface,
   },
   input: {
     flex: 1,
-    fontSize: 15,
-    color: '#333',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.bodyMd,
+    color: Colors.ink,
     marginLeft: 10,
   },
 
   /* Forgot */
   forgotText: {
-    fontSize: 13,
-    color: '#7e1f8c',
-    fontWeight: '600',
+    fontFamily: FontFamily.sansSemibold,
+    fontSize: FontSize.secondary,
+    color: Colors.plum,
     alignSelf: 'flex-end',
     marginBottom: 24,
     marginTop: -8,
@@ -162,18 +168,20 @@ const styles = StyleSheet.create({
 
   /* Button */
   primaryButton: {
+    flexDirection: 'row',
+    gap: 9,
     width: '100%',
     height: 52,
-    backgroundColor: '#7e1f8c',
-    borderRadius: 14,
+    backgroundColor: Colors.plum,
+    borderRadius: Radii.btn,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 28,
   },
   primaryButtonText: {
     color: 'white',
-    fontSize: 16,
-    fontWeight: '700',
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.body,
   },
 
   /* Bottom link */
@@ -182,12 +190,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   bottomLinkText: {
-    fontSize: 14,
-    color: '#666',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.bodyMd,
+    color: Colors.inkSoft,
   },
   bottomLinkAction: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#7e1f8c',
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.bodyMd,
+    color: Colors.plum,
   },
 });

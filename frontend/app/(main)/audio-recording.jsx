@@ -12,7 +12,9 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useState, useRef, useEffect } from 'react';
 import { useAudioRecorder, useAudioPlayer, useAudioPlayerStatus, setAudioModeAsync, requestRecordingPermissionsAsync, RecordingPresets } from 'expo-audio';
+import { LinearGradient } from 'expo-linear-gradient';
 import { addPanicAudio, getPanicAudio, deletePanicAudio } from '@/components/DataAPI';
+import { Colors, FontFamily, FontSize, Radii, Shadows, Gradients } from '@/constants/theme';
 
 const TIPS = [
   'Remind yourself why you want to stop binge eating.',
@@ -154,13 +156,18 @@ export default function AudioRecording() {
         keyboardShouldPersistTaps="handled"
       >
         {/* Header */}
-        <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+        <LinearGradient
+          colors={Gradients.hero.colors}
+          start={Gradients.hero.start}
+          end={Gradients.hero.end}
+          style={[styles.header, { paddingTop: insets.top + 10 }]}
+        >
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
             <Ionicons name="chevron-back" size={26} color="white" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Personal Audio Message</Text>
           <View style={{ width: 40 }} />
-        </View>
+        </LinearGradient>
 
         {/* Saved Recording */}
         {existingUrl && (
@@ -169,14 +176,14 @@ export default function AudioRecording() {
             <View style={styles.card}>
               <View style={styles.savedRow}>
                 <View style={[styles.savedIconWrap]}>
-                  <Ionicons name="mic" size={20} color="#7e1f8c" />
+                  <Ionicons name="mic" size={20} color={Colors.plum} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.savedTitle}>Your Audio Message</Text>
                   <Text style={styles.savedSub}>Plays on your SOS screen</Text>
                 </View>
                 <TouchableOpacity style={styles.savedPlayBtn} onPress={toggleSavedPlayback} activeOpacity={0.75}>
-                  <Ionicons name={savedPlaying ? 'pause' : 'play'} size={20} color="#7e1f8c" />
+                  <Ionicons name={savedPlaying ? 'pause' : 'play'} size={20} color={Colors.plum} />
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.savedDeleteBtn}
@@ -185,8 +192,8 @@ export default function AudioRecording() {
                   activeOpacity={0.75}
                 >
                   {deleting
-                    ? <ActivityIndicator size="small" color="#C62828" />
-                    : <Ionicons name="trash-outline" size={20} color="#C62828" />}
+                    ? <ActivityIndicator size="small" color={Colors.alert} />
+                    : <Ionicons name="trash-outline" size={20} color={Colors.alert} />}
                 </TouchableOpacity>
               </View>
             </View>
@@ -197,7 +204,7 @@ export default function AudioRecording() {
         <Text style={styles.sectionLabel}>RECORDING GUIDANCE</Text>
         <View style={styles.card}>
           <View style={styles.cardTitleRow}>
-            <Ionicons name="mic" size={18} color="#7e1f8c" />
+            <Ionicons name="mic" size={18} color={Colors.plum} />
             <Text style={styles.cardTitle}>What to Say</Text>
           </View>
           <Text style={styles.cardSubtitle}>
@@ -240,7 +247,7 @@ export default function AudioRecording() {
           {/* Playback preview */}
           {recordedUri && (
             <TouchableOpacity style={styles.previewBtn} onPress={playPreview} activeOpacity={0.75}>
-              <Ionicons name={previewPlaying ? 'stop-circle-outline' : 'play-circle-outline'} size={22} color="#7e1f8c" />
+              <Ionicons name={previewPlaying ? 'stop-circle-outline' : 'play-circle-outline'} size={22} color={Colors.plum} />
               <Text style={styles.previewLabel}>{previewPlaying ? 'Stop Preview' : 'Preview Recording'}</Text>
             </TouchableOpacity>
           )}
@@ -273,17 +280,16 @@ export default function AudioRecording() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#7e1f8c',
+    backgroundColor: Colors.plumDeep,
   },
   scroll: {
     flexGrow: 1,
-    backgroundColor: '#f3edf7',
+    backgroundColor: Colors.bg,
     paddingBottom: 20,
   },
 
   /* Header */
   header: {
-    backgroundColor: '#7e1f8c',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -298,8 +304,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontFamily: FontFamily.serifMedium,
+    fontSize: FontSize.topbarTitle,
     color: 'white',
   },
 
@@ -313,25 +319,26 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#ede9ee',
+    backgroundColor: Colors.plumTint,
     alignItems: 'center',
     justifyContent: 'center',
   },
   savedTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1a1a1a',
+    fontFamily: FontFamily.sansSemibold,
+    fontSize: FontSize.bodyMd,
+    color: Colors.ink,
   },
   savedSub: {
-    fontSize: 12,
-    color: '#999',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.eyebrow,
+    color: Colors.inkSoft,
     marginTop: 2,
   },
   savedPlayBtn: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#ede9ee',
+    backgroundColor: Colors.plumTint,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -339,16 +346,16 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#ffebee',
+    backgroundColor: Colors.alertTint,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   /* Section Label */
   sectionLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#999',
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.eyebrowSm,
+    color: Colors.inkFaint,
     letterSpacing: 1.2,
     marginHorizontal: 20,
     marginBottom: 8,
@@ -356,16 +363,12 @@ const styles = StyleSheet.create({
 
   /* Card */
   card: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
     marginHorizontal: 20,
-    borderRadius: 16,
+    borderRadius: Radii.card,
     padding: 18,
     marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    ...Shadows.soft,
   },
   cardTitleRow: {
     flexDirection: 'row',
@@ -374,13 +377,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   cardTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#1a1a1a',
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.cardTitle,
+    color: Colors.ink,
   },
   cardSubtitle: {
-    fontSize: 13,
-    color: '#666',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.secondarySm,
+    color: Colors.inkSoft,
     lineHeight: 19,
     marginBottom: 14,
   },
@@ -394,14 +398,15 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#7e1f8c',
+    backgroundColor: Colors.plum,
     marginTop: 6,
     flexShrink: 0,
   },
   tipText: {
     flex: 1,
-    fontSize: 13,
-    color: '#444',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.secondarySm,
+    color: Colors.inkSoft,
     lineHeight: 19,
   },
 
@@ -416,21 +421,21 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#ccc',
+    backgroundColor: Colors.line,
   },
   timerDotActive: {
-    backgroundColor: '#C62828',
+    backgroundColor: Colors.alert,
   },
   timerText: {
+    fontFamily: FontFamily.serifMedium,
     fontSize: 22,
-    fontWeight: '700',
-    color: '#1a1a1a',
+    color: Colors.ink,
     fontVariant: ['tabular-nums'],
   },
   recordingLabel: {
-    fontSize: 13,
-    color: '#C62828',
-    fontWeight: '500',
+    fontFamily: FontFamily.sansMedium,
+    fontSize: FontSize.secondarySm,
+    color: Colors.alert,
   },
 
   /* Record button */
@@ -439,17 +444,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
-    backgroundColor: '#7e1f8c',
-    borderRadius: 14,
+    backgroundColor: Colors.plum,
+    borderRadius: Radii.btn,
     paddingVertical: 16,
     marginBottom: 12,
   },
   recordBtnActive: {
-    backgroundColor: '#C62828',
+    backgroundColor: Colors.alert,
   },
   recordBtnLabel: {
-    fontSize: 15,
-    fontWeight: '700',
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.body,
     color: 'white',
   },
 
@@ -460,14 +465,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
     borderWidth: 1.5,
-    borderColor: '#7e1f8c',
+    borderColor: Colors.plum,
     borderRadius: 12,
     paddingVertical: 12,
   },
   previewLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#7e1f8c',
+    fontFamily: FontFamily.sansMedium,
+    fontSize: FontSize.bodyMd,
+    color: Colors.plum,
   },
 
   /* Save */
@@ -476,22 +481,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
-    backgroundColor: '#4CAF50',
+    backgroundColor: Colors.plum,
     marginHorizontal: 20,
-    borderRadius: 14,
+    borderRadius: Radii.btn,
     paddingVertical: 16,
-    shadowColor: '#4CAF50',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 4,
+    ...Shadows.pop,
   },
   saveBtnDisabled: {
     opacity: 0.6,
   },
   saveBtnText: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.body,
     color: 'white',
   },
 });

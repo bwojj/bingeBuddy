@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Text, View, StyleSheet, ScrollView, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { login, register } from '../../components/AuthApi.js'
+import { Colors, FontFamily, FontSize, Radii } from '../../constants/theme';
 
 export default function Signup() {
   const insets = useSafeAreaInsets();
@@ -38,7 +39,7 @@ export default function Signup() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: 'white' }}
+      style={{ flex: 1, backgroundColor: Colors.surface }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
     <ScrollView
@@ -50,7 +51,7 @@ export default function Signup() {
       {/* Top row */}
       <View style={styles.topRow}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={26} color="#333" />
+          <Ionicons name="chevron-back" size={26} color={Colors.ink} />
         </TouchableOpacity>
         <Text style={styles.stepText}>STEP 1 OF 3</Text>
         <View style={{ width: 26 }} />
@@ -69,20 +70,20 @@ export default function Signup() {
 
       {/* Quote card */}
       <View style={styles.quoteCard}>
-        <MaterialCommunityIcons name="format-quote-open" size={24} color="#7e1f8c" />
+        <Text style={styles.quoteMark}>“</Text>
         <Text style={styles.quoteText}>
-          {"\"Recovery is not for people who need it, it's for people who want it. We are so glad you're here.\""}
+          {"Recovery is not for people who need it, it's for people who want it. We are so glad you're here."}
         </Text>
       </View>
 
       {/* Preferred Name */}
       <Text style={styles.label}>Preferred Name</Text>
       <View style={styles.inputRow}>
-        <Ionicons name="person-outline" size={20} color="#999" />
+        <Ionicons name="person-outline" size={19} color={Colors.inkFaint} />
         <TextInput
           style={styles.input}
           placeholder="Alex"
-          placeholderTextColor="#aaa"
+          placeholderTextColor={Colors.inkFaint}
           value={name}
           onChangeText={setName}
         />
@@ -91,11 +92,11 @@ export default function Signup() {
       {/* Username */}
       <Text style={styles.label}>Username</Text>
       <View style={styles.inputRow}>
-        <Ionicons name="at-outline" size={20} color="#999" />
+        <Ionicons name="at-outline" size={19} color={Colors.inkFaint} />
         <TextInput
           style={styles.input}
           placeholder="alex123"
-          placeholderTextColor="#aaa"
+          placeholderTextColor={Colors.inkFaint}
           value={username}
           onChangeText={setUsername}
           autoCapitalize="none"
@@ -105,11 +106,11 @@ export default function Signup() {
       {/* Email */}
       <Text style={styles.label}>Email Address</Text>
       <View style={styles.inputRow}>
-        <Ionicons name="mail-outline" size={20} color="#999" />
+        <Ionicons name="mail-outline" size={19} color={Colors.inkFaint} />
         <TextInput
           style={styles.input}
           placeholder="alex@example.com"
-          placeholderTextColor="#aaa"
+          placeholderTextColor={Colors.inkFaint}
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
@@ -120,18 +121,18 @@ export default function Signup() {
       {/* Password */}
       <Text style={styles.label}>Create Password</Text>
       <View style={styles.inputRow}>
-        <Ionicons name="lock-closed-outline" size={20} color="#999" />
+        <Ionicons name="lock-closed-outline" size={19} color={Colors.inkFaint} />
         <TextInput
           style={styles.input}
           placeholder="••••••••"
-          placeholderTextColor="#aaa"
+          placeholderTextColor={Colors.inkFaint}
           value={password}
           onChangeText={setPassword}
           secureTextEntry={!showPassword}
           autoCapitalize="none"
         />
         <TouchableOpacity onPress={() => setShowPassword(v => !v)}>
-          <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color="#999" />
+          <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={19} color={Colors.inkFaint} />
         </TouchableOpacity>
       </View>
 
@@ -141,7 +142,7 @@ export default function Signup() {
           style={[styles.checkbox, agreed && styles.checkboxChecked]}
           onPress={() => setAgreed(v => !v)}
         >
-          {agreed && <Ionicons name="checkmark" size={14} color="white" />}
+          {agreed && <Ionicons name="checkmark" size={13} color="white" />}
         </TouchableOpacity>
         <Text style={styles.termsText}>
           {"I agree to the "}
@@ -170,7 +171,7 @@ export default function Signup() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
   },
   content: {
     paddingHorizontal: 24,
@@ -184,64 +185,72 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   stepText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#999',
-    letterSpacing: 1,
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.eyebrowSm,
+    color: Colors.plumSoft,
+    letterSpacing: 1.5,
   },
 
   /* Progress bar */
   progressTrack: {
-    height: 4,
-    backgroundColor: '#e0e0e0',
-    borderRadius: 2,
+    height: 5,
+    backgroundColor: Colors.line,
+    borderRadius: 3,
     marginBottom: 28,
   },
   progressFill: {
-    height: 4,
+    height: 5,
     width: '33%',
-    backgroundColor: '#7e1f8c',
-    borderRadius: 2,
+    backgroundColor: Colors.plum,
+    borderRadius: 3,
   },
 
   /* Title */
   title: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#222',
+    fontFamily: FontFamily.serifMedium,
+    fontSize: FontSize.hTitle,
+    letterSpacing: -0.3,
+    color: Colors.ink,
     marginBottom: 8,
   },
   subtitle: {
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 20,
+    fontFamily: FontFamily.sansMedium,
+    fontSize: FontSize.bodyMd,
+    color: Colors.inkSoft,
+    lineHeight: 21,
     marginBottom: 20,
   },
 
   /* Quote */
   quoteCard: {
     flexDirection: 'row',
-    backgroundColor: '#f8f4fc',
-    borderRadius: 14,
+    backgroundColor: Colors.plumTint2,
+    borderRadius: 15,
     padding: 16,
     gap: 10,
     marginBottom: 28,
     borderWidth: 1,
-    borderColor: '#ece3f0',
+    borderColor: Colors.line,
+  },
+  quoteMark: {
+    fontFamily: FontFamily.serifRegular,
+    fontSize: 34,
+    lineHeight: 28,
+    color: Colors.plumSoft,
   },
   quoteText: {
     flex: 1,
-    fontSize: 13,
-    fontStyle: 'italic',
-    color: '#555',
-    lineHeight: 20,
+    fontFamily: FontFamily.serifItalic,
+    fontSize: FontSize.secondarySm,
+    color: Colors.inkSoft,
+    lineHeight: 21,
   },
 
   /* Form */
   label: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#333',
+    fontFamily: FontFamily.sansSemibold,
+    fontSize: FontSize.eyebrow,
+    color: Colors.inkSoft,
     marginBottom: 8,
   },
   inputRow: {
@@ -249,17 +258,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     height: 50,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: Colors.line,
+    borderRadius: 13,
     paddingHorizontal: 14,
     marginBottom: 18,
-    backgroundColor: '#fafafa',
+    backgroundColor: Colors.surface,
   },
   input: {
     flex: 1,
-    fontSize: 15,
-    color: '#333',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.bodyMd,
+    color: Colors.ink,
     marginLeft: 10,
   },
 
@@ -272,42 +282,43 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   checkbox: {
-    width: 20,
-    height: 20,
-    borderWidth: 1.5,
-    borderColor: '#ccc',
-    borderRadius: 4,
+    width: 21,
+    height: 21,
+    borderWidth: 1.6,
+    borderColor: '#cabfce',
+    borderRadius: 6,
     marginTop: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   checkboxChecked: {
-    backgroundColor: '#7e1f8c',
-    borderColor: '#7e1f8c',
+    backgroundColor: Colors.plum,
+    borderColor: Colors.plum,
   },
   termsText: {
     flex: 1,
-    fontSize: 13,
-    color: '#666',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.secondarySm,
+    color: Colors.inkSoft,
     lineHeight: 19,
   },
   termsLink: {
-    color: '#7e1f8c',
-    fontWeight: '600',
+    color: Colors.plum,
+    fontFamily: FontFamily.sansSemibold,
   },
 
   /* Button */
   primaryButton: {
     width: '100%',
     height: 52,
-    backgroundColor: '#7e1f8c',
-    borderRadius: 14,
+    backgroundColor: Colors.plum,
+    borderRadius: Radii.btn,
     alignItems: 'center',
     justifyContent: 'center',
   },
   primaryButtonText: {
     color: 'white',
-    fontSize: 16,
-    fontWeight: '700',
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.body,
   },
 });

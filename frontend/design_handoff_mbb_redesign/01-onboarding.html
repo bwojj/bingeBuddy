@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Binge Buddy — Onboarding</title>
+<link rel="stylesheet" href="mbb.css" />
+</head>
+<body>
+  <nav class="topnav">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none">
+          <path d="M8.5 17.5 Q16 24.5 23.5 17.5" stroke="#F2E7D5" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M9.5 12.8 Q12 10.6 14.5 12.8" stroke="#F2E7D5" stroke-width="2.4" stroke-linecap="round"/>
+          <ellipse cx="20.4" cy="12" rx="2.1" ry="2.7" fill="#F2E7D5"/>
+        </svg>
+      </span>
+      <div><b>My Binge Buddy</b><small>Frontend redesign · v1</small></div>
+    </div>
+    <a href="index.html">Overview</a>
+    <a href="01-onboarding.html" class="active">Onboarding</a>
+    <a href="02-daily.html">Daily Use</a>
+    <a href="03-account.html">Safety &amp; Account</a>
+  </nav>
+
+  <div class="site">
+    <section class="flow">
+      <div class="flow__head">
+        <div class="flow__eyebrow">Onboarding &amp; Auth</div>
+        <h2 class="flow__title">A calm, reassuring welcome</h2>
+        <p class="flow__sub">The first four screens set the tone: white space, a serif voice and one focused action per screen. A soft progress bar and a grounding quote make account-creation feel like the start of something supportive — not a form to fill in.</p>
+      </div>
+
+      <div class="frames">
+
+        <!-- ============ LOGIN ============ -->
+        <div class="frame-wrap">
+          <div class="phone"><div class="phone__screen" data-ind="dark">
+            <div class="statusbar on-light"><span class="time">9:41</span></div>
+            <div class="app" style="background:#fff">
+              <div class="auth" style="padding-top:104px">
+                <div class="auth-center">
+                  <span class="logo logo--lg" aria-hidden="true">
+                    <svg viewBox="0 0 32 32" fill="none">
+                      <path d="M8.5 17.5 Q16 24.5 23.5 17.5" stroke="#F2E7D5" stroke-width="2.4" stroke-linecap="round"/>
+                      <path d="M9.5 12.8 Q12 10.6 14.5 12.8" stroke="#F2E7D5" stroke-width="2.4" stroke-linecap="round"/>
+                      <ellipse cx="20.4" cy="12" rx="2.1" ry="2.7" fill="#F2E7D5"/>
+                    </svg>
+                  </span>
+                  <h1>Welcome back</h1>
+                  <p class="sub">Your recovery journey continues here.</p>
+                </div>
+
+                <div style="height:34px"></div>
+                <div class="field">
+                  <div class="field__label">Username</div>
+                  <div class="input"><i data-lucide="at-sign"></i><span class="val" style="flex:1">alex123</span></div>
+                </div>
+                <div class="field">
+                  <div class="field__label">Password</div>
+                  <div class="input"><i data-lucide="lock"></i><span style="flex:1">••••••••</span><i data-lucide="eye" class="cl-faint"></i></div>
+                </div>
+                <div style="text-align:right;margin:-4px 2px 0"><span style="font-size:13px;color:var(--plum);font-weight:600">Forgot password?</span></div>
+
+                <div style="height:26px"></div>
+                <button class="btn btn--primary">Log In <i data-lucide="arrow-right"></i></button>
+
+                <div class="center" style="margin-top:28px;font-size:13.5px;color:var(--ink-soft)">Don't have an account? <b style="color:var(--plum)">Sign Up</b></div>
+              </div>
+            </div>
+          </div></div>
+          <div class="frame-cap"><b>Sign In</b><span>The wink greets you on a clean white field. One tap to continue.</span></div>
+        </div>
+
+        <!-- ============ SIGN UP ============ -->
+        <div class="frame-wrap">
+          <div class="phone"><div class="phone__screen" data-ind="dark">
+            <div class="statusbar on-light"><span class="time">9:41</span></div>
+            <div class="app" style="background:#fff">
+              <div class="auth" style="padding-top:64px">
+                <div class="stepbar">
+                  <i data-lucide="chevron-left" class="ic24 cl-ink"></i>
+                  <span class="step-eyebrow" style="color:var(--ink-faint)">STEP 1 OF 3</span>
+                  <span style="width:24px"></span>
+                </div>
+                <div class="track" style="margin:14px 0 22px"><div class="fill" style="width:33%"></div></div>
+
+                <h1 style="font-family:var(--serif);font-weight:500;font-size:25px;letter-spacing:-.015em;margin:0 0 7px">Create your account</h1>
+                <p style="font-size:14px;color:var(--ink-soft);line-height:1.5;margin:0 0 18px">Your journey to recovery starts here. We're with you every step of the way.</p>
+
+                <div class="quote-card" style="margin-bottom:20px">
+                  <span class="qmark">“</span>
+                  <p class="q">Recovery is not for people who need it, it's for people who want it. We're so glad you're here.</p>
+                </div>
+
+                <div class="field">
+                  <div class="field__label">Preferred Name</div>
+                  <div class="input"><i data-lucide="user"></i><span class="val" style="flex:1">Alex</span></div>
+                </div>
+                <div class="field">
+                  <div class="field__label">Email Address</div>
+                  <div class="input"><i data-lucide="mail"></i><span class="val" style="flex:1">alex@example.com</span></div>
+                </div>
+                <div class="field">
+                  <div class="field__label">Create Password</div>
+                  <div class="input"><i data-lucide="lock"></i><span style="flex:1">••••••••</span><i data-lucide="eye" class="cl-faint"></i></div>
+                </div>
+
+                <div class="row-flex gap10" style="align-items:flex-start;margin:6px 0 18px">
+                  <span class="cbox cbox--on"><i data-lucide="check"></i></span>
+                  <span style="font-size:13px;color:var(--ink-soft);line-height:1.45">I agree to the <b style="color:var(--plum)">Terms of Service</b> and <b style="color:var(--plum)">Privacy Policy</b></span>
+                </div>
+                <button class="btn btn--primary">Continue</button>
+              </div>
+            </div>
+          </div></div>
+          <div class="frame-cap"><b>Create Account · Step 1</b><span>A grounding quote replaces a cold form header; progress is always visible.</span></div>
+        </div>
+
+        <!-- ============ MAIN CAUSE ============ -->
+        <div class="frame-wrap">
+          <div class="phone"><div class="phone__screen" data-ind="dark">
+            <div class="statusbar on-light"><span class="time">9:41</span></div>
+            <div class="app" style="background:#fff">
+              <div class="auth" style="padding-top:64px">
+                <div class="stepbar">
+                  <i data-lucide="chevron-left" class="ic24 cl-ink"></i>
+                  <span class="step-eyebrow">STEP 2 OF 3</span>
+                  <span style="width:24px"></span>
+                </div>
+                <div class="track" style="margin:14px 0 26px"><div class="fill" style="width:66%"></div></div>
+
+                <h1 style="font-family:var(--serif);font-weight:500;font-size:26px;line-height:1.25;letter-spacing:-.015em;margin:0 0 10px">What's your main cause of <span style="color:var(--plum)">binge eating?</span></h1>
+                <p style="font-size:13.5px;color:var(--ink-soft);line-height:1.5;margin:0 0 22px">Identifying your triggers is the first step toward a healthier relationship with food.</p>
+
+                <div class="opt opt--sel">
+                  <span class="opt__ic"><i data-lucide="zap"></i></span>
+                  <span class="opt__t"><b>Stress</b><span>Feeling overwhelmed by work or life</span></span>
+                  <span class="opt__check"><i data-lucide="check-circle-2"></i></span>
+                </div>
+                <div class="opt">
+                  <span class="opt__ic"><i data-lucide="clock"></i></span>
+                  <span class="opt__t"><b>Boredom</b><span>Eating when there is nothing to do</span></span>
+                </div>
+                <div class="opt">
+                  <span class="opt__ic"><i data-lucide="cloud-rain"></i></span>
+                  <span class="opt__t"><b>Difficult Emotions</b><span>Coping with sadness or anxiety</span></span>
+                </div>
+                <div class="opt">
+                  <span class="opt__ic"><i data-lucide="users"></i></span>
+                  <span class="opt__t"><b>Social Situations</b><span>Pressure from friends or family events</span></span>
+                </div>
+
+                <div style="height:18px"></div>
+                <button class="btn btn--primary">Next</button>
+                <div class="center" style="margin-top:16px;font-size:13.5px;color:var(--plum);font-weight:600">I'm not sure yet</div>
+              </div>
+            </div>
+          </div></div>
+          <div class="frame-cap"><b>Trigger · Step 2</b><span>Selectable cards with quiet icons. The chosen one fills with plum tint, not a heavy border.</span></div>
+        </div>
+
+        <!-- ============ MOTIVATION ============ -->
+        <div class="frame-wrap">
+          <div class="phone"><div class="phone__screen" data-ind="dark">
+            <div class="statusbar on-light"><span class="time">9:41</span></div>
+            <div class="app" style="background:#fff">
+              <div class="auth" style="padding-top:64px">
+                <div class="stepbar">
+                  <i data-lucide="chevron-left" class="ic24 cl-ink"></i>
+                  <span class="step-eyebrow" style="color:var(--ink-faint)">STEP 3 OF 3</span>
+                  <span style="width:24px"></span>
+                </div>
+                <div class="row-flex between" style="margin:16px 0 7px">
+                  <span class="step-eyebrow">FINAL STEP</span>
+                  <span style="font-size:11.5px;font-weight:700;color:var(--plum)">100%</span>
+                </div>
+                <div class="track" style="margin-bottom:24px"><div class="fill" style="width:100%"></div></div>
+
+                <div class="auth-center">
+                  <span style="width:64px;height:64px;border-radius:50%;background:var(--plum-tint);color:var(--plum);display:grid;place-items:center">
+                    <i data-lucide="heart" class="ic26"></i>
+                  </span>
+                  <h1 style="margin-top:18px">What's your “why”?</h1>
+                  <p class="sub">Write a personal reminder of why you want to change, and add a photo that inspires you.</p>
+                </div>
+
+                <div style="height:24px"></div>
+                <div class="field__label" style="color:var(--plum);font-weight:700;letter-spacing:.04em">MY WHY</div>
+                <div class="input input--area" style="margin-bottom:18px"><span style="line-height:1.5">e.g. Being present for my kids…</span></div>
+
+                <div class="field__label" style="color:var(--plum);font-weight:700;letter-spacing:.04em">MOTIVATION PHOTO</div>
+                <div class="ph" style="height:150px;margin-bottom:22px">
+                  <div class="ph__camera">
+                    <span class="c"><i data-lucide="camera"></i></span>
+                    <b>Tap to add a photo</b>
+                    <small>Optional — appears on your dashboard</small>
+                  </div>
+                </div>
+
+                <button class="btn btn--primary btn--pill">Finish <i data-lucide="check"></i></button>
+                <div class="center" style="margin-top:14px;font-size:12px;color:var(--ink-faint)">You can update these anytime in Settings.</div>
+              </div>
+            </div>
+          </div></div>
+          <div class="frame-cap"><b>Your “Why” · Step 3</b><span>An emotional close to onboarding — a personal note and a photo that will live on the dashboard.</span></div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+  <script src="mbb.js"></script>
+</body>
+</html>

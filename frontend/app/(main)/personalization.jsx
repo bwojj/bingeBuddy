@@ -9,6 +9,8 @@ import { useState } from 'react';
 import { addMotivationImage } from '../../components/DataAPI'; 
 import { motivation } from '../../components/OnboardingApi'
 import * as ImagePicker from 'expo-image-picker';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Colors, FontFamily, FontSize, Radii, Shadows, Gradients } from '@/constants/theme';
 
 /* ── Onboarding data ─────────────────────────────── */
 const TRIGGERS = [
@@ -88,13 +90,18 @@ export default function Personalization() {
         keyboardShouldPersistTaps="handled"
       >
         {/* Header */}
-        <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+        <LinearGradient
+          colors={Gradients.hero.colors}
+          start={Gradients.hero.start}
+          end={Gradients.hero.end}
+          style={[styles.header, { paddingTop: insets.top + 10 }]}
+        >
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
             <Ionicons name="chevron-back" size={26} color="white" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Personalization</Text>
           <View style={{ width: 40 }} />
-        </View>
+        </LinearGradient>
 
         {/* ── Motivation Photo ── */}
         <SectionLabel icon="image-outline" label="Motivation Photo" />
@@ -104,7 +111,7 @@ export default function Personalization() {
           ) : (
             <View style={styles.photoPlaceholder}>
               <View style={styles.cameraCircle}>
-                <Ionicons name="camera-outline" size={32} color="#7e1f8c" />
+                <Ionicons name="camera-outline" size={32} color={Colors.plum} />
               </View>
               <Text style={styles.photoPlaceholderText}>Tap to add your motivation photo</Text>
               <Text style={styles.photoPlaceholderSub}>This image will appear on your dashboard</Text>
@@ -129,7 +136,7 @@ export default function Personalization() {
           <TextInput
             style={styles.whyInput}
             placeholder="e.g. Being present for my kids..."
-            placeholderTextColor="#bbb"
+            placeholderTextColor={Colors.inkFaint}
             value={myWhy}
             onChangeText={setMyWhy}
             multiline
@@ -151,13 +158,13 @@ export default function Personalization() {
                 activeOpacity={0.75}
               >
                 <View style={[styles.optionIconCircle, sel && styles.optionIconCircleSel]}>
-                  {opt.icon(sel ? '#7e1f8c' : '#888')}
+                  {opt.icon(sel ? Colors.plum : Colors.inkSoft)}
                 </View>
                 <View style={styles.optionText}>
                   <Text style={[styles.optionTitle, sel && styles.optionTitleSel]}>{opt.title}</Text>
                   <Text style={styles.optionSubtitle}>{opt.subtitle}</Text>
                 </View>
-                {sel && <Ionicons name="checkmark-circle" size={20} color="#7e1f8c" />}
+                {sel && <Ionicons name="checkmark-circle" size={20} color={Colors.plum} />}
               </TouchableOpacity>
             );
           })}
@@ -202,8 +209,8 @@ function SectionLabel({ icon, label, iconLib }) {
   return (
     <View style={styles.sectionLabelRow}>
       {iconLib === 'material'
-        ? <MaterialCommunityIcons name={icon} size={16} color="#7e1f8c" style={{ marginRight: 6 }} />
-        : <Ionicons name={icon} size={16} color="#7e1f8c" style={{ marginRight: 6 }} />
+        ? <MaterialCommunityIcons name={icon} size={16} color={Colors.plum} style={{ marginRight: 6 }} />
+        : <Ionicons name={icon} size={16} color={Colors.plum} style={{ marginRight: 6 }} />
       }
       <Text style={styles.sectionLabel}>{label}</Text>
     </View>
@@ -211,12 +218,11 @@ function SectionLabel({ icon, label, iconLib }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#7e1f8c' },
-  scrollContent: { flexGrow: 1, backgroundColor: '#f3edf7', paddingBottom: 20 },
+  container: { flex: 1, backgroundColor: Colors.plumDeep },
+  scrollContent: { flexGrow: 1, backgroundColor: Colors.bg, paddingBottom: 20 },
 
   /* Header */
   header: {
-    backgroundColor: '#7e1f8c',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -227,7 +233,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   backBtn: { width: 40, alignItems: 'flex-start' },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: 'white' },
+  headerTitle: { fontFamily: FontFamily.serifMedium, fontSize: FontSize.topbarTitle, color: 'white' },
 
   /* Section label */
   sectionLabelRow: {
@@ -238,9 +244,9 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   sectionLabel: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#7e1f8c',
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.secondary,
+    color: Colors.plumSoft,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
   },
@@ -248,10 +254,10 @@ const styles = StyleSheet.create({
   /* Photo card */
   photoCard: {
     marginHorizontal: 20,
-    borderRadius: 16,
+    borderRadius: Radii.card,
     overflow: 'hidden',
     height: 180,
-    backgroundColor: '#e8e3ea',
+    backgroundColor: Colors.plumTint2,
   },
   photoPlaceholder: {
     flex: 1,
@@ -263,18 +269,14 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
-    shadowColor: '#7e1f8c',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 3,
+    ...Shadows.soft,
   },
-  photoPlaceholderText: { fontSize: 15, fontWeight: '600', color: '#7e1f8c', textAlign: 'center' },
-  photoPlaceholderSub:  { fontSize: 12, color: '#7a5080', marginTop: 4, textAlign: 'center' },
+  photoPlaceholderText: { fontFamily: FontFamily.sansBold, fontSize: FontSize.body, color: Colors.plum, textAlign: 'center' },
+  photoPlaceholderSub:  { fontFamily: FontFamily.sansRegular, fontSize: FontSize.eyebrow, color: Colors.plumSoft, marginTop: 4, textAlign: 'center' },
   photoImage: { width: '100%', height: '100%' },
   photoOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -285,39 +287,36 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.45)',
+    backgroundColor: 'rgba(37,24,38,0.45)',
     borderRadius: 12,
     paddingHorizontal: 10,
     paddingVertical: 5,
     gap: 5,
   },
-  changePhotoText: { fontSize: 12, color: 'white', fontWeight: '600' },
+  changePhotoText: { fontFamily: FontFamily.sansSemibold, fontSize: FontSize.eyebrow, color: 'white' },
 
   /* My Why card */
   whyCard: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
     marginHorizontal: 20,
-    borderRadius: 16,
+    borderRadius: Radii.card,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    ...Shadows.soft,
   },
-  whyDescription: { fontSize: 13, color: '#888', marginBottom: 10, lineHeight: 18 },
+  whyDescription: { fontFamily: FontFamily.sansRegular, fontSize: FontSize.secondarySm, color: Colors.inkSoft, marginBottom: 10, lineHeight: 18 },
   whyInput: {
-    fontSize: 15,
-    color: '#1a1a1a',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.body,
+    color: Colors.ink,
     lineHeight: 22,
     minHeight: 72,
     textAlignVertical: 'top',
     borderWidth: 1.5,
-    borderColor: '#e8e3ea',
+    borderColor: Colors.line,
     borderRadius: 12,
     padding: 12,
   },
-  charCount: { fontSize: 11, color: '#bbb', textAlign: 'right', marginTop: 6 },
+  charCount: { fontFamily: FontFamily.sansRegular, fontSize: FontSize.eyebrowSm, color: Colors.inkFaint, textAlign: 'right', marginTop: 6 },
 
   /* Option cards (trigger / coaching) */
   optionGroup: { marginHorizontal: 20, gap: 10 },
@@ -325,58 +324,50 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: '#E5E7EB',
-    borderRadius: 16,
+    borderColor: Colors.line,
+    borderRadius: 15,
     padding: 14,
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
     gap: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
+    ...Shadows.soft,
   },
-  optionCardSel: { borderColor: '#7e1f8c', backgroundColor: '#f2edf3' },
+  optionCardSel: { borderColor: Colors.plum, backgroundColor: Colors.plumTint2 },
   optionIconCircle: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F3F4F6',
+    borderRadius: 13,
+    backgroundColor: '#F1EFF2',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  optionIconCircleSel: { backgroundColor: '#e4dfe6' },
+  optionIconCircleSel: { backgroundColor: Colors.plumTint },
   optionText: { flex: 1 },
-  optionTitle:    { fontSize: 14, fontWeight: '700', color: '#111', marginBottom: 2 },
-  optionTitleSel: { color: '#7e1f8c' },
-  optionSubtitle: { fontSize: 12, color: '#888', lineHeight: 17 },
+  optionTitle:    { fontFamily: FontFamily.sansBold, fontSize: FontSize.bodyMd, color: Colors.ink, marginBottom: 2 },
+  optionTitleSel: { color: Colors.plum },
+  optionSubtitle: { fontFamily: FontFamily.sansRegular, fontSize: FontSize.eyebrow, color: Colors.inkSoft, lineHeight: 17 },
 
   /* Motivation chips */
   chipsCard: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
     marginHorizontal: 20,
-    borderRadius: 16,
+    borderRadius: Radii.card,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    ...Shadows.soft,
   },
-  chipsDescription: { fontSize: 13, color: '#888', marginBottom: 14 },
+  chipsDescription: { fontFamily: FontFamily.sansRegular, fontSize: FontSize.secondarySm, color: Colors.inkSoft, marginBottom: 14 },
   chipsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 9,
     paddingHorizontal: 16,
-    borderRadius: 50,
+    borderRadius: Radii.pill,
     borderWidth: 1.5,
-    borderColor: '#E5E7EB',
-    backgroundColor: 'white',
+    borderColor: Colors.line,
+    backgroundColor: Colors.surface,
   },
-  chipSel: { backgroundColor: '#7e1f8c', borderColor: '#7e1f8c' },
-  chipText:    { fontSize: 13, fontWeight: '500', color: '#333' },
+  chipSel: { backgroundColor: Colors.plum, borderColor: Colors.plum },
+  chipText:    { fontFamily: FontFamily.sansMedium, fontSize: FontSize.secondarySm, color: Colors.ink },
   chipTextSel: { color: 'white' },
 
   /* Save button */
@@ -387,13 +378,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginTop: 32,
     paddingVertical: 16,
-    borderRadius: 28,
-    backgroundColor: '#7e1f8c',
-    shadowColor: '#7e1f8c',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 5,
+    borderRadius: Radii.pill,
+    backgroundColor: Colors.plum,
+    ...Shadows.pop,
   },
-  saveBtnText: { fontSize: 16, fontWeight: '700', color: 'white' },
+  saveBtnText: { fontFamily: FontFamily.sansBold, fontSize: FontSize.body, color: 'white' },
 });

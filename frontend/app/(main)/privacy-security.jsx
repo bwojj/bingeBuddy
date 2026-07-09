@@ -2,37 +2,39 @@ import { Text, View, StyleSheet, ScrollView, TouchableOpacity, Alert, Linking } 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Colors, FontFamily, FontSize, Radii, Shadows, Gradients } from '@/constants/theme';
 
 const PROTECTION_ITEMS = [
   {
     icon: 'shield-checkmark-outline',
     lib: 'ion',
-    color: '#388E3C',
-    bg: '#e8f5e9',
+    color: Colors.sage,
+    bg: Colors.sageTint,
     title: 'Data Encryption',
     description: 'All data transmitted between the app and our servers is encrypted using TLS. Your information is never sent in plain text.',
   },
   {
     icon: 'eye-off-outline',
     lib: 'ion',
-    color: '#7e1f8c',
-    bg: '#e8e3ea',
+    color: Colors.plum,
+    bg: Colors.plumTint,
     title: 'Private by Default',
     description: 'Your recovery journey, journal entries, and urge history are never sold, shared with advertisers, or disclosed to third parties.',
   },
   {
     icon: 'phone-lock',
     lib: 'mc',
-    color: '#1565C0',
-    bg: '#e3f2fd',
+    color: Colors.blue,
+    bg: Colors.blueTint,
     title: 'Secure Token Storage',
     description: 'Authentication tokens are stored using device-level secure storage (iOS Keychain / Android Keystore), not plain local storage.',
   },
   {
     icon: 'server-outline',
     lib: 'ion',
-    color: '#E65100',
-    bg: '#fff3e0',
+    color: Colors.amber,
+    bg: Colors.amberTint,
     title: 'Hosted Infrastructure',
     description: 'Our backend runs on Railway with isolated environments. Media files are stored via Cloudinary with access-controlled URLs.',
   },
@@ -42,32 +44,32 @@ const COLLECTION_ITEMS = [
   {
     icon: 'person-outline',
     lib: 'ion',
-    color: '#7e1f8c',
-    bg: '#e8e3ea',
+    color: Colors.plum,
+    bg: Colors.plumTint,
     title: 'Account Information',
     description: 'Your name and email address, used to identify your account and send important notices.',
   },
   {
     icon: 'journal-outline',
     lib: 'ion',
-    color: '#0277BD',
-    bg: '#e1f5fe',
+    color: Colors.blue,
+    bg: Colors.blueTint,
     title: 'Recovery Data',
     description: 'Journal entries, urge logs, goals, and your motivation content. This data exists solely to power your experience in the app.',
   },
   {
     icon: 'mic-outline',
     lib: 'ion',
-    color: '#6A1B9A',
-    bg: '#f3e5f5',
+    color: Colors.plum,
+    bg: Colors.plumTint,
     title: 'Audio Messages',
     description: 'Personal audio recordings you create for the SOS screen. Stored securely and only accessible by you.',
   },
   {
     icon: 'analytics-outline',
     lib: 'ion',
-    color: '#2E7D32',
-    bg: '#e8f5e9',
+    color: Colors.sage,
+    bg: Colors.sageTint,
     title: 'Usage Data',
     description: 'Basic interaction data (such as urge timestamps) used to generate your in-app progress charts. Not shared externally.',
   },
@@ -77,24 +79,24 @@ const RIGHTS_ITEMS = [
   {
     icon: 'eye-outline',
     lib: 'ion',
-    color: '#0277BD',
-    bg: '#e1f5fe',
+    color: Colors.blue,
+    bg: Colors.blueTint,
     title: 'Right to Access',
     description: 'You can request a full export of your data at any time from this screen.',
   },
   {
     icon: 'create-outline',
     lib: 'ion',
-    color: '#7e1f8c',
-    bg: '#e8e3ea',
+    color: Colors.plum,
+    bg: Colors.plumTint,
     title: 'Right to Correction',
     description: 'Update your name, email, and profile information anytime in Profile Settings.',
   },
   {
     icon: 'trash-outline',
     lib: 'ion',
-    color: '#C62828',
-    bg: '#ffebee',
+    color: Colors.alert,
+    bg: Colors.alertTint,
     title: 'Right to Deletion',
     description: 'Deleting your account permanently removes all data associated with your profile, with no recovery possible.',
   },
@@ -123,13 +125,18 @@ export default function PrivacySecurity() {
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+        <LinearGradient
+          colors={Gradients.hero.colors}
+          start={Gradients.hero.start}
+          end={Gradients.hero.end}
+          style={[styles.header, { paddingTop: insets.top + 10 }]}
+        >
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
             <Ionicons name="chevron-back" size={26} color="white" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Privacy & Security</Text>
           <View style={{ width: 40 }} />
-        </View>
+        </LinearGradient>
 
         {/* How We Protect You */}
         <Text style={styles.sectionLabel}>HOW WE PROTECT YOU</Text>
@@ -199,11 +206,11 @@ export default function PrivacySecurity() {
             style={styles.menuRow}
             onPress={() => openUrl('https://bingebuddy.app/privacy', 'Privacy Policy')}
           >
-            <View style={[styles.iconWrap, { backgroundColor: '#e8f5e9' }]}>
-              <Ionicons name="shield-outline" size={20} color="#388E3C" />
+            <View style={[styles.iconWrap, { backgroundColor: Colors.sageTint }]}>
+              <Ionicons name="shield-outline" size={20} color={Colors.sage} />
             </View>
             <Text style={styles.menuLabel}>Privacy Policy</Text>
-            <Ionicons name="open-outline" size={18} color="#bbb" />
+            <Ionicons name="open-outline" size={18} color={Colors.inkFaint} />
           </TouchableOpacity>
         </View>
 
@@ -223,11 +230,11 @@ export default function PrivacySecurity() {
               )
             }
           >
-            <View style={[styles.iconWrap, { backgroundColor: '#ffebee' }]}>
-              <Ionicons name="trash-outline" size={20} color="#C62828" />
+            <View style={[styles.iconWrap, { backgroundColor: Colors.alertTint }]}>
+              <Ionicons name="trash-outline" size={20} color={Colors.alert} />
             </View>
             <Text style={[styles.menuLabel, styles.menuLabelDestructive]}>Delete My Account</Text>
-            <Ionicons name="chevron-forward" size={18} color="#bbb" />
+            <Ionicons name="chevron-forward" size={18} color={Colors.inkFaint} />
           </TouchableOpacity>
         </View>
 
@@ -240,17 +247,16 @@ export default function PrivacySecurity() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#7e1f8c',
+    backgroundColor: Colors.plumDeep,
   },
   scrollContent: {
     flexGrow: 1,
-    backgroundColor: '#f3edf7',
+    backgroundColor: Colors.bg,
     paddingBottom: 20,
   },
 
   /* Header */
   header: {
-    backgroundColor: '#7e1f8c',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -265,15 +271,15 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontFamily: FontFamily.serifMedium,
+    fontSize: FontSize.topbarTitle,
     color: 'white',
   },
 
   sectionLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#999',
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.eyebrowSm,
+    color: Colors.inkFaint,
     letterSpacing: 1.2,
     marginHorizontal: 20,
     marginBottom: 8,
@@ -281,16 +287,12 @@ const styles = StyleSheet.create({
 
   /* Info card */
   card: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
     marginHorizontal: 20,
-    borderRadius: 16,
+    borderRadius: Radii.card,
     padding: 16,
     marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    ...Shadows.soft,
   },
   infoRow: {
     flexDirection: 'row',
@@ -310,35 +312,32 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   infoTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1a1a1a',
+    fontFamily: FontFamily.sansSemibold,
+    fontSize: FontSize.bodyMd,
+    color: Colors.ink,
     marginBottom: 3,
   },
   infoDesc: {
-    fontSize: 13,
-    color: '#888',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.secondarySm,
+    color: Colors.inkSoft,
     lineHeight: 18,
   },
   divider: {
     height: 1,
-    backgroundColor: '#f3edf7',
+    backgroundColor: Colors.bg,
     marginVertical: 10,
     marginLeft: 50,
   },
 
   /* Menu card */
   menuCard: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
     marginHorizontal: 20,
-    borderRadius: 16,
+    borderRadius: Radii.card,
     marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
     overflow: 'hidden',
+    ...Shadows.soft,
   },
   menuRow: {
     flexDirection: 'row',
@@ -348,11 +347,12 @@ const styles = StyleSheet.create({
   },
   menuLabel: {
     flex: 1,
-    fontSize: 15,
-    color: '#1a1a1a',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.body,
+    color: Colors.ink,
     marginLeft: 14,
   },
   menuLabelDestructive: {
-    color: '#C62828',
+    color: Colors.alert,
   },
 });

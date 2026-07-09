@@ -1,7 +1,9 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image, ActivityIndicator } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
+import { LinearGradient } from 'expo-linear-gradient'
 import { useRouter } from 'expo-router'
 import React, { useState } from 'react'
+import { Colors, FontFamily, FontSize, Radii, Shadows } from '@/constants/theme'
 
 const HomeMotivation = ({ userPreferences }) => {
   const router = useRouter();
@@ -28,11 +30,19 @@ const HomeMotivation = ({ userPreferences }) => {
       {imageLoading && (
         <ActivityIndicator size="small" color="rgba(255,255,255,0.6)" style={styles.loader} />
       )}
-      <View style={styles.overlay} />
+      <LinearGradient
+        colors={['transparent', 'rgba(37,24,38,0.55)']}
+        style={styles.overlay}
+      />
+
+      {/* Motivation photo label */}
+      <View style={styles.photoLabel}>
+        <Text style={styles.photoLabelText}>MOTIVATION PHOTO</Text>
+      </View>
 
       {/* Edit hint */}
       <View style={styles.editBadge}>
-        <Ionicons name="pencil" size={12} color="white" />
+        <Ionicons name="pencil" size={12} color={Colors.plum} />
         <Text style={styles.editText}>Edit</Text>
       </View>
 
@@ -46,24 +56,19 @@ export default HomeMotivation
 const styles = StyleSheet.create({
   card: {
     marginHorizontal: 20,
-    borderRadius: 16,
+    borderRadius: Radii.card,
     overflow: 'hidden',
-    height: 170,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 4,
+    height: 158,
     justifyContent: 'flex-end',
-    backgroundColor: '#5a4235',
+    backgroundColor: Colors.plumTint2,
+    ...Shadows.card,
   },
   imagePlaceholder: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#5a4235',
+    backgroundColor: Colors.plumTint2,
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.28)',
   },
   loader: {
     position: 'absolute',
@@ -72,27 +77,42 @@ const styles = StyleSheet.create({
     marginTop: -8,
     marginLeft: -8,
   },
+  photoLabel: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    backgroundColor: 'rgba(255,255,255,0.7)',
+    borderRadius: 7,
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+  },
+  photoLabelText: {
+    fontFamily: FontFamily.sansSemibold,
+    fontSize: 10,
+    letterSpacing: 0.6,
+    color: Colors.plumSoft,
+  },
   editBadge: {
     position: 'absolute',
     top: 12,
     right: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'rgba(255,255,255,0.85)',
     borderRadius: 12,
     paddingHorizontal: 10,
     paddingVertical: 4,
     gap: 4,
   },
   editText: {
-    color: 'white',
-    fontSize: 11,
-    fontWeight: '600',
+    color: Colors.plum,
+    fontFamily: FontFamily.sansSemibold,
+    fontSize: FontSize.eyebrow,
   },
   caption: {
     color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: FontFamily.serifMedium,
+    fontSize: FontSize.cardTitle,
     padding: 16,
   },
 })

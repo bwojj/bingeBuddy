@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from 'expo-router';
 import { mainCause } from '../../../components/OnboardingApi';
+import { Colors, FontFamily, FontSize, Radii } from '../../../constants/theme';
 
 const INITIAL_OPTIONS = [
   {
@@ -56,7 +57,7 @@ export default function MainCause() {
       {/* Top row */}
       <View style={styles.topRow}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={26} color="#333" />
+          <Ionicons name="chevron-back" size={26} color={Colors.ink} />
         </TouchableOpacity>
         <Text style={styles.stepText}>STEP 2 OF 3</Text>
         <View style={{ width: 26 }} />
@@ -89,7 +90,7 @@ export default function MainCause() {
             activeOpacity={0.7}
           >
             <View style={[styles.iconCircle, isSelected && styles.iconCircleSelected]}>
-              {option.icon(isSelected ? "#7e1f8c" : "#888")}
+              {option.icon(isSelected ? Colors.plum : Colors.inkSoft)}
             </View>
             <View style={styles.optionText}>
               <Text style={[styles.optionTitle, isSelected && styles.optionTitleSelected]}>
@@ -97,7 +98,7 @@ export default function MainCause() {
               </Text>
               <Text style={styles.optionSubtitle}>{option.subtitle}</Text>
             </View>
-            {isSelected && <Ionicons name="checkmark-circle" size={22} color="#7e1f8c" />}
+            {isSelected && <Ionicons name="checkmark-circle" size={22} color={Colors.plum} />}
           </TouchableOpacity>
         );
       })}
@@ -118,7 +119,7 @@ export default function MainCause() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: Colors.surface,
   },
   content: {
     paddingHorizontal: 24,
@@ -132,45 +133,46 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   stepText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#7e1f8c",
-    letterSpacing: 1,
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.eyebrowSm,
+    color: Colors.plumSoft,
+    letterSpacing: 1.5,
   },
 
   /* Progress bar */
   progressTrack: {
-    height: 4,
-    backgroundColor: "#dcd4de",
-    borderRadius: 2,
+    height: 5,
+    backgroundColor: Colors.line,
+    borderRadius: 3,
     marginBottom: 32,
   },
   progressFill: {
-    height: 4,
-    width: "40%",
-    backgroundColor: "#7e1f8c",
-    borderRadius: 2,
+    height: 5,
+    width: "66%",
+    backgroundColor: Colors.plum,
+    borderRadius: 3,
   },
 
   /* Title */
   title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    color: "#111",
+    fontFamily: FontFamily.serifMedium,
+    fontSize: FontSize.flowTitle,
+    color: Colors.ink,
     marginBottom: 12,
-    lineHeight: 34,
+    lineHeight: 40,
+    letterSpacing: -0.4,
   },
   titleHighlight: {
-    color: "#7e1f8c",
+    color: Colors.plum,
   },
 
   /* Subtitle */
   subtitle: {
-    fontSize: 14,
-    color: "#7e1f8c",
+    fontFamily: FontFamily.sansMedium,
+    fontSize: FontSize.body,
+    color: Colors.inkSoft,
     lineHeight: 22,
     marginBottom: 28,
-    textAlign: "center",
   },
 
   /* Option cards */
@@ -178,43 +180,44 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1.5,
-    borderColor: "#E5E7EB",
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-    backgroundColor: "white",
-    gap: 14,
+    borderColor: Colors.line,
+    borderRadius: 15,
+    padding: 14,
+    marginBottom: 11,
+    backgroundColor: Colors.surface,
+    gap: 13,
   },
   optionCardSelected: {
-    borderColor: "#7e1f8c",
-    backgroundColor: "#f2edf3",
+    borderColor: Colors.plum,
+    backgroundColor: Colors.plumTint2,
   },
   iconCircle: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    backgroundColor: "#F3F4F6",
+    borderRadius: 13,
+    backgroundColor: "#F1EFF2",
     alignItems: "center",
     justifyContent: "center",
   },
   iconCircleSelected: {
-    backgroundColor: "#e4dfe6",
+    backgroundColor: Colors.plumTint,
   },
   optionText: {
     flex: 1,
   },
   optionTitle: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#111",
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.bodyMd,
+    color: Colors.ink,
     marginBottom: 3,
   },
   optionTitleSelected: {
-    color: "#7e1f8c",
+    color: Colors.plum,
   },
   optionSubtitle: {
-    fontSize: 13,
-    color: "#888",
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.eyebrow,
+    color: Colors.inkSoft,
     lineHeight: 18,
   },
 
@@ -222,8 +225,8 @@ const styles = StyleSheet.create({
   nextButton: {
     width: "100%",
     height: 52,
-    backgroundColor: "#7e1f8c",
-    borderRadius: 14,
+    backgroundColor: Colors.plum,
+    borderRadius: Radii.btn,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 8,
@@ -231,15 +234,15 @@ const styles = StyleSheet.create({
   },
   nextButtonText: {
     color: "white",
-    fontSize: 16,
-    fontWeight: "700",
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.body,
   },
 
   /* Not sure */
   notSureText: {
     textAlign: "center",
-    color: "#7e1f8c",
-    fontSize: 14,
-    fontWeight: "500",
+    color: Colors.plum,
+    fontFamily: FontFamily.sansSemibold,
+    fontSize: FontSize.bodyMd,
   },
 });

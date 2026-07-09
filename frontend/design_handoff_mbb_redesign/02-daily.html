@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Binge Buddy — Daily Use</title>
+<link rel="stylesheet" href="mbb.css" />
+</head>
+<body>
+  <nav class="topnav">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none">
+          <path d="M8.5 17.5 Q16 24.5 23.5 17.5" stroke="#F2E7D5" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M9.5 12.8 Q12 10.6 14.5 12.8" stroke="#F2E7D5" stroke-width="2.4" stroke-linecap="round"/>
+          <ellipse cx="20.4" cy="12" rx="2.1" ry="2.7" fill="#F2E7D5"/>
+        </svg>
+      </span>
+      <div><b>My Binge Buddy</b><small>Frontend redesign · v1</small></div>
+    </div>
+    <a href="index.html">Overview</a>
+    <a href="01-onboarding.html">Onboarding</a>
+    <a href="02-daily.html" class="active">Daily Use</a>
+    <a href="03-account.html">Safety &amp; Account</a>
+  </nav>
+
+  <div class="site">
+    <section class="flow">
+      <div class="flow__head">
+        <div class="flow__eyebrow">Daily Use</div>
+        <h2 class="flow__title">The everyday loop</h2>
+        <p class="flow__sub">The four screens a member lives in. The deep-plum header anchors each one; below it, generous white cards keep data calm and scannable. Numbers earn a serif for a touch of pride, and the SOS stays one tap away on every screen.</p>
+      </div>
+
+      <div class="frames">
+
+        <!-- ============ DASHBOARD ============ -->
+        <div class="frame-wrap">
+          <div class="phone"><div class="phone__screen" data-ind="dark">
+            <div class="statusbar on-plum"><span class="time">9:41</span></div>
+            <div class="app">
+              <div class="app__scroll">
+                <div class="hero hero--tall">
+                  <div class="hero__row">
+                    <div>
+                      <h1>Good morning, Alex</h1>
+                      <div class="sub">Sunday, May 31</div>
+                    </div>
+                    <span class="hero__ic"><i data-lucide="bell"></i></span>
+                  </div>
+                </div>
+
+                <div style="padding:0 22px;margin-top:-30px">
+                  <div class="card">
+                    <div class="row-flex gap8" style="margin-bottom:10px">
+                      <i data-lucide="sparkles" class="ic16 cl-plum"></i>
+                      <span class="eyebrow plum">Daily Inspiration</span>
+                    </div>
+                    <p class="serif" style="font-style:italic;font-size:15px;line-height:1.55;color:var(--ink);margin:0 0 10px">“View the urges to binge as neurological junk — it's just some neurons firing in a way that they shouldn't be.”</p>
+                    <div style="text-align:right;font-size:12.5px;color:var(--ink-faint)">— Katherine Hansen</div>
+                  </div>
+                </div>
+
+                <div class="body" style="padding-top:22px">
+                  <div class="section-label">Motivation</div>
+                  <div class="ph" style="height:158px">
+                    <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(60,28,73,.05),rgba(37,24,38,.62))"></div>
+                    <span class="ph__lbl" style="position:absolute;top:12px;left:12px;background:rgba(255,255,255,.78)">motivation photo</span>
+                    <span class="badge" style="position:absolute;top:12px;right:12px;background:rgba(37,24,38,.5);color:#fff;display:flex;align-items:center;gap:5px"><i data-lucide="pencil" class="ic16" style="width:12px;height:12px"></i>Edit</span>
+                    <span style="position:absolute;left:16px;bottom:14px;color:#fff;font-weight:600;font-size:15px;font-family:var(--serif)">My Why: Being present for my kids</span>
+                  </div>
+
+                  <div class="card" style="margin-top:22px;text-align:center">
+                    <b class="card-title" style="display:block;text-align:left;margin-bottom:6px">Progress Snapshot</b>
+                    <div class="row-flex gap12" style="justify-content:center;margin-top:8px">
+                      <i data-lucide="trophy" style="width:34px;height:34px;color:var(--plum)"></i>
+                      <span class="serif" style="font-size:54px;font-weight:500;color:var(--plum);line-height:1">12</span>
+                    </div>
+                    <div class="eyebrow" style="letter-spacing:.18em;color:var(--plum);margin-top:2px">URGES DEFEATED</div>
+                    <div style="font-size:13px;color:var(--ink-soft);margin-top:9px">Keep going — every urge beaten counts.</div>
+                  </div>
+
+                  <div class="section-label" style="margin-top:22px">Latest Journal Entry</div>
+                  <div class="card">
+                    <div class="row-flex between" style="margin-bottom:7px">
+                      <b style="font-weight:700;font-size:14.5px">Found my pause</b>
+                      <span class="badge t-plum">Reflection</span>
+                    </div>
+                    <p style="font-size:13px;line-height:1.5;color:var(--ink-soft);margin:0 0 10px">I noticed the urge rise after dinner and just sat with it for ten minutes. It passed on its own…</p>
+                    <span style="font-size:13px;color:var(--plum);font-weight:600">View Journal →</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sos"><i data-lucide="life-buoy"></i><b>SOS</b></div>
+              <div class="tabbar">
+                <span class="tab tab--active"><i data-lucide="home"></i><span>Dashboard</span></span>
+                <span class="tab"><i data-lucide="bar-chart-3"></i><span>Progress</span></span>
+                <span class="tab"><i data-lucide="book-open"></i><span>Journal</span></span>
+                <span class="tab"><i data-lucide="settings"></i><span>Settings</span></span>
+              </div>
+            </div>
+          </div></div>
+          <div class="frame-cap"><b>Dashboard</b><span>A serif greeting, the day's quote floating over the header, and a proud count of urges defeated.</span></div>
+        </div>
+
+        <!-- ============ PROGRESS ============ -->
+        <div class="frame-wrap">
+          <div class="phone"><div class="phone__screen" data-ind="dark">
+            <div class="statusbar on-plum"><span class="time">9:41</span></div>
+            <div class="app">
+              <div class="app__scroll">
+                <div class="hero" style="padding-bottom:30px">
+                  <div class="hero__row" style="justify-content:flex-start;gap:8px">
+                    <i data-lucide="chevron-left" class="ic24 cl-white"></i>
+                    <span style="font-family:var(--serif);font-weight:500;font-size:19px;flex:1;text-align:center">Progress History</span>
+                    <span style="width:24px"></span>
+                  </div>
+                  <div class="bigstat" style="margin-top:14px">
+                    <div class="n">12</div>
+                    <div class="l">URGES DEFEATED</div>
+                    <div class="s">You are 12 steps closer to a binge-free life</div>
+                  </div>
+                </div>
+
+                <div class="body" style="padding-top:20px">
+                  <div class="card">
+                    <div class="row-flex between" style="margin-bottom:16px">
+                      <b class="card-title">Urges Beat</b>
+                      <span class="chip chip--outline-active" style="padding:5px 12px;font-size:12px">This Week</span>
+                    </div>
+                    <div class="bars">
+                      <div class="col"><span class="cnt">1</span><div class="bar" style="height:22px"></div><span class="day">M</span></div>
+                      <div class="col"><span class="cnt">3</span><div class="bar" style="height:44px"></div><span class="day">T</span></div>
+                      <div class="col"><span class="cnt">2</span><div class="bar" style="height:32px"></div><span class="day">W</span></div>
+                      <div class="col"><span class="cnt">4</span><div class="bar" style="height:58px"></div><span class="day">T</span></div>
+                      <div class="col"><span class="cnt">1</span><div class="bar" style="height:22px"></div><span class="day">F</span></div>
+                      <div class="col"><div class="bar" style="height:5px"></div><span class="day">S</span></div>
+                      <div class="col"><span class="cnt" style="color:var(--plum)">1</span><div class="bar bar--hl" style="height:22px"></div><span class="day day--hl">S</span></div>
+                    </div>
+                  </div>
+
+                  <div class="section-label" style="margin-top:24px">Recovery Milestones</div>
+                  <div class="card" style="padding:14px 16px">
+                    <div class="mile">
+                      <span class="mile__ic mile__ic--done"><i data-lucide="trophy"></i></span>
+                      <span class="mile__t"><b>10 Urges Defeated</b><span>Achieved</span></span>
+                      <i data-lucide="check-circle-2" class="cl-sage ic22"></i>
+                    </div>
+                  </div>
+                  <div class="card" style="padding:14px 16px;margin-top:11px">
+                    <div class="mile">
+                      <span class="mile__ic" style="background:var(--plum-tint);color:var(--plum)"><i data-lucide="flag"></i></span>
+                      <span class="mile__t"><b>25 Urges Defeated</b>
+                        <div class="track" style="margin-top:7px;max-width:150px"><div class="fill" style="width:48%"></div></div>
+                      </span>
+                      <span style="font-size:12px;color:var(--plum);font-weight:700">12/25</span>
+                    </div>
+                  </div>
+                  <div class="card" style="padding:14px 16px;margin-top:11px">
+                    <div class="mile">
+                      <span class="mile__ic mile__ic--lock"><i data-lucide="lock"></i></span>
+                      <span class="mile__t"><b style="color:var(--ink-soft)">50 Urges Defeated</b></span>
+                      <i data-lucide="lock" class="cl-faint ic18"></i>
+                    </div>
+                  </div>
+
+                  <div class="row-flex gap12" style="margin-top:16px">
+                    <div class="card" style="flex:1;text-align:center;padding:18px">
+                      <i data-lucide="piggy-bank" style="width:26px;height:26px;color:var(--plum)"></i>
+                      <div class="serif" style="font-size:26px;font-weight:500;margin-top:6px">$180</div>
+                      <div class="eyebrow" style="margin-top:2px">MONEY SAVED</div>
+                    </div>
+                    <div class="card" style="flex:1;text-align:center;padding:18px">
+                      <i data-lucide="clock" style="width:26px;height:26px;color:var(--plum)"></i>
+                      <div class="serif" style="font-size:26px;font-weight:500;margin-top:6px">24h</div>
+                      <div class="eyebrow" style="margin-top:2px">TIME GAINED</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sos"><i data-lucide="life-buoy"></i><b>SOS</b></div>
+              <div class="tabbar">
+                <span class="tab"><i data-lucide="home"></i><span>Dashboard</span></span>
+                <span class="tab tab--active"><i data-lucide="bar-chart-3"></i><span>Progress</span></span>
+                <span class="tab"><i data-lucide="book-open"></i><span>Journal</span></span>
+                <span class="tab"><i data-lucide="settings"></i><span>Settings</span></span>
+              </div>
+            </div>
+          </div></div>
+          <div class="frame-cap"><b>Progress</b><span>The headline number leads, then a calm weekly chart and milestones with quiet brass and sage cues.</span></div>
+        </div>
+
+        <!-- ============ JOURNAL ============ -->
+        <div class="frame-wrap">
+          <div class="phone"><div class="phone__screen" data-ind="dark">
+            <div class="statusbar on-plum"><span class="time">9:41</span></div>
+            <div class="app">
+              <div class="app__scroll">
+                <div class="hero" style="padding-bottom:18px">
+                  <div class="hero__row">
+                    <h1>Recovery Journal</h1>
+                    <i data-lucide="search" class="ic22 cl-white"></i>
+                  </div>
+                  <div class="row-flex gap8" style="margin-top:16px;flex-wrap:nowrap;overflow:hidden">
+                    <span class="chip chip--ghost-on-plum chip--active">All Entries</span>
+                    <span class="chip chip--ghost-on-plum">Reflections</span>
+                    <span class="chip chip--ghost-on-plum">Victories</span>
+                    <span class="chip chip--ghost-on-plum">Struggles</span>
+                  </div>
+                </div>
+
+                <div class="body" style="padding-top:18px">
+                  <button class="btn btn--dark" style="margin-bottom:18px"><i data-lucide="plus-circle"></i>New Reflection</button>
+
+                  <div class="card jentry">
+                    <div class="row-flex between"><span class="date">SUNDAY, MAY 31</span><span style="color:var(--ink-faint)">•••</span></div>
+                    <h4>Found my pause</h4>
+                    <p>I noticed the urge rise after dinner and just sat with it for ten minutes. It passed on its own — proof that I don't have to act on it.</p>
+                    <div class="row-flex gap10"><span class="badge t-plum">REFLECTION</span><span style="font-size:12px;color:var(--ink-faint)">8:24 PM</span></div>
+                  </div>
+
+                  <div class="card jentry">
+                    <div class="row-flex between"><span class="date">SATURDAY, MAY 30</span><span style="color:var(--ink-faint)">•••</span></div>
+                    <h4>Beat it at the party</h4>
+                    <p>Surrounded by food and stress, but I stepped outside, breathed, and came back grounded. A real win.</p>
+                    <div class="row-flex gap10"><span class="badge t-sage">VICTORY</span><span style="font-size:12px;color:var(--ink-faint)">10:02 PM</span></div>
+                  </div>
+
+                  <div class="card jentry">
+                    <div class="row-flex between"><span class="date">FRIDAY, MAY 29</span><span style="color:var(--ink-faint)">•••</span></div>
+                    <h4>A hard evening</h4>
+                    <p>The urge was loud tonight and I'm being honest about it. Tomorrow is a fresh start.</p>
+                    <div class="row-flex gap10"><span class="badge t-amber">STRUGGLE</span><span style="font-size:12px;color:var(--ink-faint)">11:15 PM</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sos"><i data-lucide="life-buoy"></i><b>SOS</b></div>
+              <div class="tabbar">
+                <span class="tab"><i data-lucide="home"></i><span>Dashboard</span></span>
+                <span class="tab"><i data-lucide="bar-chart-3"></i><span>Progress</span></span>
+                <span class="tab tab--active"><i data-lucide="book-open"></i><span>Journal</span></span>
+                <span class="tab"><i data-lucide="settings"></i><span>Settings</span></span>
+              </div>
+            </div>
+          </div></div>
+          <div class="frame-cap"><b>Journal</b><span>Tag colours carry the meaning — plum reflection, sage victory, amber struggle — on quiet white cards.</span></div>
+        </div>
+
+        <!-- ============ AI COACH ============ -->
+        <div class="frame-wrap">
+          <div class="phone"><div class="phone__screen" data-ind="dark">
+            <div class="statusbar on-light"><span class="time">9:41</span></div>
+            <div class="app" style="background:var(--bg)">
+              <div class="topbar" style="background:var(--surface);border-bottom:1px solid var(--line);padding:60px 16px 14px">
+                <i data-lucide="chevron-left" class="ic24 cl-ink"></i>
+                <span class="row__ic t-plum" style="width:40px;height:40px;border-radius:50%;background:linear-gradient(150deg,#5B2E6B,#3C1C49);color:#fff"><i data-lucide="bot"></i></span>
+                <div style="flex:1">
+                  <b style="font-family:var(--sans);font-weight:700;font-size:15.5px">AI Coach</b>
+                  <div class="row-flex gap8" style="margin-top:1px"><span style="width:7px;height:7px;border-radius:50%;background:var(--sage)"></span><span style="font-size:9.5px;font-weight:700;letter-spacing:.08em;color:var(--ink-faint)">ONLINE TO SUPPORT YOU</span></div>
+                </div>
+                <i data-lucide="more-horizontal" class="ic22 cl-soft"></i>
+              </div>
+
+              <div class="chat">
+                <div class="chat-div"><span class="ln"></span><span>TODAY</span><span class="ln"></span></div>
+
+                <div class="msg">
+                  <span class="msg__av"><i data-lucide="bot"></i></span>
+                  <div>
+                    <div class="bubble bubble--ai">Good morning, Alex. I'm here for you today. How are you feeling right now?</div>
+                    <div class="msg__time">9:41 AM</div>
+                  </div>
+                </div>
+
+                <div class="msg msg--me" style="flex-direction:column;align-items:flex-end">
+                  <div class="bubble bubble--me">I'm feeling a bit restless. The urges are starting to crawl in.</div>
+                  <div class="msg__time">9:42 AM</div>
+                </div>
+
+                <div class="msg">
+                  <span class="msg__av"><i data-lucide="bot"></i></span>
+                  <div>
+                    <div class="bubble bubble--ai">I understand. That restlessness is just a wave — it will pass. Shall we try a two-minute breathing exercise, or find a distraction together?</div>
+                    <div class="msg__time">9:43 AM</div>
+                  </div>
+                </div>
+
+                <div class="row-flex gap10" style="margin-top:2px">
+                  <span class="chip chip--outline-active">I'm feeling an urge</span>
+                  <span class="chip chip--outline-active">I need a distraction</span>
+                </div>
+              </div>
+
+              <div class="chat-input">
+                <span class="plus"><i data-lucide="plus"></i></span>
+                <span class="fieldbox">Type a message…</span>
+                <span class="send"><i data-lucide="send"></i></span>
+              </div>
+            </div>
+          </div></div>
+          <div class="frame-cap"><b>AI Coach</b><span>A focused chat — warm AI bubbles in white, your replies in plum, with gentle suggested responses.</span></div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+  <script src="mbb.js"></script>
+</body>
+</html>

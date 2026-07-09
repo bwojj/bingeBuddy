@@ -3,11 +3,15 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import HomeQuoteBox from '../components/HomeQuoteBox';
 import HomeMotivation from '../components/HomeMotivation';
+import TabBar from '../components/TabBar';
+import SOSButton from '../components/SOSButton';
 import { useAuth } from "@/context/AuthContext";
 import LoadingScreen from '@/components/LoadingScreen';
 import { getEntries } from '@/components/JournalAPI';
+import { Colors, FontFamily, FontSize, Radii, Shadows, Gradients, Spacing } from '@/constants/theme';
 
 export default function Index() {
   const insets = useSafeAreaInsets();
@@ -46,15 +50,20 @@ export default function Index() {
         */}
         <View style={styles.overscrollFill} />
 
-        {/* Purple header - scrolls with content */}
-        <View style={[styles.headerBg, { paddingTop: insets.top + 15 }]}>
+        {/* Plum gradient header - scrolls with content */}
+        <LinearGradient
+          colors={Gradients.hero.colors}
+          start={Gradients.hero.start}
+          end={Gradients.hero.end}
+          style={[styles.headerBg, { paddingTop: insets.top + 15 }]}
+        >
           <View style={styles.greetingContainer}>
             <Text style={styles.greeting}>Good Morning, {userCredentials?.first_name}!</Text>
-            <Text style={styles.date}>Thursday, Nov 20</Text>
+            <Text style={styles.date}>{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</Text>
           </View>
-        </View>
+        </LinearGradient>
 
-        {/* Quote Card - overlaps bottom of purple header */}
+        {/* Quote Card - overlaps bottom of header */}
         <View style={styles.quoteWrapper}>
           <HomeQuoteBox />
         </View>
@@ -67,7 +76,7 @@ export default function Index() {
         <TouchableOpacity style={styles.progressCard} onPress={() => router.push('/progress')} activeOpacity={0.85}>
           <Text style={styles.progressTitle}>Progress Snapshot</Text>
           <View style={styles.urgeCountRow}>
-            <MaterialCommunityIcons name="trophy" size={38} color="#7e1f8c" />
+            <MaterialCommunityIcons name="trophy" size={34} color={Colors.plum} />
             <Text style={styles.urgeCountBig}>{urgeCount}</Text>
           </View>
           <Text style={styles.urgeCountLabel}>URGES DEFEATED</Text>
@@ -89,7 +98,7 @@ export default function Index() {
             </>
           ) : (
             <View style={styles.journalEmptyRow}>
-              <Ionicons name="document-text-outline" size={22} color="#bbb" />
+              <Ionicons name="document-text-outline" size={22} color={Colors.inkFaint} />
               <Text style={styles.journalEmptyText}>No entries yet — write your first one.</Text>
             </View>
           )}
@@ -100,31 +109,8 @@ export default function Index() {
         <View style={{ height: 90 }} />
       </ScrollView>
 
-      {/* SOS Button - fixed above tab bar */}
-      <TouchableOpacity style={styles.sosButton} onPress={() => router.push('/panic')}>
-        <MaterialCommunityIcons name="lifebuoy" size={26} color="white" />
-        <Text style={styles.sosText}>SOS</Text>
-      </TouchableOpacity>
-
-      {/* Bottom Tab Bar */}
-      <View style={[styles.tabBar, { paddingBottom: insets.bottom || 10 }]}>
-        <View style={styles.tabItem}>
-          <Ionicons name="home" size={24} color="#7e1f8c" />
-          <Text style={[styles.tabLabel, styles.tabLabelActive]}>Dashboard</Text>
-        </View>
-        <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/progress')}>
-          <Ionicons name="bar-chart-outline" size={24} color="#999" />
-          <Text style={styles.tabLabel}>Progress</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/journal')}>
-          <Ionicons name="document-text-outline" size={24} color="#999" />
-          <Text style={styles.tabLabel}>Journal</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/settings')}>
-          <Ionicons name="settings-outline" size={24} color="#999" />
-          <Text style={styles.tabLabel}>Settings</Text>
-        </TouchableOpacity>
-      </View>
+      <SOSButton />
+      <TabBar activeTab="dashboard" />
     </View>
   );
 }
@@ -132,21 +118,20 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f3edf7',
+    backgroundColor: Colors.bg,
   },
-  /* Fills the iOS overscroll bounce area at the top with purple */
+  /* Fills the iOS overscroll bounce area at the top with plum */
   overscrollFill: {
     position: 'absolute',
     top: -1000,
     left: 0,
     right: 0,
     height: 1000,
-    backgroundColor: '#6e1c7a',
+    backgroundColor: Colors.plumDeep,
   },
   headerBg: {
-    backgroundColor: '#7e1f8c',
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
     paddingBottom: 68,
   },
   quoteWrapper: {
@@ -156,23 +141,26 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   greetingContainer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: Spacing.screenH,
     marginBottom: 20,
   },
   greeting: {
-    fontSize: 26,
-    fontWeight: 'bold',
+    fontFamily: FontFamily.serifMedium,
+    fontSize: FontSize.heroTitle,
     color: 'white',
   },
   date: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.8)',
-    marginTop: 4,
+    fontFamily: FontFamily.sansMedium,
+    fontSize: FontSize.secondary,
+    color: 'rgba(255,255,255,0.72)',
+    marginTop: 5,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#333',
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.eyebrowSm,
+    textTransform: 'uppercase',
+    letterSpacing: 1.4,
+    color: Colors.inkFaint,
     marginHorizontal: 20,
     marginTop: 24,
     marginBottom: 12,
@@ -180,22 +168,18 @@ const styles = StyleSheet.create({
 
   /* Progress Snapshot */
   progressCard: {
-    backgroundColor: 'white',
-    borderRadius: 16,
+    backgroundColor: Colors.surface,
+    borderRadius: Radii.card,
     marginHorizontal: 20,
     marginTop: 16,
-    padding: 20,
+    padding: Spacing.cardPadding,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+    ...Shadows.card,
   },
   progressTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#333',
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.cardTitle,
+    color: Colors.ink,
     alignSelf: 'flex-start',
     marginBottom: 16,
   },
@@ -206,33 +190,30 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   urgeCountBig: {
-    fontSize: 56,
-    fontWeight: 'bold',
-    color: '#7e1f8c',
+    fontFamily: FontFamily.serifMedium,
+    fontSize: FontSize.dashboardStat,
+    color: Colors.plum,
   },
   urgeCountLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#7e1f8c',
-    letterSpacing: 1.5,
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.eyebrowSm,
+    color: Colors.plumSoft,
+    letterSpacing: 2,
     marginBottom: 10,
   },
   progressSubtext: {
-    fontSize: 13,
-    color: '#888',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.secondarySm,
+    color: Colors.inkSoft,
   },
   /* Journal Card */
   journalCard: {
-    backgroundColor: 'white',
-    borderRadius: 16,
+    backgroundColor: Colors.surface,
+    borderRadius: Radii.card,
     marginHorizontal: 24,
     marginTop: 0,
-    padding: 18,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+    padding: Spacing.cardPadding,
+    ...Shadows.card,
   },
   journalCardHeader: {
     flexDirection: 'row',
@@ -241,26 +222,27 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   journalEntryTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#333',
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.bodyMd,
+    color: Colors.ink,
     flex: 1,
     marginRight: 8,
   },
   journalTypeBadge: {
-    backgroundColor: '#e8e3ea',
+    backgroundColor: Colors.plumTint,
     borderRadius: 10,
     paddingHorizontal: 10,
     paddingVertical: 3,
   },
   journalTypeText: {
-    fontSize: 11,
-    color: '#7e1f8c',
-    fontWeight: '600',
+    fontFamily: FontFamily.sansSemibold,
+    fontSize: FontSize.eyebrowSm,
+    color: Colors.plum,
   },
   journalEntrySnippet: {
-    fontSize: 13,
-    color: '#666',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.secondarySm,
+    color: Colors.inkSoft,
     lineHeight: 19,
     marginBottom: 12,
   },
@@ -271,58 +253,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   journalEmptyText: {
-    fontSize: 13,
-    color: '#bbb',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.secondarySm,
+    color: Colors.inkFaint,
   },
   journalLink: {
-    fontSize: 13,
-    color: '#7e1f8c',
-    fontWeight: '600',
-  },
-
-  sosButton: {
-    position: 'absolute',
-    right: 10,
-    bottom: 95,
-    width: 66,
-    height: 66,
-    borderRadius: 33,
-    backgroundColor: '#C62828',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 6,
-  },
-  sosText: {
-    color: 'white',
-    fontSize: 9,
-    fontWeight: 'bold',
-    marginTop: 1,
-  },
-
-  /* Bottom Tab Bar */
-  tabBar: {
-    flexDirection: 'row',
-    backgroundColor: 'white',
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-    paddingTop: 8,
-    justifyContent: 'space-around',
-  },
-  tabItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  tabLabel: {
-    fontSize: 10,
-    color: '#999',
-    marginTop: 4,
-  },
-  tabLabelActive: {
-    color: '#7e1f8c',
+    fontFamily: FontFamily.sansSemibold,
+    fontSize: FontSize.secondarySm,
+    color: Colors.plum,
   },
 });

@@ -1,9 +1,12 @@
 import { Text, View, StyleSheet, ScrollView, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView, Platform, Pressable, Animated, Dimensions, ActivityIndicator } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useState, useEffect, useRef } from 'react';
 import { addEntry, getEntries, deleteEntry } from "../../components/JournalAPI";
+import TabBar from '../components/TabBar';
+import SOSButton from '../components/SOSButton';
+import { Colors, FontFamily, FontSize, Radii, Shadows, Gradients } from '@/constants/theme';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
@@ -27,9 +30,9 @@ function useSheetAnimation(visible) {
 }
 
 const TAG_STYLES = {
-  Victory:    { color: '#4CAF50', bg: '#e8f5e9' },
-  Reflection: { color: '#7e1f8c', bg: '#e8e3ea' },
-  Struggle:   { color: '#E65100', bg: '#fff3e0' },
+  Victory:    { color: Colors.sage, bg: Colors.sageTint },
+  Reflection: { color: Colors.plum, bg: Colors.plumTint },
+  Struggle:   { color: Colors.amber, bg: Colors.amberTint },
 };
 
 function formatDate(iso) {
@@ -44,7 +47,6 @@ const FILTERS = ['All Entries', 'Reflections', 'Victories', 'Struggles'];
 
 export default function Journal() {
   const insets = useSafeAreaInsets();
-  const router = useRouter();
   const [activeFilter, setActiveFilter] = useState('All Entries');
   const [modalVisible, setModalVisible] = useState(false);
   const [entryType, setEntryType] = useState('Reflection');
@@ -121,11 +123,16 @@ export default function Journal() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Overscroll fix: fills iOS bounce area with purple */}
+        {/* Overscroll fix: fills iOS bounce area with plum */}
         <View style={styles.overscrollFill} />
 
-        {/* Purple header - scrolls with content */}
-        <View style={[styles.headerBg, { paddingTop: insets.top + 10 }]}>
+        {/* Plum gradient header - scrolls with content */}
+        <LinearGradient
+          colors={Gradients.hero.colors}
+          start={Gradients.hero.start}
+          end={Gradients.hero.end}
+          style={[styles.headerBg, { paddingTop: insets.top + 10 }]}
+        >
           {/* Header Row */}
           <View style={styles.headerRow}>
             <Text style={styles.headerTitle}>Recovery Journal</Text>
@@ -153,7 +160,7 @@ export default function Journal() {
               </TouchableOpacity>
             ))}
           </ScrollView>
-        </View>
+        </LinearGradient>
 
         {/* New Entry Button */}
         <TouchableOpacity style={styles.newEntryBtn} onPress={openModal}>
@@ -163,7 +170,7 @@ export default function Journal() {
 
         {/* Journal Entries */}
         {loading ? (
-          <ActivityIndicator size="large" color="#7e1f8c" style={{ marginTop: 40 }} />
+          <ActivityIndicator size="large" color={Colors.plum} style={{ marginTop: 40 }} />
         ) : (
           entries
             .filter((entry) => {
@@ -200,11 +207,7 @@ export default function Journal() {
         <View style={{ height: 90 }} />
       </ScrollView>
 
-      {/* SOS Button */}
-      <TouchableOpacity style={styles.sosButton} onPress={() => router.push('/panic')}>
-        <MaterialCommunityIcons name="lifebuoy" size={26} color="white" />
-        <Text style={styles.sosText}>SOS</Text>
-      </TouchableOpacity>
+      <SOSButton />
 
       {/* New Entry Modal */}
       <Modal
@@ -226,7 +229,7 @@ export default function Journal() {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>New Journal Entry</Text>
               <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Ionicons name="close" size={24} color="#555" />
+                <Ionicons name="close" size={24} color={Colors.inkSoft} />
               </TouchableOpacity>
             </View>
 
@@ -251,7 +254,7 @@ export default function Journal() {
             <TextInput
               style={styles.titleInput}
               placeholder="Give your entry a title..."
-              placeholderTextColor="#bbb"
+              placeholderTextColor={Colors.inkFaint}
               value={entryTitle}
               onChangeText={setEntryTitle}
               returnKeyType="next"
@@ -262,7 +265,7 @@ export default function Journal() {
             <TextInput
               style={styles.bodyInput}
               placeholder="Write your thoughts here..."
-              placeholderTextColor="#bbb"
+              placeholderTextColor={Colors.inkFaint}
               value={entryBody}
               onChangeText={setEntryBody}
               multiline
@@ -288,13 +291,13 @@ export default function Journal() {
           <Animated.View style={[styles.actionSheet, { paddingBottom: insets.bottom + 12, transform: [{ translateY: actionSlide }] }]}>
             <View style={styles.modalHandle} />
             <TouchableOpacity style={styles.actionRow} onPress={() => openViewEntry(selectedEntry)}>
-              <Ionicons name="eye-outline" size={22} color="#333" />
+              <Ionicons name="eye-outline" size={22} color={Colors.ink} />
               <Text style={styles.actionRowText}>View Full Entry</Text>
             </TouchableOpacity>
             <View style={styles.actionDivider} />
             <TouchableOpacity style={styles.actionRow} onPress={() => handleDelete(selectedEntry)}>
-              <Ionicons name="trash-outline" size={22} color="#C62828" />
-              <Text style={[styles.actionRowText, { color: '#C62828' }]}>Delete Entry</Text>
+              <Ionicons name="trash-outline" size={22} color={Colors.alert} />
+              <Text style={[styles.actionRowText, { color: Colors.alert }]}>Delete Entry</Text>
             </TouchableOpacity>
           </Animated.View>
         </Pressable>
@@ -320,7 +323,7 @@ export default function Journal() {
                       <Text style={[styles.tagText, { color: tag.color }]}>{viewEntry.entry_type.toUpperCase()}</Text>
                     </View>
                     <TouchableOpacity onPress={() => setViewModalVisible(false)}>
-                      <Ionicons name="close" size={24} color="#555" />
+                      <Ionicons name="close" size={24} color={Colors.inkSoft} />
                     </TouchableOpacity>
                   </View>
                   <Text style={styles.viewDate}>{formatDate(viewEntry.created_at)} · {formatTime(viewEntry.created_at)}</Text>
@@ -335,25 +338,7 @@ export default function Journal() {
         </View>
       </Modal>
 
-      {/* Bottom Tab Bar */}
-      <View style={[styles.tabBar, { paddingBottom: insets.bottom || 10 }]}>
-        <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/')}>
-          <Ionicons name="home-outline" size={24} color="#999" />
-          <Text style={styles.tabLabel}>Dashboard</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/progress')}>
-          <Ionicons name="bar-chart-outline" size={24} color="#999" />
-          <Text style={styles.tabLabel}>Progress</Text>
-        </TouchableOpacity>
-        <View style={styles.tabItem}>
-          <Ionicons name="document-text" size={24} color="#7e1f8c" />
-          <Text style={[styles.tabLabel, styles.tabLabelActive]}>Journal</Text>
-        </View>
-        <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/settings')}>
-          <Ionicons name="settings-outline" size={24} color="#999" />
-          <Text style={styles.tabLabel}>Settings</Text>
-        </TouchableOpacity>
-      </View>
+      <TabBar activeTab="journal" />
     </View>
   );
 }
@@ -361,7 +346,7 @@ export default function Journal() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f3edf7',
+    backgroundColor: Colors.bg,
   },
   overscrollFill: {
     position: 'absolute',
@@ -369,10 +354,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 1000,
-    backgroundColor: '#7e1f8c',
+    backgroundColor: Colors.plumDeep,
   },
   headerBg: {
-    backgroundColor: '#7e1f8c',
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
     paddingBottom: 16,
@@ -390,8 +374,8 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   headerTitle: {
+    fontFamily: FontFamily.serifMedium,
     fontSize: 24,
-    fontWeight: 'bold',
     color: 'white',
   },
   searchBtn: {
@@ -407,22 +391,21 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   filterChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.25)',
+    paddingHorizontal: 15,
+    paddingVertical: 9,
+    borderRadius: Radii.pill,
+    backgroundColor: 'rgba(255,255,255,0.16)',
   },
   filterChipActive: {
     backgroundColor: 'white',
   },
   filterChipText: {
-    fontSize: 13,
+    fontFamily: FontFamily.sansSemibold,
+    fontSize: FontSize.secondarySm,
     color: 'rgba(255,255,255,0.9)',
-    fontWeight: '500',
   },
   filterChipTextActive: {
-    color: '#7e1f8c',
-    fontWeight: '600',
+    color: Colors.plum,
   },
 
   /* New Entry Button */
@@ -433,35 +416,27 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     width: '90%',
     paddingVertical: 16,
-    borderRadius: 14,
-    backgroundColor: '#6A1B9A',
+    borderRadius: Radii.btn,
+    backgroundColor: Colors.plumDeep,
     marginTop: 18,
     marginBottom: 20,
-    shadowColor: '#6A1B9A',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
-    elevation: 5,
+    ...Shadows.pop,
   },
   newEntryText: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.body,
     color: 'white',
     letterSpacing: 0.3,
   },
 
   /* Entry Cards */
   entryCard: {
-    backgroundColor: 'white',
-    borderRadius: 16,
+    backgroundColor: Colors.surface,
+    borderRadius: Radii.card,
     marginHorizontal: 20,
     marginBottom: 12,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    ...Shadows.soft,
   },
   entryHeader: {
     flexDirection: 'row',
@@ -470,25 +445,26 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   entryDate: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#999',
-    letterSpacing: 0.5,
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.eyebrowSm,
+    color: Colors.inkFaint,
+    letterSpacing: 0.6,
   },
   entryMore: {
     fontSize: 14,
-    color: '#bbb',
+    color: Colors.inkFaint,
     letterSpacing: 1,
   },
   entryTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#1a1a1a',
+    fontFamily: FontFamily.serifMedium,
+    fontSize: FontSize.jentryTitle,
+    color: Colors.ink,
     marginBottom: 6,
   },
   entryPreview: {
-    fontSize: 13,
-    color: '#666',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.secondarySm,
+    color: Colors.inkSoft,
     lineHeight: 19,
     marginBottom: 12,
   },
@@ -503,25 +479,26 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   tagText: {
-    fontSize: 11,
-    fontWeight: '700',
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.eyebrowSm,
     letterSpacing: 0.5,
   },
   entryTime: {
-    fontSize: 12,
-    color: '#aaa',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.eyebrow,
+    color: Colors.inkFaint,
   },
 
   /* Modal */
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.45)',
+    backgroundColor: 'rgba(37,24,38,0.45)',
     justifyContent: 'flex-end',
   },
   modalSheet: {
-    backgroundColor: 'white',
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
+    backgroundColor: Colors.surface,
+    borderTopLeftRadius: Radii.lg,
+    borderTopRightRadius: Radii.lg,
     paddingHorizontal: 20,
     paddingTop: 12,
   },
@@ -529,7 +506,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 4,
     borderRadius: 2,
-    backgroundColor: '#ddd',
+    backgroundColor: Colors.line,
     alignSelf: 'center',
     marginBottom: 16,
   },
@@ -540,14 +517,14 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   modalTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#1a1a1a',
+    fontFamily: FontFamily.serifMedium,
+    fontSize: FontSize.topbarTitle,
+    color: Colors.ink,
   },
   modalLabel: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#777',
+    fontFamily: FontFamily.sansSemibold,
+    fontSize: FontSize.secondary,
+    color: Colors.inkSoft,
     letterSpacing: 0.4,
     marginBottom: 8,
     marginTop: 4,
@@ -561,65 +538,63 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 10,
     borderRadius: 12,
-    backgroundColor: '#f3edf7',
+    backgroundColor: Colors.bg,
     alignItems: 'center',
   },
   typeChipActive: {
-    backgroundColor: '#7e1f8c',
+    backgroundColor: Colors.plum,
   },
   typeChipText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#7e1f8c',
+    fontFamily: FontFamily.sansSemibold,
+    fontSize: FontSize.secondarySm,
+    color: Colors.plum,
   },
   typeChipTextActive: {
     color: 'white',
   },
   titleInput: {
-    backgroundColor: '#f9f5fc',
+    backgroundColor: Colors.plumTint2,
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    fontSize: 15,
-    color: '#1a1a1a',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.body,
+    color: Colors.ink,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#e8e3ea',
+    borderColor: Colors.line,
   },
   bodyInput: {
-    backgroundColor: '#f9f5fc',
+    backgroundColor: Colors.plumTint2,
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    fontSize: 15,
-    color: '#1a1a1a',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.body,
+    color: Colors.ink,
     height: 130,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#e8e3ea',
+    borderColor: Colors.line,
   },
   saveBtn: {
-    backgroundColor: '#7e1f8c',
-    borderRadius: 14,
+    backgroundColor: Colors.plum,
+    borderRadius: Radii.btn,
     paddingVertical: 16,
     alignItems: 'center',
-    shadowColor: '#7e1f8c',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
+    ...Shadows.pop,
   },
   saveBtnText: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.body,
     color: 'white',
   },
 
   /* Action Sheet */
   actionSheet: {
-    backgroundColor: 'white',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    backgroundColor: Colors.surface,
+    borderTopLeftRadius: Radii.lg,
+    borderTopRightRadius: Radii.lg,
     paddingHorizontal: 20,
     paddingTop: 12,
   },
@@ -630,87 +605,41 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   actionRowText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#333',
+    fontFamily: FontFamily.sansMedium,
+    fontSize: FontSize.body,
+    color: Colors.ink,
   },
   actionDivider: {
     height: 1,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: Colors.line,
   },
 
   /* View Full Modal */
   viewSheet: {
-    backgroundColor: 'white',
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
+    backgroundColor: Colors.surface,
+    borderTopLeftRadius: Radii.lg,
+    borderTopRightRadius: Radii.lg,
     paddingHorizontal: 20,
     paddingTop: 12,
     maxHeight: '80%',
   },
   viewDate: {
-    fontSize: 12,
-    color: '#999',
-    fontWeight: '500',
+    fontFamily: FontFamily.sansMedium,
+    fontSize: FontSize.eyebrow,
+    color: Colors.inkFaint,
     marginBottom: 10,
     marginTop: 4,
   },
   viewTitle: {
+    fontFamily: FontFamily.serifMedium,
     fontSize: 22,
-    fontWeight: '700',
-    color: '#1a1a1a',
+    color: Colors.ink,
     marginBottom: 14,
   },
   viewBody: {
-    fontSize: 15,
-    color: '#444',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.body,
+    color: Colors.inkSoft,
     lineHeight: 24,
-  },
-
-  /* SOS Button */
-  sosButton: {
-    position: 'absolute',
-    right: 10,
-    bottom: 95,
-    width: 66,
-    height: 66,
-    borderRadius: 33,
-    backgroundColor: '#C62828',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 6,
-  },
-  sosText: {
-    color: 'white',
-    fontSize: 9,
-    fontWeight: 'bold',
-    marginTop: 1,
-  },
-
-  /* Bottom Tab Bar */
-  tabBar: {
-    flexDirection: 'row',
-    backgroundColor: 'white',
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-    paddingTop: 8,
-    justifyContent: 'space-around',
-  },
-  tabItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  tabLabel: {
-    fontSize: 10,
-    color: '#999',
-    marginTop: 4,
-  },
-  tabLabelActive: {
-    color: '#7e1f8c',
   },
 });

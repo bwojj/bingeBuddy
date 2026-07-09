@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Binge Buddy — Logo</title>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="mbb.css">
+<style>
+  body{ background:#E6E1E9; }
+  .card{
+    position:absolute;
+    border-radius:24px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:18px;
+    box-shadow:0 1px 2px rgba(37,24,38,.04), 0 6px 18px rgba(37,24,38,.05);
+  }
+  .card b.label{
+    position:absolute; top:14px; left:20px;
+    font-family:var(--sans); font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--ink-faint);
+  }
+  .card.on-plum b.label{ color:rgba(255,255,255,.55); }
+
+  .mark{
+    display:grid; place-items:center;
+    background:linear-gradient(150deg,#5B2E6B,#3C1C49);
+    box-shadow:0 10px 24px -10px rgba(59,28,73,.55);
+  }
+  .mark svg path, .mark svg ellipse{ stroke:#F2E7D5; }
+  .mark svg ellipse{ fill:#F2E7D5; }
+
+  .wordmark{ font-family:var(--serif); font-weight:500; letter-spacing:-.015em; color:var(--ink); margin:0; text-align:center; }
+  .wordmark small{ display:block; font-family:var(--sans); font-weight:600; font-size:11.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--plum-soft); margin-top:6px; }
+  .on-plum .wordmark{ color:#fff; }
+  .on-plum .wordmark small{ color:rgba(255,255,255,.65); }
+
+  .lockup-h{ display:flex; align-items:center; gap:16px; }
+  .lockup-h .wordmark{ text-align:left; margin:0; }
+</style>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#3C1C49"/>
+    <path d="M32 55 Q50 72 68 55" stroke="#F2E7D5" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <path d="M35 40 Q42 34 49 40" stroke="#F2E7D5" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <ellipse cx="63" cy="38" rx="6.5" ry="8.5" fill="#F2E7D5"/>
+  </svg>
+</template>
+</head>
+<body>
+
+  <!-- Icon mark, plum bg -->
+  <div class="card on-plum" style="left:60px; top:60px; width:280px; height:280px; background:linear-gradient(157deg,#5B2E6B,#3C1C49);">
+    <b class="label">Icon · on plum</b>
+    <span class="mark" style="width:120px;height:120px;border-radius:34px;">
+      <svg viewBox="0 0 32 32" fill="none" style="width:72px;height:72px;">
+        <path d="M8.5 17.5 Q16 24.5 23.5 17.5" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M9.5 12.8 Q12 10.6 14.5 12.8" stroke-width="2.4" stroke-linecap="round"/>
+        <ellipse cx="20.4" cy="12" rx="2.1" ry="2.7"/>
+      </svg>
+    </span>
+  </div>
+
+  <!-- Icon mark, white bg -->
+  <div class="card" style="left:380px; top:60px; width:280px; height:280px; background:#fff;">
+    <b class="label">Icon · on white</b>
+    <span class="mark" style="width:120px;height:120px;border-radius:34px;">
+      <svg viewBox="0 0 32 32" fill="none" style="width:72px;height:72px;">
+        <path d="M8.5 17.5 Q16 24.5 23.5 17.5" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M9.5 12.8 Q12 10.6 14.5 12.8" stroke-width="2.4" stroke-linecap="round"/>
+        <ellipse cx="20.4" cy="12" rx="2.1" ry="2.7"/>
+      </svg>
+    </span>
+  </div>
+
+  <!-- Stacked lockup, white bg -->
+  <div class="card" style="left:700px; top:60px; width:320px; height:280px; background:#fff;">
+    <b class="label">Lockup · stacked</b>
+    <span class="mark" style="width:88px;height:88px;border-radius:26px;">
+      <svg viewBox="0 0 32 32" fill="none" style="width:52px;height:52px;">
+        <path d="M8.5 17.5 Q16 24.5 23.5 17.5" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M9.5 12.8 Q12 10.6 14.5 12.8" stroke-width="2.4" stroke-linecap="round"/>
+        <ellipse cx="20.4" cy="12" rx="2.1" ry="2.7"/>
+      </svg>
+    </span>
+    <p class="wordmark" style="font-size:24px;">My Binge Buddy<small>Recovery Companion</small></p>
+  </div>
+
+  <!-- Horizontal lockup, plum bg -->
+  <div class="card on-plum" style="left:60px; top:380px; width:420px; height:150px; background:linear-gradient(157deg,#5B2E6B,#3C1C49);">
+    <b class="label">Lockup · horizontal</b>
+    <div class="lockup-h">
+      <span class="mark" style="width:64px;height:64px;border-radius:19px;">
+        <svg viewBox="0 0 32 32" fill="none" style="width:38px;height:38px;">
+          <path d="M8.5 17.5 Q16 24.5 23.5 17.5" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M9.5 12.8 Q12 10.6 14.5 12.8" stroke-width="2.4" stroke-linecap="round"/>
+          <ellipse cx="20.4" cy="12" rx="2.1" ry="2.7"/>
+        </svg>
+      </span>
+      <p class="wordmark" style="font-size:21px;">My Binge Buddy</p>
+    </div>
+  </div>
+
+  <!-- Horizontal lockup, white bg -->
+  <div class="card" style="left:520px; top:380px; width:420px; height:150px; background:#fff;">
+    <b class="label">Lockup · horizontal</b>
+    <div class="lockup-h">
+      <span class="mark" style="width:64px;height:64px;border-radius:19px;">
+        <svg viewBox="0 0 32 32" fill="none" style="width:38px;height:38px;">
+          <path d="M8.5 17.5 Q16 24.5 23.5 17.5" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M9.5 12.8 Q12 10.6 14.5 12.8" stroke-width="2.4" stroke-linecap="round"/>
+          <ellipse cx="20.4" cy="12" rx="2.1" ry="2.7"/>
+        </svg>
+      </span>
+      <p class="wordmark" style="font-size:21px;">My Binge Buddy</p>
+    </div>
+  </div>
+
+  <!-- Small favicon-scale mark -->
+  <div class="card on-plum" style="left:1000px; top:60px; width:280px; height:280px; background:linear-gradient(157deg,#5B2E6B,#3C1C49); gap:26px;">
+    <b class="label">Small sizes</b>
+    <div style="display:flex; align-items:center; gap:22px;">
+      <span class="mark" style="width:56px;height:56px;border-radius:16px;">
+        <svg viewBox="0 0 32 32" fill="none" style="width:33px;height:33px;">
+          <path d="M8.5 17.5 Q16 24.5 23.5 17.5" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M9.5 12.8 Q12 10.6 14.5 12.8" stroke-width="2.4" stroke-linecap="round"/>
+          <ellipse cx="20.4" cy="12" rx="2.1" ry="2.7"/>
+        </svg>
+      </span>
+      <span class="mark" style="width:40px;height:40px;border-radius:13px;">
+        <svg viewBox="0 0 32 32" fill="none" style="width:24px;height:24px;">
+          <path d="M8.5 17.5 Q16 24.5 23.5 17.5" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M9.5 12.8 Q12 10.6 14.5 12.8" stroke-width="2.4" stroke-linecap="round"/>
+          <ellipse cx="20.4" cy="12" rx="2.1" ry="2.7"/>
+        </svg>
+      </span>
+      <span class="mark" style="width:28px;height:28px;border-radius:9px;">
+        <svg viewBox="0 0 32 32" fill="none" style="width:17px;height:17px;">
+          <path d="M8.5 17.5 Q16 24.5 23.5 17.5" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M9.5 12.8 Q12 10.6 14.5 12.8" stroke-width="2.4" stroke-linecap="round"/>
+          <ellipse cx="20.4" cy="12" rx="2.1" ry="2.7"/>
+        </svg>
+      </span>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -5,6 +5,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { useAuth } from "@/context/AuthContext";
 import { updateProfile, deleteAccount } from "@/components/DataAPI";
+import { LinearGradient } from 'expo-linear-gradient';
+import { Colors, FontFamily, FontSize, Radii, Shadows, Gradients } from '@/constants/theme';
 
 export default function ProfileSettings() {
   const insets = useSafeAreaInsets();
@@ -81,13 +83,18 @@ export default function ProfileSettings() {
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+        <LinearGradient
+          colors={Gradients.hero.colors}
+          start={Gradients.hero.start}
+          end={Gradients.hero.end}
+          style={[styles.header, { paddingTop: insets.top + 10 }]}
+        >
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
             <Ionicons name="chevron-back" size={26} color="white" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Profile Settings</Text>
           <View style={{ width: 40 }} />
-        </View>
+        </LinearGradient>
 
         {/* Personal Info */}
         <Text style={styles.sectionLabel}>PERSONAL INFO</Text>
@@ -98,7 +105,7 @@ export default function ProfileSettings() {
             value={firstName}
             onChangeText={setFirstName}
             placeholder="First name"
-            placeholderTextColor="#bbb"
+            placeholderTextColor={Colors.inkFaint}
             autoCapitalize="words"
           />
           <View style={styles.divider} />
@@ -108,7 +115,7 @@ export default function ProfileSettings() {
             value={email}
             onChangeText={setEmail}
             placeholder="Email address"
-            placeholderTextColor="#bbb"
+            placeholderTextColor={Colors.inkFaint}
             keyboardType="email-address"
             autoCapitalize="none"
           />
@@ -123,7 +130,7 @@ export default function ProfileSettings() {
             value={currentPassword}
             onChangeText={setCurrentPassword}
             placeholder="Enter current password"
-            placeholderTextColor="#bbb"
+            placeholderTextColor={Colors.inkFaint}
             secureTextEntry
           />
           <View style={styles.divider} />
@@ -133,7 +140,7 @@ export default function ProfileSettings() {
             value={newPassword}
             onChangeText={setNewPassword}
             placeholder="Enter new password"
-            placeholderTextColor="#bbb"
+            placeholderTextColor={Colors.inkFaint}
             secureTextEntry
           />
           <View style={styles.divider} />
@@ -143,7 +150,7 @@ export default function ProfileSettings() {
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             placeholder="Re-enter new password"
-            placeholderTextColor="#bbb"
+            placeholderTextColor={Colors.inkFaint}
             secureTextEntry
           />
         </View>
@@ -160,7 +167,7 @@ export default function ProfileSettings() {
         <Text style={[styles.sectionLabel, { marginTop: 16 }]}>DANGER ZONE</Text>
         <TouchableOpacity style={styles.deleteBtn} onPress={handleDeleteAccount} disabled={deleting} activeOpacity={0.85}>
           {deleting
-            ? <ActivityIndicator color="#C62828" />
+            ? <ActivityIndicator color={Colors.alert} />
             : <Text style={styles.deleteBtnText}>Delete Account</Text>
           }
         </TouchableOpacity>
@@ -174,17 +181,16 @@ export default function ProfileSettings() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#7e1f8c',
+    backgroundColor: Colors.plumDeep,
   },
   scrollContent: {
     flexGrow: 1,
-    backgroundColor: '#f3edf7',
+    backgroundColor: Colors.bg,
     paddingBottom: 20,
   },
 
   /* Header */
   header: {
-    backgroundColor: '#7e1f8c',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -199,16 +205,16 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontFamily: FontFamily.serifMedium,
+    fontSize: FontSize.topbarTitle,
     color: 'white',
   },
 
   /* Section Label */
   sectionLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#999',
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.eyebrowSm,
+    color: Colors.inkFaint,
     letterSpacing: 1.2,
     marginHorizontal: 20,
     marginBottom: 8,
@@ -216,69 +222,62 @@ const styles = StyleSheet.create({
 
   /* Card */
   card: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
     marginHorizontal: 20,
-    borderRadius: 16,
+    borderRadius: Radii.card,
     padding: 16,
     marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    ...Shadows.soft,
   },
   fieldLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#999',
+    fontFamily: FontFamily.sansSemibold,
+    fontSize: FontSize.eyebrow,
+    color: Colors.inkSoft,
     letterSpacing: 0.5,
     marginBottom: 6,
     marginTop: 4,
   },
   input: {
-    fontSize: 15,
-    color: '#1a1a1a',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.body,
+    color: Colors.ink,
     paddingVertical: 8,
   },
   divider: {
     height: 1,
-    backgroundColor: '#f3edf7',
+    backgroundColor: Colors.bg,
     marginVertical: 8,
   },
 
   /* Save Button */
   saveBtn: {
-    backgroundColor: '#7e1f8c',
+    backgroundColor: Colors.plum,
     marginHorizontal: 20,
-    borderRadius: 14,
+    borderRadius: Radii.btn,
     paddingVertical: 16,
     alignItems: 'center',
-    shadowColor: '#7e1f8c',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 4,
+    ...Shadows.pop,
   },
   saveBtnText: {
     color: 'white',
-    fontSize: 16,
-    fontWeight: '700',
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.body,
   },
 
   /* Delete Button */
   deleteBtn: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
     marginHorizontal: 20,
-    borderRadius: 14,
+    borderRadius: Radii.btn,
     paddingVertical: 16,
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: '#C62828',
+    borderColor: 'rgba(178,58,54,0.5)',
     marginBottom: 8,
   },
   deleteBtnText: {
-    color: '#C62828',
-    fontSize: 16,
-    fontWeight: '700',
+    color: Colors.alert,
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.body,
   },
 });

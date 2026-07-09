@@ -2,9 +2,9 @@
   "expo": {
     "name": "My Binge Buddy",
     "slug": "frontend",
-    "version": "1.0.0",
+    "version": "2.0.1",
     "orientation": "portrait",
-    "icon": "./assets/images/bingebuddy2.jpg",
+    "icon": "./assets/images/bingebuddy3.png",
     "scheme": "frontend",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -22,7 +22,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#7e1f8c",
+        "backgroundColor": "#3C1C49",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -36,19 +36,19 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/bingebuddy3.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/bingebuddy2.jpg",
+          "image": "./assets/images/bingebuddy3.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#7e1f8c",
+          "backgroundColor": "#3C1C49",
           "dark": {
-            "backgroundColor": "#7e1f8c"
+            "backgroundColor": "#3C1C49"
           }
         }
       ],

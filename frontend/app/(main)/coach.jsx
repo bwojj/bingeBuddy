@@ -1,23 +1,62 @@
-import { Text, View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { Text, View, StyleSheet, ScrollView, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRef, useState } from 'react';
+import TabBar from '../components/TabBar';
+import SOSButton from '../components/SOSButton';
+import { Colors, FontFamily, FontSize, Radii, Shadows, Gradients } from '@/constants/theme';
+import { sendChatMessage } from '@/components/ChatAPI';
+
+const formatTime = (date) => date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 
 export default function Coach() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const scrollViewRef = useRef(null);
+
+  const [messages, setMessages] = useState([]);
+  const [inputText, setInputText] = useState('');
+  const [sending, setSending] = useState(false);
+
+  const handleSend = async (overrideText) => {
+    const text = (overrideText ?? inputText).trim();
+    if (!text || sending) return;
+
+    setMessages((prev) => [...prev, { id: `${Date.now()}-user`, sender: 'user', text, time: formatTime(new Date()) }]);
+    setInputText('');
+    setSending(true);
+
+    const result = await sendChatMessage(text);
+    setSending(false);
+
+    if (result?.success && result.reply) {
+      setMessages((prev) => [...prev, { id: `${Date.now()}-ai`, sender: 'ai', text: result.reply, time: formatTime(new Date()) }]);
+    } else {
+      setMessages((prev) => [...prev, { id: `${Date.now()}-error`, sender: 'ai', text: 'Something went wrong — try again.', time: formatTime(new Date()) }]);
+    }
+  };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={26} color="#7e1f8c" />
+          <Ionicons name="chevron-back" size={26} color={Colors.plum} />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
-          <View style={styles.avatarCircle}>
+          <LinearGradient
+            colors={Gradients.logo.colors}
+            start={Gradients.logo.start}
+            end={Gradients.logo.end}
+            style={styles.avatarCircle}
+          >
             <MaterialCommunityIcons name="robot" size={22} color="white" />
-          </View>
+          </LinearGradient>
           <View>
             <Text style={styles.headerTitle}>AI Coach</Text>
             <View style={styles.onlineRow}>
@@ -26,14 +65,16 @@ export default function Coach() {
             </View>
           </View>
         </View>
-        <Ionicons name="ellipsis-horizontal" size={22} color="#333" />
+        <Ionicons name="ellipsis-horizontal" size={22} color={Colors.ink} />
       </View>
 
       {/* Chat Messages */}
       <ScrollView
+        ref={scrollViewRef}
         style={{ flex: 1 }}
         contentContainerStyle={styles.chatContent}
         showsVerticalScrollIndicator={false}
+        onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
       >
         {/* Today divider */}
         <View style={styles.dividerRow}>
@@ -42,109 +83,91 @@ export default function Coach() {
           <View style={styles.dividerLine} />
         </View>
 
-        {/* AI message 1 */}
-        <View style={styles.aiMessageRow}>
-          <View style={styles.aiAvatar}>
-            <View style={styles.aiAvatarDot} />
-          </View>
-          <View style={styles.aiMessageWrapper}>
-            <View style={styles.aiBubble}>
-              <Text style={styles.aiBubbleText}>
-                {"Good morning, Alex! I'm here for you today. How are you feeling right now?"}
-              </Text>
+        {messages.map((message) =>
+          message.sender === 'ai' ? (
+            <View key={message.id} style={styles.aiMessageRow}>
+              <View style={styles.aiAvatar}>
+                <View style={styles.aiAvatarDot} />
+              </View>
+              <View style={styles.aiMessageWrapper}>
+                <View style={styles.aiBubble}>
+                  <Text style={styles.aiBubbleText}>{message.text}</Text>
+                </View>
+                <Text style={styles.messageTime}>{message.time}</Text>
+              </View>
             </View>
-            <Text style={styles.messageTime}>9:41 AM</Text>
-          </View>
-        </View>
+          ) : (
+            <View key={message.id} style={styles.userMessageRow}>
+              <View style={styles.userMessageWrapper}>
+                <View style={styles.userBubble}>
+                  <Text style={styles.userBubbleText}>{message.text}</Text>
+                </View>
+                <Text style={styles.messageTimeRight}>{message.time}</Text>
+              </View>
+            </View>
+          )
+        )}
 
-        {/* User message */}
-        <View style={styles.userMessageRow}>
-          <View style={styles.userMessageWrapper}>
-            <View style={styles.userBubble}>
-              <Text style={styles.userBubbleText}>
-                {"I'm feeling a bit restless. The urges are starting to crawl in."}
-              </Text>
+        {sending && (
+          <View style={styles.aiMessageRow}>
+            <View style={styles.aiAvatar}>
+              <View style={styles.aiAvatarDot} />
             </View>
-            <Text style={styles.messageTimeRight}>9:42 AM</Text>
-          </View>
-        </View>
-
-        {/* AI message 2 */}
-        <View style={styles.aiMessageRow}>
-          <View style={styles.aiAvatar}>
-            <View style={styles.aiAvatarDot} />
-          </View>
-          <View style={styles.aiMessageWrapper}>
-            <View style={styles.aiBubble}>
-              <Text style={styles.aiBubbleText}>
-                {"I understand. That restlessness is just a wave\u2014it will pass. Let's try to ground ourselves. Would you like to try a 2-minute breathing exercise or should we find a distraction?"}
-              </Text>
+            <View style={styles.aiMessageWrapper}>
+              <View style={styles.aiBubble}>
+                <Text style={styles.aiBubbleText}>{'···'}</Text>
+              </View>
             </View>
-            <Text style={styles.messageTime}>9:43 AM</Text>
           </View>
-        </View>
+        )}
 
         {/* Quick reply chips */}
         <View style={styles.chipsRow}>
-          <View style={styles.chip}>
+          <TouchableOpacity style={styles.chip} onPress={() => handleSend("I'm feeling an urge")}>
             <Text style={styles.chipText}>{"I'm feeling an urge"}</Text>
-          </View>
-          <View style={styles.chip}>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.chip} onPress={() => handleSend('I need a distraction')}>
             <Text style={styles.chipText}>I need a distraction</Text>
-          </View>
+          </TouchableOpacity>
         </View>
       </ScrollView>
 
       {/* Input bar */}
-      <View style={styles.inputBar}>
+      <View style={[styles.inputBar, { paddingBottom: insets.bottom || 10 }]}>
         <View style={styles.plusButton}>
-          <Ionicons name="add" size={24} color="#7e1f8c" />
+          <Ionicons name="add" size={24} color={Colors.plum} />
         </View>
         <View style={styles.inputField}>
-          <Text style={styles.inputPlaceholder}>Type a message...</Text>
+          <TextInput
+            style={styles.inputText}
+            placeholder="Type a message..."
+            placeholderTextColor={Colors.inkFaint}
+            value={inputText}
+            onChangeText={setInputText}
+            onSubmitEditing={() => handleSend()}
+            returnKeyType="send"
+            multiline
+          />
         </View>
-        <View style={styles.sendButton}>
+        <TouchableOpacity
+          style={[styles.sendButton, (!inputText.trim() || sending) && styles.sendButtonDisabled]}
+          onPress={() => handleSend()}
+          disabled={!inputText.trim() || sending}
+        >
           <Ionicons name="send" size={18} color="white" />
-        </View>
-      </View>
-
-      {/* SOS Button */}
-      <TouchableOpacity style={styles.sosButton} onPress={() => router.push('/panic')}>
-        <MaterialCommunityIcons name="lifebuoy" size={26} color="white" />
-        <Text style={styles.sosText}>SOS</Text>
-      </TouchableOpacity>
-
-      {/* Bottom Tab Bar */}
-      <View style={[styles.tabBar, { paddingBottom: insets.bottom || 10 }]}>
-        <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/')}>
-          <Ionicons name="home-outline" size={24} color="#999" />
-          <Text style={styles.tabLabel}>Dashboard</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/progress')}>
-          <Ionicons name="bar-chart-outline" size={24} color="#999" />
-          <Text style={styles.tabLabel}>Progress</Text>
-        </TouchableOpacity>
-        <View style={styles.tabItem}>
-          <Ionicons name="chatbubble-ellipses" size={24} color="#7e1f8c" />
-          <Text style={[styles.tabLabel, styles.tabLabelActive]}>AI Coach</Text>
-        </View>
-        <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/journal')}>
-          <Ionicons name="document-text-outline" size={24} color="#999" />
-          <Text style={styles.tabLabel}>Journal</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabItem} onPress={() => router.push('/settings')}>
-          <Ionicons name="settings-outline" size={24} color="#999" />
-          <Text style={styles.tabLabel}>Settings</Text>
         </TouchableOpacity>
       </View>
-    </View>
+
+      <SOSButton />
+      <TabBar activeTab="coach" />
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f3edf7',
+    backgroundColor: Colors.bg,
   },
 
   /* Header */
@@ -154,9 +177,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingBottom: 12,
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: Colors.line,
   },
   headerCenter: {
     flexDirection: 'row',
@@ -167,14 +190,13 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#7e1f8c',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#333',
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.cardTitle,
+    color: Colors.ink,
   },
   onlineRow: {
     flexDirection: 'row',
@@ -189,9 +211,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#4CAF50',
   },
   onlineText: {
+    fontFamily: FontFamily.sansSemibold,
     fontSize: 9,
-    fontWeight: '600',
-    color: '#999',
+    color: Colors.inkFaint,
     letterSpacing: 0.5,
   },
 
@@ -210,12 +232,12 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#ddd',
+    backgroundColor: Colors.line,
   },
   dividerText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#999',
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.eyebrowSm,
+    color: Colors.inkFaint,
     marginHorizontal: 12,
     letterSpacing: 1,
   },
@@ -230,7 +252,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#7e1f8c',
+    backgroundColor: Colors.plum,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 8,
@@ -245,24 +267,22 @@ const styles = StyleSheet.create({
     maxWidth: '75%',
   },
   aiBubble: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
     borderRadius: 16,
-    borderBottomLeftRadius: 4,
+    borderBottomLeftRadius: 5,
     padding: 14,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 1,
+    ...Shadows.soft,
   },
   aiBubbleText: {
-    fontSize: 14,
-    color: '#333',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.bodyMd,
+    color: Colors.ink,
     lineHeight: 20,
   },
   messageTime: {
-    fontSize: 11,
-    color: '#aaa',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.eyebrowSm,
+    color: Colors.inkFaint,
     marginTop: 4,
     marginLeft: 4,
   },
@@ -278,19 +298,21 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   userBubble: {
-    backgroundColor: '#7e1f8c',
+    backgroundColor: Colors.plum,
     borderRadius: 16,
-    borderBottomRightRadius: 4,
+    borderBottomRightRadius: 5,
     padding: 14,
   },
   userBubbleText: {
-    fontSize: 14,
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.bodyMd,
     color: 'white',
     lineHeight: 20,
   },
   messageTimeRight: {
-    fontSize: 11,
-    color: '#aaa',
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.eyebrowSm,
+    color: Colors.inkFaint,
     marginTop: 4,
     marginRight: 4,
   },
@@ -304,15 +326,16 @@ const styles = StyleSheet.create({
   },
   chip: {
     borderWidth: 1.5,
-    borderColor: '#7e1f8c',
-    borderRadius: 20,
+    borderColor: Colors.plum,
+    borderRadius: Radii.pill,
     paddingHorizontal: 16,
     paddingVertical: 8,
+    backgroundColor: Colors.plumTint2,
   },
   chipText: {
-    fontSize: 13,
-    color: '#7e1f8c',
-    fontWeight: '500',
+    fontFamily: FontFamily.sansMedium,
+    fontSize: FontSize.secondarySm,
+    color: Colors.plum,
   },
 
   /* Input Bar */
@@ -321,84 +344,44 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 10,
-    backgroundColor: 'white',
+    backgroundColor: Colors.surface,
     borderTopWidth: 1,
-    borderTopColor: '#eee',
+    borderTopColor: Colors.line,
     gap: 10,
   },
   plusButton: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: '#f0e6f6',
+    backgroundColor: Colors.plumTint,
     alignItems: 'center',
     justifyContent: 'center',
   },
   inputField: {
     flex: 1,
-    height: 40,
-    backgroundColor: '#f5f0fa',
+    minHeight: 40,
+    maxHeight: 100,
+    backgroundColor: Colors.plumTint2,
     borderRadius: 20,
     justifyContent: 'center',
     paddingHorizontal: 16,
+    paddingVertical: 8,
   },
-  inputPlaceholder: {
-    fontSize: 14,
-    color: '#aaa',
+  inputText: {
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.bodyMd,
+    color: Colors.ink,
+    maxHeight: 84,
   },
   sendButton: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: '#7e1f8c',
+    backgroundColor: Colors.plum,
     alignItems: 'center',
     justifyContent: 'center',
   },
-
-  /* SOS Button */
-  sosButton: {
-    position: 'absolute',
-    right: 10,
-    bottom: 95,
-    width: 66,
-    height: 66,
-    borderRadius: 33,
-    backgroundColor: '#C62828',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 6,
-  },
-  sosText: {
-    color: 'white',
-    fontSize: 9,
-    fontWeight: 'bold',
-    marginTop: 1,
-  },
-
-  /* Bottom Tab Bar */
-  tabBar: {
-    flexDirection: 'row',
-    backgroundColor: 'white',
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-    paddingTop: 8,
-    justifyContent: 'space-around',
-  },
-  tabItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  tabLabel: {
-    fontSize: 10,
-    color: '#999',
-    marginTop: 4,
-  },
-  tabLabelActive: {
-    color: '#7e1f8c',
+  sendButtonDisabled: {
+    opacity: 0.5,
   },
 });

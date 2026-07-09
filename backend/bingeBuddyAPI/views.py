@@ -494,7 +494,7 @@ def ai_coach(request):
         )
 
         # defines user prompt from request
-        user_prompt = HumanMessagePromptTemplate(content=request.data.get('message'))
+        user_prompt = HumanMessagePromptTemplate.from_template("{message}")
 
         # defines full prompt template to use 
         prompt = ChatPromptTemplate.from_messages([system_prompt, user_prompt])
@@ -503,7 +503,7 @@ def ai_coach(request):
         chain = prompt | llm 
 
         # defines output model gets
-        output = chain.invoke({})
+        output = chain.invoke({"message": request.data.get("message")})
 
         # returns content of the message
         return Response({"ai-message": output.content})

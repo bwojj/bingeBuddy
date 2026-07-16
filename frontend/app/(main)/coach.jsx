@@ -19,6 +19,7 @@ export default function Coach() {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [sending, setSending] = useState(false);
+  const [sessionId, setSessionId] = useState(null);
 
   const handleSend = async (overrideText) => {
     const text = (overrideText ?? inputText).trim();
@@ -28,10 +29,11 @@ export default function Coach() {
     setInputText('');
     setSending(true);
 
-    const result = await sendChatMessage(text);
+    const result = await sendChatMessage(text, sessionId);
     setSending(false);
 
     if (result?.success && result.reply) {
+      if (result.sessionId) setSessionId(result.sessionId);
       setMessages((prev) => [...prev, { id: `${Date.now()}-ai`, sender: 'ai', text: result.reply, time: formatTime(new Date()) }]);
     } else {
       setMessages((prev) => [...prev, { id: `${Date.now()}-error`, sender: 'ai', text: 'Something went wrong — try again.', time: formatTime(new Date()) }]);

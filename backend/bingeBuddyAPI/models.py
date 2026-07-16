@@ -1,4 +1,5 @@
 from django.db import models
+import uuid
 from django.contrib.auth.models import User 
 
 # Create your models here.
@@ -30,3 +31,16 @@ class SocialAccount(models.Model):
 
     class Meta:
         unique_together = ('provider', 'provider_id')
+
+
+class ChatSession(models.Model):
+    session_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="chat_session")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+# AI Coach memory history
+class ChatHistory(models.Model): 
+    session = models.ForeignKey(ChatSession, on_delete=models.CASCADE, related_name="messages")
+    sender = models.CharField(max_length=10, choices=[('human', 'Human'), ('ai', 'AI')])
+    text = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)

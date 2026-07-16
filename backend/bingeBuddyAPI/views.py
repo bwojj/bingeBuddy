@@ -23,9 +23,9 @@ from rest_framework_simplejwt.views import (
 )
 import os 
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.prompts import SystemMessagePromptTemplate, HumanMessagePromptTemplate, ChatPromptTemplate
+from langchain_core.prompts import SystemMessagePromptTemplate, HumanMessagePromptTemplate, ChatPromptTemplate, MessagesPlaceholder
 from dotenv import load_dotenv
-from .models import UserData, JournalEntry, Urges, SocialAccount
+from .models import UserData, JournalEntry, Urges, SocialAccount, ChatHistory, ChatSession
 from .serializers import UserDataSerializer, UserSerializer, UserRegistrationSerializer, JournalEntrySerializer, UrgeSerializer
 
 load_dotenv()
@@ -471,6 +471,18 @@ def delete_account(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def ai_coach(request):
+    session_id_str = request.data.get('session-id')
+
+    if session_id_str:
+        session = ChatSession.objects.filter(session_id=session_id_str, user=request.user).first()
+        if session is None:
+            return Response({'error': 'session not found'}, status=404)
+    else:
+        session = ChatSession.objects.create(user=request.user)
+
+    db_messages = session.messages.all()
+    chat_history = [(msg.sender, msg.text) for msg in db_messages]
+
     try: 
         # defines LLM 
         llm = ChatGoogleGenerativeAI(
@@ -497,15 +509,18 @@ def ai_coach(request):
         user_prompt = HumanMessagePromptTemplate.from_template("{message}")
 
         # defines full prompt template to use 
-        prompt = ChatPromptTemplate.from_messages([system_prompt, user_prompt])
+        prompt = ChatPromptTemplate.from_messages([system_prompt, user_prompt, MessagesPlaceholder(variable_name="history")])
 
         # defines chain for the llm 
-        chain = prompt | llm 
+        chain = prompt | llm
 
-        # defines output model gets
-        output = chain.invoke({"message": request.data.get("message")})
+        message = request.data.get("message")
+        output = chain.invoke({"message": message, "history": chat_history})
+
+        ChatHistory.objects.create(session=session, sender='human', text=message)
+        ChatHistory.objects.create(session=session, sender="ai", text=output.content)
 
         # returns content of the message
-        return Response({"ai-message": output.content})
+        return Response({"ai-message": output.content, "session-id": session.session_id})
     except Exception as e:
-        return Response({'error': e})
+        return Response({'error': str(e)})

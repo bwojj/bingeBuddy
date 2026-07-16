@@ -1,3 +1,4 @@
+import logging
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.db.models import Count
@@ -29,6 +30,8 @@ from .models import UserData, JournalEntry, Urges, SocialAccount, ChatHistory, C
 from .serializers import UserDataSerializer, UserSerializer, UserRegistrationSerializer, JournalEntrySerializer, UrgeSerializer
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs): 
@@ -523,4 +526,5 @@ def ai_coach(request):
         # returns content of the message
         return Response({"ai-message": output.content, "session-id": session.session_id})
     except Exception as e:
-        return Response({'error': str(e)})
+        logger.exception("ai_coach failed for session %s", session.session_id)
+        return Response({'error': str(e)}, status=502)

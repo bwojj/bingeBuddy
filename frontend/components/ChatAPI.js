@@ -14,10 +14,11 @@ export const sendChatMessage = async (message, sessionId) => {
             credentials: 'include',
             body: JSON.stringify({ message, 'session-id': sessionId }),
         });
+        const data = await response.json();
         if (response.ok) {
-            const data = await response.json();
             return { success: true, reply: data['ai-message'], sessionId: data['session-id'] };
         }
+        console.log('Chat request failed', data.error);
         return { success: false };
     } catch (error) {
         console.log('Failed to send chat message', error);

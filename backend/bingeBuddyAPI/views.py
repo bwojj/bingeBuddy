@@ -512,7 +512,7 @@ def ai_coach(request):
         user_prompt = HumanMessagePromptTemplate.from_template("{message}")
 
         # defines full prompt template to use 
-        prompt = ChatPromptTemplate.from_messages([system_prompt, user_prompt, MessagesPlaceholder(variable_name="history")])
+        prompt = ChatPromptTemplate.from_messages([system_prompt, MessagesPlaceholder(variable_name="history"), user_prompt])
 
         # defines chain for the llm 
         chain = prompt | llm

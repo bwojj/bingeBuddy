@@ -486,7 +486,7 @@ def ai_coach(request):
     else:
         session = ChatSession.objects.create(user=request.user)
 
-    db_messages = list(session.messages.order_by('-created_at')[:20])[::-1]
+    db_messages = list(session.messages.order_by('-timestamp')[:20])[::-1]
     chat_history = [(msg.sender, msg.text) for msg in db_messages]
 
     try:

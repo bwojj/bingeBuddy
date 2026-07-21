@@ -8,6 +8,7 @@ from django.conf import settings as django_settings
 from datetime import timedelta, datetime
 from zoneinfo import ZoneInfo
 import cloudinary.uploader
+from django.db import transaction
 import base64
 import jwt as pyjwt
 import requests as http_requests
@@ -23,11 +24,10 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 import os 
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.prompts import SystemMessagePromptTemplate, HumanMessagePromptTemplate, ChatPromptTemplate, MessagesPlaceholder
 from dotenv import load_dotenv
 from .models import UserData, JournalEntry, Urges, SocialAccount, ChatHistory, ChatSession
 from .serializers import UserDataSerializer, UserSerializer, UserRegistrationSerializer, JournalEntrySerializer, UrgeSerializer
+from .chatbot_utilities import chain
 
 load_dotenv()
 
@@ -475,6 +475,9 @@ def delete_account(request):
 @permission_classes([IsAuthenticated])
 def ai_coach(request):
     session_id_str = request.data.get('session-id')
+    message = request.data.get("message")
+    if not message or not message.strip():
+        return Response({'error': 'no message provided'}, status=400)
 
     if session_id_str:
         session = ChatSession.objects.filter(session_id=session_id_str, user=request.user).first()
@@ -483,48 +486,19 @@ def ai_coach(request):
     else:
         session = ChatSession.objects.create(user=request.user)
 
-    db_messages = session.messages.all()
+    db_messages = list(session.messages.order_by('-created_at')[:20])[::-1]
     chat_history = [(msg.sender, msg.text) for msg in db_messages]
 
-    try: 
-        # defines LLM 
-        llm = ChatGoogleGenerativeAI(
-            model='gemini-2.5-flash',
-            temperature=0.7,
-            google_api_key=os.environ.get('GOOGLE_API_KEY')
-        )
-
-        # defines system prompt 
-        system_prompt = SystemMessagePromptTemplate.from_template(
-            """
-                You are an AI binge eating coach placed within a Binge Eating Recovery app, that 
-                is focused on the beating the urge mindset, meaning the main vehicle to stop users 
-                from binge eating is to help them stop the urge. The main components are all mindset 
-                related. Users might ask questions for reassurance, help to beat an urge, or more. The 
-                mindset shifts you need to point to include the following: understand that the user has 
-                full control, the user only eats as a conscious decision, the binge eating goes against 
-                the users goal, the user should NOT refer to themselves as a binge eater. Beyond that be 
-                a helpful, and very sympathetic therapist for the user. Always be 100% kind. 
-            """
-        )
-
-        # defines user prompt from request
-        user_prompt = HumanMessagePromptTemplate.from_template("{message}")
-
-        # defines full prompt template to use 
-        prompt = ChatPromptTemplate.from_messages([system_prompt, MessagesPlaceholder(variable_name="history"), user_prompt])
-
-        # defines chain for the llm 
-        chain = prompt | llm
-
-        message = request.data.get("message")
+    try:
         output = chain.invoke({"message": message, "history": chat_history})
 
-        ChatHistory.objects.create(session=session, sender='human', text=message)
-        ChatHistory.objects.create(session=session, sender="ai", text=output.content)
+        with transaction.atomic():
+            ChatHistory.objects.create(session=session, sender='human', text=message)
+            ChatHistory.objects.create(session=session, sender="ai", text=output.content)
 
         # returns content of the message
         return Response({"ai-message": output.content, "session-id": session.session_id})
     except Exception as e:
-        logger.exception("ai_coach failed for session %s", session.session_id)
-        return Response({'error': str(e)}, status=502)
+        session_id_log = getattr(session, 'session_id', 'UNCREATED')
+        logger.exception("ai_coach failed for session %s", session_id_log)
+        return Response({'error': 'Try again later'}, status=502)

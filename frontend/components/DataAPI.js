@@ -1,7 +1,7 @@
 import { getToken } from './authStorage.js'
 
 
-const BASEURL = 'https://bingebuddy-production.up.railway.app';
+const BASEURL = process.env.EXPO_PUBLIC_API_URL;
 
 export const getUserCredentials = async () => {
     const token = await getToken();

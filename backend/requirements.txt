@@ -14,8 +14,3 @@ django-cloudinary-storage
 langchain_google_genai
 langchain_core
 dotenv
-langchain_community
-langchain_text_splitters
-langchain_huggingface
-langchain_chroma
-sentence-transformers

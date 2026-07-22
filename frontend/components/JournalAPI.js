@@ -1,6 +1,6 @@
 import { getToken } from "./authStorage";
 
-const BASEURL = 'https://bingebuddy-production.up.railway.app';
+const BASEURL = process.env.EXPO_PUBLIC_API_URL;
 
 export const addEntry = async (type, title, entry) => {
     const token = await getToken(); 

@@ -1,6 +1,6 @@
 import { getToken } from "./authStorage";
 
-const BASEURL = 'https://bingebuddy-production.up.railway.app';
+const BASEURL = process.env.EXPO_PUBLIC_API_URL;
 
 export const sendChatMessage = async (message, sessionId) => {
     const token = await getToken();

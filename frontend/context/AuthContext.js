@@ -4,7 +4,7 @@ import { getUserData, getUserCredentials } from '../components/DataAPI';
 import { getUrgeCount, getUrgesByDay } from '../components/UrgeAPI';
 import { delToken, getToken } from '../components/authStorage';
 
-const BASEURL = 'https://bingebuddy-production.up.railway.app';
+const BASEURL = process.env.EXPO_PUBLIC_API_URL;
 
 const EMPTY_BARS = ['M','T','W','T','F','S','S'].map(day => ({ day, count: 0 }));
 

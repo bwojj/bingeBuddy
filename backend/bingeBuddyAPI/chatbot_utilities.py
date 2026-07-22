@@ -1,5 +1,9 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import SystemMessagePromptTemplate, HumanMessagePromptTemplate, ChatPromptTemplate, MessagesPlaceholder
+from langchain_community.document_loaders import DirectoryLoader, TextLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_chroma import Chroma
 import os
 
 # defines LLM 
@@ -26,7 +30,43 @@ system_prompt = SystemMessagePromptTemplate.from_template(
 user_prompt = HumanMessagePromptTemplate.from_template("{message}")
 
 # defines full prompt template to use 
-prompt = ChatPromptTemplate.from_messages([system_prompt, MessagesPlaceholder(variable_name="history"), user_prompt])
+prompt = ChatPromptTemplate.from_messages([system_prompt, MessagesPlaceholder(variable_name="history"), MessagesPlaceholder(variable_name="context"), user_prompt])
 
 # defines chain for the llm 
 chain = prompt | llm
+
+
+ # defines loader to load directory markdown files 
+loader = DirectoryLoader(
+    path="./rag_data",
+    glob="*/md",
+    loader_cls=TextLoader,
+    loader_kwargs={'encoding':'utf-8'}        
+)
+
+# loads the docs
+docs = loader.load()
+
+# splits the documents into chunks 
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size=800, # chunks are 800 character each
+    chunk_overlap=50, # chunks can contain same 50 characters, some chunks with similar data to others 
+)
+
+# create chunks 
+chunks = splitter.split_documents(docs)
+
+# creates embeddings of the documents with hugging face model
+embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+
+# creates database to hold the embeddings 
+vectorstore = Chroma.from_documents(
+    documents=chunks, 
+    embedding=embeddings, 
+    persist_directory='./ai_coach_db',
+    collection_name='ai_coach_collection'
+)
+
+# defines retriever to retrieve 5 most similar answers 
+retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
+

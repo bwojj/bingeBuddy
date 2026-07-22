@@ -27,7 +27,7 @@ import os
 from dotenv import load_dotenv
 from .models import UserData, JournalEntry, Urges, SocialAccount, ChatHistory, ChatSession
 from .serializers import UserDataSerializer, UserSerializer, UserRegistrationSerializer, JournalEntrySerializer, UrgeSerializer
-from .chatbot_utilities import chain
+from .chatbot_utilities import chain, retriever
 
 load_dotenv()
 
@@ -489,8 +489,14 @@ def ai_coach(request):
     db_messages = list(session.messages.order_by('-timestamp')[:20])[::-1]
     chat_history = [(msg.sender, msg.text) for msg in db_messages]
 
+    # get relevant chunks for question
+    chunks = retriever.invoke(message)
+
+    # forms the chunks into single page string
+    context = "\n\n".join([doc.page_content for doc in chunks])
+
     try:
-        output = chain.invoke({"message": message, "history": chat_history})
+        output = chain.invoke({"message": message, "history": chat_history, "context": context})
 
         with transaction.atomic():
             ChatHistory.objects.create(session=session, sender='human', text=message)

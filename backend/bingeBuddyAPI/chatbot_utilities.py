@@ -36,12 +36,14 @@ prompt = ChatPromptTemplate.from_messages([system_prompt, MessagesPlaceholder(va
 chain = prompt | llm
 
 
- # defines loader to load directory markdown files 
+ # defines loader to load directory markdown files
+RAG_DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "rag_data")
+
 loader = DirectoryLoader(
-    path="./rag_data",
-    glob="*/md",
+    path=RAG_DATA_DIR,
+    glob="*.md",
     loader_cls=TextLoader,
-    loader_kwargs={'encoding':'utf-8'}        
+    loader_kwargs={'encoding':'utf-8'}
 )
 
 # loads the docs

@@ -6,11 +6,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { addMotivationImage } from '../../components/DataAPI'; 
-import { motivation } from '../../components/OnboardingApi'
+import { addMotivationImage } from '../../components/DataAPI';
+import { motivation, mainCause, coachingStyle } from '../../components/OnboardingApi'
+import { addCustomHabit } from '../../components/HabitAPI';
 import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, FontFamily, FontSize, Radii, Shadows, Gradients } from '@/constants/theme';
+
+const ALL_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 /* ── Onboarding data ─────────────────────────────── */
 const TRIGGERS = [
@@ -18,18 +21,13 @@ const TRIGGERS = [
   { id: 'boredom',  title: 'Boredom',             subtitle: 'Eating when there is nothing to do',    icon: (c) => <Ionicons name="time-outline" size={20} color={c} /> },
   { id: 'emotions', title: 'Difficult Emotions',  subtitle: 'Coping with sadness or anxiety',        icon: (c) => <MaterialCommunityIcons name="emoticon-sad-outline" size={20} color={c} /> },
   { id: 'social',   title: 'Social Situations',   subtitle: 'Pressure from friends or family events', icon: (c) => <Ionicons name="people-outline" size={20} color={c} /> },
+  { id: 'over_restriction', title: 'Over-Restriction', subtitle: 'Reacting to overly strict dieting or food rules', icon: (c) => <MaterialCommunityIcons name="food-off-outline" size={20} color={c} /> },
 ];
 
-
-const MOTIVATION_CHIPS = [
-  { id: 'health',        label: 'Health' },
-  { id: 'weight',        label: 'Weight Loss' },
-  { id: 'confidence',    label: 'Confidence' },
-  { id: 'mental',        label: 'Mental Clarity' },
-  { id: 'money',         label: 'Save Money' },
-  { id: 'relationships', label: 'Relationships' },
-  { id: 'sleep',         label: 'Sleep Quality' },
-  { id: 'career',        label: 'Career Goals' },
+const COACHING_STYLES = [
+  { id: 'supportive', title: 'Supportive',      subtitle: 'Gentle encouragement and empathy',      icon: (c) => <Ionicons name="heart-outline" size={20} color={c} /> },
+  { id: 'aggressive', title: 'More Aggressive',  subtitle: 'Direct, no-nonsense accountability',    icon: (c) => <MaterialCommunityIcons name="whistle-outline" size={20} color={c} /> },
+  { id: 'neutral',    title: 'Neutral',          subtitle: 'Calm, matter-of-fact guidance',         icon: (c) => <MaterialCommunityIcons name="scale-balance" size={20} color={c} /> },
 ];
 
 /* ── Component ───────────────────────────────────── */
@@ -37,18 +35,10 @@ export default function Personalization() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
-  const [photoAsset, setPhotoAsset]   = useState(null);
-  const [myWhy, setMyWhy]             = useState('');
-  const [trigger, setTrigger]         = useState('stress');
-  const [motivations, setMotivations] = useState(new Set(['health']));
-
-  const toggleMotivation = (id) => {
-    setMotivations((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  };
+  const [photoAsset, setPhotoAsset]     = useState(null);
+  const [myWhy, setMyWhy]               = useState('');
+  const [trigger, setTrigger]           = useState('stress');
+  const [coachingStyleSel, setCoachingStyleSel] = useState('supportive');
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -69,8 +59,15 @@ export default function Personalization() {
 
   const handleSave = async () => {
     const motivationImageOk = await addMotivationImage(photoAsset);
-    const motivationOk = await motivation(myWhy); 
-    if(motivationImageOk && motivationOk){
+    const motivationOk = await motivation(myWhy);
+    const triggerOk = await mainCause(trigger);
+    const coachingStyleOk = await coachingStyle(coachingStyleSel);
+
+    if (triggerOk && trigger === 'over_restriction') {
+      addCustomHabit('No Restriction', ALL_DAYS);
+    }
+
+    if(motivationImageOk && motivationOk && triggerOk && coachingStyleOk){
       Alert.alert('Saved!', 'Your personalization settings have been updated.', [
         { text: 'Great', onPress: () => router.back() },
       ]);
@@ -170,26 +167,29 @@ export default function Personalization() {
           })}
         </View>
 
-        {/* ── Motivations ── */}
-        <SectionLabel icon="ribbon-outline" label="My Motivations" />
-        <View style={styles.chipsCard}>
-          <Text style={styles.chipsDescription}>Select everything that drives you forward.</Text>
-          <View style={styles.chipsGrid}>
-            {MOTIVATION_CHIPS.map((chip) => {
-              const sel = motivations.has(chip.id);
-              return (
-                <TouchableOpacity
-                  key={chip.id}
-                  style={[styles.chip, sel && styles.chipSel]}
-                  onPress={() => toggleMotivation(chip.id)}
-                  activeOpacity={0.75}
-                >
-                  {sel && <Ionicons name="shield-checkmark" size={13} color="white" style={{ marginRight: 4 }} />}
-                  <Text style={[styles.chipText, sel && styles.chipTextSel]}>{chip.label}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+        {/* ── Coaching Style ── */}
+        <SectionLabel icon="chatbubble-ellipses-outline" label="Coaching Style" />
+        <View style={styles.optionGroup}>
+          {COACHING_STYLES.map((opt) => {
+            const sel = coachingStyleSel === opt.id;
+            return (
+              <TouchableOpacity
+                key={opt.id}
+                style={[styles.optionCard, sel && styles.optionCardSel]}
+                onPress={() => setCoachingStyleSel(opt.id)}
+                activeOpacity={0.75}
+              >
+                <View style={[styles.optionIconCircle, sel && styles.optionIconCircleSel]}>
+                  {opt.icon(sel ? Colors.plum : Colors.inkSoft)}
+                </View>
+                <View style={styles.optionText}>
+                  <Text style={[styles.optionTitle, sel && styles.optionTitleSel]}>{opt.title}</Text>
+                  <Text style={styles.optionSubtitle}>{opt.subtitle}</Text>
+                </View>
+                {sel && <Ionicons name="checkmark-circle" size={20} color={Colors.plum} />}
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
         {/* Save */}
@@ -345,30 +345,6 @@ const styles = StyleSheet.create({
   optionTitle:    { fontFamily: FontFamily.sansBold, fontSize: FontSize.bodyMd, color: Colors.ink, marginBottom: 2 },
   optionTitleSel: { color: Colors.plum },
   optionSubtitle: { fontFamily: FontFamily.sansRegular, fontSize: FontSize.eyebrow, color: Colors.inkSoft, lineHeight: 17 },
-
-  /* Motivation chips */
-  chipsCard: {
-    backgroundColor: Colors.surface,
-    marginHorizontal: 20,
-    borderRadius: Radii.card,
-    padding: 16,
-    ...Shadows.soft,
-  },
-  chipsDescription: { fontFamily: FontFamily.sansRegular, fontSize: FontSize.secondarySm, color: Colors.inkSoft, marginBottom: 14 },
-  chipsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  chip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 9,
-    paddingHorizontal: 16,
-    borderRadius: Radii.pill,
-    borderWidth: 1.5,
-    borderColor: Colors.line,
-    backgroundColor: Colors.surface,
-  },
-  chipSel: { backgroundColor: Colors.plum, borderColor: Colors.plum },
-  chipText:    { fontFamily: FontFamily.sansMedium, fontSize: FontSize.secondarySm, color: Colors.ink },
-  chipTextSel: { color: 'white' },
 
   /* Save button */
   saveBtn: {

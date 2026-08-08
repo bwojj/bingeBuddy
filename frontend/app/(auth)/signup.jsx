@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { Text, View, StyleSheet, ScrollView, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator } from "react-native";
+import { Text, View, StyleSheet, ScrollView, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { login, register } from '../../components/AuthApi.js'
+import { updateProfile } from '../../components/DataAPI.js'
 import { Colors, FontFamily, FontSize, Radii } from '../../constants/theme';
+import SocialAuthButtons from '../components/SocialAuthButtons';
 
 export default function Signup() {
   const insets = useSafeAreaInsets();
@@ -16,23 +18,43 @@ export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  // Flips true once the account has actually been created. If the user comes
+  // back here from the verify-email step to fix a typo'd address, the account
+  // already exists -- re-running register() would just fail on the taken
+  // username, so this branches to updating the existing account's email instead.
+  const [alreadyRegistered, setAlreadyRegistered] = useState(false);
+
+  const handleUpdateEmail = async () => {
+    setSubmitting(true);
+    const result = await updateProfile({ email });
+    setSubmitting(false);
+    if (result?.success) {
+      router.push('/(auth)/(onboarding)/verify-email');
+    } else {
+      Alert.alert('Update Failed', result?.error || 'Something went wrong. Please try again.');
+    }
+  };
 
   // calls signup API
   const handleSignup = async () => {
+    if (alreadyRegistered) {
+      await handleUpdateEmail();
+      return;
+    }
     setSubmitting(true);
-    const ok = await register(username, name, email, password);
-    if (ok === true) {
+    const result = await register(username, name, email, password);
+    if (result.success) {
       const res = await login(username, password);
       if (res === true) {
-        router.push('/(auth)/(onboarding)/maincause');
+        setAlreadyRegistered(true);
+        router.push('/(auth)/(onboarding)/verify-email');
       }
       else {
-        console.log("Failed to Login");
-        console.log(email);
-        console.log(username);
+        Alert.alert('Signup Failed', 'Something went wrong logging you in. Please try again.');
         setSubmitting(false);
       }
     } else {
+      Alert.alert('Signup Failed', result.error);
       setSubmitting(false);
     }
   };
@@ -53,7 +75,7 @@ export default function Signup() {
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="chevron-back" size={26} color={Colors.ink} />
         </TouchableOpacity>
-        <Text style={styles.stepText}>STEP 1 OF 3</Text>
+        <Text style={styles.stepText}>STEP 1 OF 4</Text>
         <View style={{ width: 26 }} />
       </View>
 
@@ -63,45 +85,60 @@ export default function Signup() {
       </View>
 
       {/* Title */}
-      <Text style={styles.title}>Create your account</Text>
-      <Text style={styles.subtitle}>
-        {"Your journey to recovery starts here. We're with you every step of the way."}
-      </Text>
+      {alreadyRegistered ? (
+        <>
+          <Text style={styles.title}>Update your email</Text>
+          <Text style={styles.subtitle}>
+            {"Fix the address below and we'll send a fresh code to it."}
+          </Text>
+        </>
+      ) : (
+        <>
+          <Text style={styles.title}>Create your account</Text>
+          <Text style={styles.subtitle}>
+            {"Your journey to recovery starts here. We're with you every step of the way."}
+          </Text>
+        </>
+      )}
 
-      {/* Quote card */}
-      <View style={styles.quoteCard}>
-        <Text style={styles.quoteMark}>“</Text>
-        <Text style={styles.quoteText}>
-          {"Recovery is not for people who need it, it's for people who want it. We are so glad you're here."}
-        </Text>
-      </View>
+      {!alreadyRegistered && (
+        <>
+          {/* Quote card */}
+          <View style={styles.quoteCard}>
+            <Text style={styles.quoteMark}>“</Text>
+            <Text style={styles.quoteText}>
+              {"Recovery is not for people who need it, it's for people who want it. We are so glad you're here."}
+            </Text>
+          </View>
 
-      {/* Preferred Name */}
-      <Text style={styles.label}>Preferred Name</Text>
-      <View style={styles.inputRow}>
-        <Ionicons name="person-outline" size={19} color={Colors.inkFaint} />
-        <TextInput
-          style={styles.input}
-          placeholder="Alex"
-          placeholderTextColor={Colors.inkFaint}
-          value={name}
-          onChangeText={setName}
-        />
-      </View>
+          {/* Preferred Name */}
+          <Text style={styles.label}>Preferred Name</Text>
+          <View style={styles.inputRow}>
+            <Ionicons name="person-outline" size={19} color={Colors.inkFaint} />
+            <TextInput
+              style={styles.input}
+              placeholder="Alex"
+              placeholderTextColor={Colors.inkFaint}
+              value={name}
+              onChangeText={setName}
+            />
+          </View>
 
-      {/* Username */}
-      <Text style={styles.label}>Username</Text>
-      <View style={styles.inputRow}>
-        <Ionicons name="at-outline" size={19} color={Colors.inkFaint} />
-        <TextInput
-          style={styles.input}
-          placeholder="alex123"
-          placeholderTextColor={Colors.inkFaint}
-          value={username}
-          onChangeText={setUsername}
-          autoCapitalize="none"
-        />
-      </View>
+          {/* Username */}
+          <Text style={styles.label}>Username</Text>
+          <View style={styles.inputRow}>
+            <Ionicons name="at-outline" size={19} color={Colors.inkFaint} />
+            <TextInput
+              style={styles.input}
+              placeholder="alex123"
+              placeholderTextColor={Colors.inkFaint}
+              value={username}
+              onChangeText={setUsername}
+              autoCapitalize="none"
+            />
+          </View>
+        </>
+      )}
 
       {/* Email */}
       <Text style={styles.label}>Email Address</Text>
@@ -118,51 +155,57 @@ export default function Signup() {
         />
       </View>
 
-      {/* Password */}
-      <Text style={styles.label}>Create Password</Text>
-      <View style={styles.inputRow}>
-        <Ionicons name="lock-closed-outline" size={19} color={Colors.inkFaint} />
-        <TextInput
-          style={styles.input}
-          placeholder="••••••••"
-          placeholderTextColor={Colors.inkFaint}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry={!showPassword}
-          autoCapitalize="none"
-        />
-        <TouchableOpacity onPress={() => setShowPassword(v => !v)}>
-          <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={19} color={Colors.inkFaint} />
-        </TouchableOpacity>
-      </View>
+      {!alreadyRegistered && (
+        <>
+          {/* Password */}
+          <Text style={styles.label}>Create Password</Text>
+          <View style={styles.inputRow}>
+            <Ionicons name="lock-closed-outline" size={19} color={Colors.inkFaint} />
+            <TextInput
+              style={styles.input}
+              placeholder="••••••••"
+              placeholderTextColor={Colors.inkFaint}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+              autoCapitalize="none"
+            />
+            <TouchableOpacity onPress={() => setShowPassword(v => !v)}>
+              <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={19} color={Colors.inkFaint} />
+            </TouchableOpacity>
+          </View>
 
-      {/* Terms checkbox */}
-      <View style={styles.termsRow}>
-        <TouchableOpacity
-          style={[styles.checkbox, agreed && styles.checkboxChecked]}
-          onPress={() => setAgreed(v => !v)}
-        >
-          {agreed && <Ionicons name="checkmark" size={13} color="white" />}
-        </TouchableOpacity>
-        <Text style={styles.termsText}>
-          {"I agree to the "}
-          <Text style={styles.termsLink}>Terms of Service</Text>
-          {" and "}
-          <Text style={styles.termsLink}>Privacy Policy</Text>
-        </Text>
-      </View>
+          {/* Terms checkbox */}
+          <View style={styles.termsRow}>
+            <TouchableOpacity
+              style={[styles.checkbox, agreed && styles.checkboxChecked]}
+              onPress={() => setAgreed(v => !v)}
+            >
+              {agreed && <Ionicons name="checkmark" size={13} color="white" />}
+            </TouchableOpacity>
+            <Text style={styles.termsText}>
+              {"I agree to the "}
+              <Text style={styles.termsLink}>Terms of Service</Text>
+              {" and "}
+              <Text style={styles.termsLink}>Privacy Policy</Text>
+            </Text>
+          </View>
+        </>
+      )}
 
       <TouchableOpacity
-        style={[styles.primaryButton, (!agreed || submitting) && { opacity: 0.6 }]}
+        style={[styles.primaryButton, ((!alreadyRegistered && !agreed) || !email || submitting) && { opacity: 0.6 }]}
         onPress={handleSignup}
-        disabled={!agreed || submitting}
+        disabled={(!alreadyRegistered && !agreed) || !email || submitting}
       >
         {submitting ? (
           <ActivityIndicator color="white" />
         ) : (
-          <Text style={styles.primaryButtonText}>Continue</Text>
+          <Text style={styles.primaryButtonText}>{alreadyRegistered ? 'Save & Resend Code' : 'Continue'}</Text>
         )}
       </TouchableOpacity>
+
+      {!alreadyRegistered && <SocialAuthButtons />}
     </ScrollView>
     </KeyboardAvoidingView>
   );

@@ -1,3 +1,7 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+numpy<2
+
 django
 djangorestframework
 djangorestframework-simplejwt
@@ -6,6 +10,7 @@ Pillow
 PyJWT>=2.0
 cryptography
 requests
+resend
 psycopg2-binary
 gunicorn
 whitenoise
@@ -14,3 +19,9 @@ django-cloudinary-storage
 langchain_google_genai
 langchain_core
 dotenv
+langchain_community
+langchain_text_splitters
+langchain_huggingface
+langchain_chroma
+sentence-transformers
+chromadb

@@ -50,6 +50,18 @@ MIDDLEWARE = [
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
+# Sign in with Apple -- audience checked against identity tokens in social_auth()
+APPLE_BUNDLE_ID = os.environ.get('APPLE_BUNDLE_ID', '')
+
+# Resend -- used to send the email-verification code
+RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
+VERIFICATION_EMAIL_FROM = os.environ.get('VERIFICATION_EMAIL_FROM', 'BingeBuddy <onboarding@resend.dev>')
+
+# RevenueCat -- gates the AI Coach subscription (see bingeBuddyAPI.permissions.HasActiveSubscription)
+REVENUECAT_SECRET_API_KEY = os.environ.get('REVENUECAT_SECRET_API_KEY', '')
+REVENUECAT_WEBHOOK_SECRET = os.environ.get('REVENUECAT_WEBHOOK_SECRET', '')
+REVENUECAT_ENTITLEMENT_ID = os.environ.get('REVENUECAT_ENTITLEMENT_ID', 'premium')
+
 ROOT_URLCONF = 'backend.urls'
 
 TEMPLATES = [
@@ -97,6 +109,24 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+    # Baseline spam/abuse protection across every endpoint -- generous enough
+    # that no real usage pattern should ever hit it. The AI Coach endpoint
+    # layers its own tighter (but still generous) scopes on top of this, since
+    # each of its calls is a paid LLM request (see bingeBuddyAPI/throttling.py).
+    # DRF's default throttle cache is per-process (Django's local-memory
+    # cache) -- fine while Railway runs a single gunicorn worker (see
+    # Procfile), but would need a shared cache (e.g. Redis) to stay accurate
+    # if that ever changes.
+    'DEFAULT_THROTTLE_CLASSES': (
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/hour',
+        'user': '1000/hour',
+        'ai_coach_burst': '30/min',
+        'ai_coach_sustained': '300/day',
+    },
 }
 
 SIMPLE_JWT = {
@@ -132,3 +162,21 @@ STORAGES = {
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Without an explicit LOGGING config, Python's logging.lastResort handler is
+# all that's active for app loggers (e.g. bingeBuddyAPI.views) -- it only
+# prints WARNING and above, so logger.info(...) calls are silently dropped
+# with no error and no console output at all.
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+}

@@ -6,13 +6,11 @@ import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { motivation } from '../../../components/OnboardingApi';
 import { addMotivationImage } from '../../../components/DataAPI';
-import { useAuth } from '../../../context/AuthContext';
 import { Colors, FontFamily, FontSize, Radii, Shadows } from '../../../constants/theme';
 
 export default function Motivation() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { setIsAuthenticated } = useAuth();
   const [myWhy, setMyWhy] = useState('');
   const [photoAsset, setPhotoAsset] = useState(null);
 
@@ -39,7 +37,7 @@ export default function Motivation() {
       addMotivationImage(photoAsset),
     ]);
     if (whyOk && imageOk) {
-      setIsAuthenticated(true);
+      router.replace('/recovery-intro');
     } else {
       Alert.alert('Error', 'Something went wrong. Please try again.');
     }
@@ -60,7 +58,7 @@ export default function Motivation() {
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="chevron-back" size={26} color={Colors.ink} />
         </TouchableOpacity>
-        <Text style={styles.stepText}>STEP 3 OF 3</Text>
+        <Text style={styles.stepText}>STEP 4 OF 4</Text>
         <View style={{ width: 26 }} />
       </View>
 

@@ -4,7 +4,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from 'expo-router';
 import { mainCause } from '../../../components/OnboardingApi';
+import { addCustomHabit } from '../../../components/HabitAPI';
 import { Colors, FontFamily, FontSize, Radii } from '../../../constants/theme';
+
+const ALL_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 const INITIAL_OPTIONS = [
   {
@@ -31,6 +34,12 @@ const INITIAL_OPTIONS = [
     subtitle: "Pressure from friends or family events",
     icon: (color) => <Ionicons name="people-outline" size={22} color={color} />,
   },
+  {
+    id: "over_restriction",
+    title: "Over-Restriction",
+    subtitle: "Reacting to overly strict dieting or food rules",
+    icon: (color) => <MaterialCommunityIcons name="food-off-outline" size={22} color={color} />,
+  },
 ];
 
 export default function MainCause() {
@@ -41,7 +50,10 @@ export default function MainCause() {
   const handleMainCause = async () => {
     const ok = await mainCause(selected);
     if(ok === true){
-      router.push('/(auth)/(onboarding)/motivation')
+      if (selected === 'over_restriction') {
+        addCustomHabit('No Restriction', ALL_DAYS);
+      }
+      router.push('/(auth)/(onboarding)/coachingstyle')
     }
   }
 
@@ -59,7 +71,7 @@ export default function MainCause() {
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="chevron-back" size={26} color={Colors.ink} />
         </TouchableOpacity>
-        <Text style={styles.stepText}>STEP 2 OF 3</Text>
+        <Text style={styles.stepText}>STEP 2 OF 4</Text>
         <View style={{ width: 26 }} />
       </View>
 
@@ -109,7 +121,7 @@ export default function MainCause() {
       </TouchableOpacity>
 
       {/* Not sure link */}
-      <TouchableOpacity onPress={() => router.push('/(auth)/(onboarding)/motivation')}>
+      <TouchableOpacity onPress={() => router.push('/(auth)/(onboarding)/coachingstyle')}>
         <Text style={styles.notSureText}>{"I'm not sure yet"}</Text>
       </TouchableOpacity>
     </ScrollView>
@@ -148,7 +160,7 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: 5,
-    width: "66%",
+    width: "50%",
     backgroundColor: Colors.plum,
     borderRadius: 3,
   },

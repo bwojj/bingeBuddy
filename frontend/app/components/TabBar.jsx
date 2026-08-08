@@ -2,19 +2,40 @@ import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '@/context/AuthContext';
 import { Colors, FontFamily } from '@/constants/theme';
 
 const TABS = [
   { key: 'dashboard', label: 'Dashboard', route: '/', icon: 'home', iconOutline: 'home-outline' },
-  { key: 'progress', label: 'Progress', route: '/progress', icon: 'bar-chart', iconOutline: 'bar-chart-outline' },
+  { key: 'my-plan', label: 'My Recovery', route: '/my-plan', icon: 'flame', iconOutline: 'flame-outline' },
   { key: 'coach', label: 'AI Coach', route: '/coach', icon: 'chatbubble-ellipses', iconOutline: 'chatbubble-ellipses-outline' },
   { key: 'journal', label: 'Journal', route: '/journal', icon: 'document-text', iconOutline: 'document-text-outline' },
-  { key: 'settings', label: 'Settings', route: '/settings', icon: 'settings', iconOutline: 'settings-outline' },
+  { key: 'me', label: 'Me', route: '/me', icon: 'person-circle', iconOutline: 'person-circle-outline' },
 ];
 
 export default function TabBar({ activeTab }) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { userPreferences } = useAuth();
+
+  function handlePress(tab) {
+    if (tab.key === 'coach') {
+      // Subscription gate comes before the one-time intro -- no point
+      // walking a non-subscriber through a tutorial for a feature they
+      // can't use yet (see paywall.jsx).
+      if (!userPreferences?.is_premium) {
+        router.push('/paywall');
+        return;
+      }
+      // First-ever tap (for a subscriber) detours through a one-time intro
+      // screen instead of going straight to the chat (see ai-coach-intro.jsx).
+      if (!userPreferences?.seen_ai_coach_intro) {
+        router.push('/ai-coach-intro');
+        return;
+      }
+    }
+    router.push(tab.route);
+  }
 
   return (
     <View style={[styles.tabBar, { paddingBottom: insets.bottom || 10 }]}>
@@ -38,7 +59,7 @@ export default function TabBar({ activeTab }) {
           );
         }
         return (
-          <TouchableOpacity key={tab.key} style={styles.tabItem} onPress={() => router.push(tab.route)}>
+          <TouchableOpacity key={tab.key} style={styles.tabItem} onPress={() => handlePress(tab)}>
             {content}
           </TouchableOpacity>
         );

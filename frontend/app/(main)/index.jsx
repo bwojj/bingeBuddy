@@ -1,24 +1,76 @@
-import { Text, View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { Text, View, StyleSheet, ScrollView, TouchableOpacity, Image, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter, useFocusEffect } from "expo-router";
-import { useCallback, useState } from "react";
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useCallback, useEffect, useState } from "react";
+import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import HomeQuoteBox from '../components/HomeQuoteBox';
 import HomeMotivation from '../components/HomeMotivation';
 import TabBar from '../components/TabBar';
-import SOSButton from '../components/SOSButton';
+import ConsistencyCard from '../components/ConsistencyCard';
+import UrgeToolSheet from '../components/UrgeToolSheet';
 import { useAuth } from "@/context/AuthContext";
 import LoadingScreen from '@/components/LoadingScreen';
 import { getEntries } from '@/components/JournalAPI';
+import { setDefaultUrgeScreen } from '@/components/DataAPI';
+import { URGE_SCREEN_OPTIONS } from '@/constants/urgeScreenOptions';
 import { Colors, FontFamily, FontSize, Radii, Shadows, Gradients, Spacing } from '@/constants/theme';
+
+// How far above the header the gradient extends, so pulling past the top on
+// iOS bounces into more of the same gradient instead of bare background.
+const OVERSCROLL_BUFFER = 1000;
 
 export default function Index() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const [lastEntry, setLastEntry] = useState(null);
+  const [configVisible, setConfigVisible] = useState(false);
+  const [switchingDefault, setSwitchingDefault] = useState(false);
+  // Real measured height of the header's own content (text + padding) — the
+  // header and its overscroll-bounce buffer are ONE continuous gradient (see
+  // JSX below), so this is needed to recompute start/end fractions for the
+  // taller combined box such that the visible (bottom) slice still looks
+  // exactly like the original short header gradient did on its own.
+  const [headerContentHeight, setHeaderContentHeight] = useState(160);
+  const mergedHeight = OVERSCROLL_BUFFER + headerContentHeight;
+  const mergedGradientStart = {
+    x: Gradients.hero.start.x,
+    y: (OVERSCROLL_BUFFER + Gradients.hero.start.y * headerContentHeight) / mergedHeight,
+  };
+  const mergedGradientEnd = {
+    x: Gradients.hero.end.x,
+    y: (OVERSCROLL_BUFFER + Gradients.hero.end.y * headerContentHeight) / mergedHeight,
+  };
 
   const { userCredentials, userPreferences, userLoading, urgeCount, refreshUserData } = useAuth();
+
+  // Mirrors userPreferences.default_urge_screen locally so a tap in the sheet
+  // takes effect (close + re-route) instantly, without waiting on the round
+  // trip to the server and the full-screen refetch that refreshUserData triggers.
+  const [localDefaultKey, setLocalDefaultKey] = useState(undefined);
+  useEffect(() => {
+    if (userPreferences) setLocalDefaultKey(userPreferences.default_urge_screen || null);
+  }, [userPreferences?.default_urge_screen]);
+
+  // AI Coach can't be picked as the default urge-support tool unless the
+  // user is actually subscribed -- otherwise "Feeling an urge?" would route
+  // a lapsed/free user straight into a paywall in the middle of a crisis.
+  const configurableUrgeOptions = userPreferences?.is_premium
+    ? URGE_SCREEN_OPTIONS
+    : URGE_SCREEN_OPTIONS.filter((opt) => opt.key !== 'coach');
+
+  function chooseDefaultUrgeScreen(key) {
+    setLocalDefaultKey(key);
+    setConfigVisible(false);
+    setSwitchingDefault(true);
+    setDefaultUrgeScreen(key).then(async (success) => {
+      if (success) {
+        await refreshUserData();
+      } else {
+        Alert.alert('Error', "Couldn't save your preference. Please try again.");
+      }
+      setSwitchingDefault(false);
+    });
+  }
 
   useFocusEffect(
     useCallback(() => {
@@ -34,7 +86,7 @@ export default function Index() {
     }, [refreshUserData])
   );
 
-  if (userLoading) return <LoadingScreen />;
+  if (userLoading || switchingDefault) return <LoadingScreen />;
 
   return (
     <View style={styles.container}>
@@ -42,46 +94,70 @@ export default function Index() {
         style={{ flex: 1 }}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        contentInsetAdjustmentBehavior="never"
       >
         {/*
-          Overscroll fix: on iOS, pulling past the top bounces and reveals bare
-          background. This purple block sits 1000px above the content so that
-          bounce area is always purple.
+          Header + iOS overscroll-bounce buffer as ONE continuous gradient, so
+          there's no seam between two separately-painted layers regardless of
+          how the bounce is animating. The gradient is absolutely positioned,
+          extending OVERSCROLL_BUFFER px above the header; the normal-flow
+          content View below reserves the header's actual on-screen space and
+          reports its real height so the gradient's start/end fractions can be
+          recomputed for the taller combined box (see mergedGradientStart/End).
         */}
-        <View style={styles.overscrollFill} />
-
-        {/* Plum gradient header - scrolls with content */}
-        <LinearGradient
-          colors={Gradients.hero.colors}
-          start={Gradients.hero.start}
-          end={Gradients.hero.end}
-          style={[styles.headerBg, { paddingTop: insets.top + 15 }]}
-        >
-          <View style={styles.greetingContainer}>
-            <Text style={styles.greeting}>Good Morning, {userCredentials?.first_name}!</Text>
-            <Text style={styles.date}>{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</Text>
+        <View style={styles.headerWrap}>
+          <LinearGradient
+            colors={Gradients.hero.colors}
+            start={mergedGradientStart}
+            end={mergedGradientEnd}
+            style={[styles.headerBgGradient, { top: -OVERSCROLL_BUFFER, height: mergedHeight }]}
+          />
+          <View
+            onLayout={(e) => setHeaderContentHeight(e.nativeEvent.layout.height)}
+            style={[styles.headerBg, { paddingTop: insets.top + 15 }]}
+          >
+            <View style={styles.greetingContainer}>
+              <Text style={styles.greeting}>Good Morning, {userCredentials?.first_name}!</Text>
+              <Text style={styles.date}>{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</Text>
+            </View>
           </View>
-        </LinearGradient>
+        </View>
 
-        {/* Quote Card - overlaps bottom of header */}
-        <View style={styles.quoteWrapper}>
-          <HomeQuoteBox />
+        {/* SOS Card - sits below the header, replaces the old daily-quote card */}
+        <View style={styles.sosWrapper}>
+          <TouchableOpacity onPress={() => router.push('/urge-check-in')} activeOpacity={0.85}>
+            <LinearGradient
+              colors={Gradients.hero.colors}
+              start={Gradients.hero.start}
+              end={Gradients.hero.end}
+              style={styles.sosCard}
+            >
+              <Image source={require('../../assets/images/bingebuddy3.png')} style={styles.sosIconWrap} resizeMode="cover" />
+              <View style={styles.sosInfo}>
+                <Text style={styles.sosTitle}>Feeling an urge?</Text>
+                <Text style={styles.sosSubtext}>Tap for immediate support</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={22} color="rgba(255,255,255,0.85)" />
+            </LinearGradient>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.configBtn} onPress={() => setConfigVisible(true)} activeOpacity={0.7}>
+            <Ionicons name="options-outline" size={12} color={Colors.plum} />
+            <Text style={styles.configBtnText}>Configure Urge Details</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Motivation Section */}
         <Text style={styles.sectionTitle}>Motivation</Text>
         <HomeMotivation userPreferences={userPreferences}/>
 
-        {/* Progress Snapshot Card */}
-        <TouchableOpacity style={styles.progressCard} onPress={() => router.push('/progress')} activeOpacity={0.85}>
-          <Text style={styles.progressTitle}>Progress Snapshot</Text>
-          <View style={styles.urgeCountRow}>
-            <MaterialCommunityIcons name="trophy" size={34} color={Colors.plum} />
-            <Text style={styles.urgeCountBig}>{urgeCount}</Text>
-          </View>
-          <Text style={styles.urgeCountLabel}>URGES DEFEATED</Text>
-          <Text style={styles.progressSubtext}>Keep going — every urge beaten counts.</Text>
-        </TouchableOpacity>
+        {/* Recovery Snapshot Card - same stats card as My Recovery */}
+        <Text style={styles.sectionTitle}>Recovery Snapshot</Text>
+        <ConsistencyCard
+          mode="urges"
+          urgeCount={urgeCount}
+          onPress={() => router.push('/my-plan')}
+        />
 
         {/* Latest Journal Entry */}
         <Text style={[styles.sectionTitle, { marginHorizontal: 24 }]}>Latest Journal Entry</Text>
@@ -109,8 +185,17 @@ export default function Index() {
         <View style={{ height: 90 }} />
       </ScrollView>
 
-      <SOSButton />
       <TabBar activeTab="dashboard" />
+
+      <UrgeToolSheet
+        visible={configVisible}
+        onClose={() => setConfigVisible(false)}
+        onSelect={chooseDefaultUrgeScreen}
+        title="Configure Urge Details"
+        subtitle={'Choose the tool that opens first when you tap "Feeling an urge?"'}
+        selectedKey={localDefaultKey}
+        options={configurableUrgeOptions}
+      />
     </View>
   );
 }
@@ -120,22 +205,65 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.bg,
   },
-  /* Fills the iOS overscroll bounce area at the top with plum */
-  overscrollFill: {
+  headerWrap: {
+    position: 'relative',
+  },
+  headerBgGradient: {
     position: 'absolute',
-    top: -1000,
     left: 0,
     right: 0,
-    height: 1000,
-    backgroundColor: Colors.plumDeep,
-  },
-  headerBg: {
     borderBottomLeftRadius: 28,
     borderBottomRightRadius: 28,
-    paddingBottom: 68,
   },
-  quoteWrapper: {
-    marginTop: -48,
+  headerBg: {
+    paddingBottom: 24,
+  },
+  sosWrapper: {
+    marginTop: 20,
+    marginHorizontal: 20,
+  },
+  sosCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    borderRadius: Radii.card,
+    padding: 22,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.18)',
+    ...Shadows.pop,
+  },
+  sosIconWrap: {
+    width: 56,
+    height: 56,
+    borderRadius: 17,
+  },
+  sosInfo: {
+    flex: 1,
+  },
+  sosTitle: {
+    fontFamily: FontFamily.serifMedium,
+    fontSize: FontSize.cardTitle,
+    color: 'white',
+  },
+  sosSubtext: {
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.secondarySm,
+    color: 'rgba(255,255,255,0.78)',
+    marginTop: 3,
+  },
+  configBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 4,
+    marginTop: 8,
+    marginLeft: 14,
+    paddingVertical: 4,
+  },
+  configBtnText: {
+    fontFamily: FontFamily.sansMedium,
+    fontSize: FontSize.eyebrowSm,
+    color: Colors.plum,
   },
   scrollContent: {
     paddingBottom: 20,
@@ -166,46 +294,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
 
-  /* Progress Snapshot */
-  progressCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: Radii.card,
-    marginHorizontal: 20,
-    marginTop: 16,
-    padding: Spacing.cardPadding,
-    alignItems: 'center',
-    ...Shadows.card,
-  },
-  progressTitle: {
-    fontFamily: FontFamily.sansBold,
-    fontSize: FontSize.cardTitle,
-    color: Colors.ink,
-    alignSelf: 'flex-start',
-    marginBottom: 16,
-  },
-  urgeCountRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginBottom: 4,
-  },
-  urgeCountBig: {
-    fontFamily: FontFamily.serifMedium,
-    fontSize: FontSize.dashboardStat,
-    color: Colors.plum,
-  },
-  urgeCountLabel: {
-    fontFamily: FontFamily.sansBold,
-    fontSize: FontSize.eyebrowSm,
-    color: Colors.plumSoft,
-    letterSpacing: 2,
-    marginBottom: 10,
-  },
-  progressSubtext: {
-    fontFamily: FontFamily.sansRegular,
-    fontSize: FontSize.secondarySm,
-    color: Colors.inkSoft,
-  },
   /* Journal Card */
   journalCard: {
     backgroundColor: Colors.surface,

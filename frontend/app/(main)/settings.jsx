@@ -2,15 +2,15 @@ import { Text, View, StyleSheet, ScrollView, TouchableOpacity, Alert } from "rea
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from "@/context/AuthContext";
-import TabBar from '../components/TabBar';
-import SOSButton from '../components/SOSButton';
-import { Colors, FontFamily, FontSize, Radii, Shadows } from '@/constants/theme';
+import { rateAppManually } from "@/lib/reviewPrompt";
+import { Colors, FontFamily, FontSize, Radii, Shadows, Gradients } from '@/constants/theme';
 
 export default function Settings() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { userCredentials, logout } = useAuth();
+  const { logout, userPreferences } = useAuth();
 
   const handleLogout = () => {
     Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
@@ -19,35 +19,43 @@ export default function Settings() {
     ]);
   };
 
-  const displayName = userCredentials?.first_name || userCredentials?.username || 'Your Profile';
-  const displaySub = userCredentials?.email || '';
-
   return (
     <View style={styles.container}>
+      <LinearGradient
+        colors={Gradients.hero.colors}
+        start={Gradients.hero.start}
+        end={Gradients.hero.end}
+        style={[styles.topbar, { paddingTop: insets.top + 12 }]}
+      >
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <Ionicons name="chevron-back" size={22} color="white" />
+        </TouchableOpacity>
+        <Text style={styles.topbarTitle}>Settings</Text>
+        <View style={styles.backBtn} />
+      </LinearGradient>
+
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Title */}
-        <View style={[styles.titleContainer, { paddingTop: insets.top + 16 }]}>
-          <Text style={styles.title}>Settings</Text>
-        </View>
-
-        {/* Profile Row — display only, not tappable */}
-        <View style={styles.profileCard}>
-          <View style={styles.avatarCircle}>
-            <Ionicons name="person" size={28} color={Colors.plum} />
-          </View>
-          <View style={styles.profileInfo}>
-            <Text style={styles.profileName}>{displayName}</Text>
-            <Text style={styles.profileSub}>{displaySub}</Text>
-          </View>
-        </View>
-
         {/* ACCOUNT Section */}
         <Text style={styles.sectionLabel}>ACCOUNT</Text>
         <View style={styles.menuCard}>
+          {userPreferences?.email_verified === false && (
+            <>
+              <TouchableOpacity style={styles.menuRow} onPress={() => router.push('/verify-email')}>
+                <View style={[styles.menuIconWrap, { backgroundColor: Colors.amberTint }]}>
+                  <Ionicons name="mail-unread-outline" size={20} color={Colors.amber} />
+                </View>
+                <Text style={styles.menuLabel}>Verify Email</Text>
+                <Ionicons name="chevron-forward" size={18} color={Colors.inkFaint} style={styles.menuChevron} />
+              </TouchableOpacity>
+
+              <View style={styles.menuDivider} />
+            </>
+          )}
+
           <TouchableOpacity style={styles.menuRow} onPress={() => router.push('/profile-settings')}>
             <View style={[styles.menuIconWrap, { backgroundColor: Colors.plumTint }]}>
               <Ionicons name="person-outline" size={20} color={Colors.plum} />
@@ -85,6 +93,16 @@ export default function Settings() {
             <Text style={styles.menuLabel}>Add / Update Audio Recording</Text>
             <Ionicons name="chevron-forward" size={18} color={Colors.inkFaint} style={styles.menuChevron} />
           </TouchableOpacity>
+
+          <View style={styles.menuDivider} />
+
+          <TouchableOpacity style={styles.menuRow} onPress={rateAppManually}>
+            <View style={[styles.menuIconWrap, { backgroundColor: Colors.sageTint }]}>
+              <Ionicons name="star-outline" size={20} color={Colors.sage} />
+            </View>
+            <Text style={styles.menuLabel}>Rate the App</Text>
+            <Ionicons name="chevron-forward" size={18} color={Colors.inkFaint} style={styles.menuChevron} />
+          </TouchableOpacity>
         </View>
 
         {/* Sign Out */}
@@ -94,11 +112,8 @@ export default function Settings() {
         </TouchableOpacity>
 
         {/* Bottom spacer */}
-        <View style={{ height: 90 }} />
+        <View style={{ height: 30 }} />
       </ScrollView>
-
-      <SOSButton />
-      <TabBar activeTab="settings" />
     </View>
   );
 }
@@ -108,52 +123,29 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.bg,
   },
-  scrollContent: {
-    paddingBottom: 20,
-  },
-  titleContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 20,
-  },
-  title: {
-    fontFamily: FontFamily.serifMedium,
-    fontSize: FontSize.hTitle,
-    color: Colors.ink,
-  },
-
-  /* Profile Card */
-  profileCard: {
+  topbar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.surface,
-    marginHorizontal: 20,
-    borderRadius: Radii.card,
-    padding: 16,
-    marginBottom: 24,
-    ...Shadows.soft,
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingBottom: 14,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
   },
-  avatarCircle: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: Colors.plumTint,
-    alignItems: 'center',
+  backBtn: {
+    width: 36,
+    height: 36,
+    alignItems: 'flex-start',
     justifyContent: 'center',
-    marginRight: 14,
   },
-  profileInfo: {
-    flex: 1,
+  topbarTitle: {
+    fontFamily: FontFamily.serifMedium,
+    fontSize: FontSize.topbarTitle,
+    color: 'white',
   },
-  profileName: {
-    fontFamily: FontFamily.sansBold,
-    fontSize: FontSize.cardTitle,
-    color: Colors.ink,
-  },
-  profileSub: {
-    fontFamily: FontFamily.sansRegular,
-    fontSize: FontSize.secondarySm,
-    color: Colors.inkSoft,
-    marginTop: 2,
+  scrollContent: {
+    paddingTop: 20,
+    paddingBottom: 20,
   },
 
   /* Section Label */

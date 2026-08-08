@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { login } from '../../components/AuthApi';
 import { useAuth } from '../../context/AuthContext';
 import { Colors, FontFamily, FontSize, Radii } from '../../constants/theme';
+import SocialAuthButtons from '../components/SocialAuthButtons';
 
 export default function Login() {
   const insets = useSafeAreaInsets();
@@ -82,6 +83,8 @@ export default function Login() {
         <Text style={styles.primaryButtonText}>Log In</Text>
         <Ionicons name="arrow-forward" size={19} color="white" />
       </TouchableOpacity>
+
+      <SocialAuthButtons />
 
       {/* Sign up link */}
       <View style={styles.bottomLinkRow}>

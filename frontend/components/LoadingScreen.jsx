@@ -1,6 +1,5 @@
-import { View, Text, StyleSheet, Animated } from 'react-native';
+import { View, Text, StyleSheet, Animated, Image } from 'react-native';
 import { useEffect, useRef } from 'react';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontFamily, FontSize, Gradients } from '@/constants/theme';
 
@@ -51,7 +50,7 @@ export default function LoadingScreen({ overlay = false }) {
         <View style={styles.glowRing} />
         <View style={styles.glowRingInner} />
         <Animated.View style={[styles.iconWrap, { transform: [{ scale: iconScale }] }]}>
-          <MaterialCommunityIcons name="heart-pulse" size={48} color="white" />
+          <Image source={require('../assets/images/bingebuddy3.png')} style={styles.iconImage} resizeMode="cover" />
         </Animated.View>
       </View>
 
@@ -109,22 +108,25 @@ const styles = StyleSheet.create({
   iconWrap: {
     width: 96,
     height: 96,
-    borderRadius: 48,
-    backgroundColor: 'rgba(255,255,255,0.18)',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderRadius: 22,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.25,
     shadowRadius: 16,
     elevation: 10,
   },
+  iconImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 22,
+  },
 
   /* Text */
   appName: {
     fontFamily: FontFamily.serifMedium,
     fontSize: FontSize.flowTitle,
-    lineHeight: FontSize.flowTitle * 1.3,
+    lineHeight: FontSize.flowTitle * 1.6,
+    paddingBottom: 6,
     color: 'white',
     letterSpacing: -0.3,
   },

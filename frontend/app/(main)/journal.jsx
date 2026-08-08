@@ -5,10 +5,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useState, useEffect, useRef } from 'react';
 import { addEntry, getEntries, deleteEntry } from "../../components/JournalAPI";
 import TabBar from '../components/TabBar';
-import SOSButton from '../components/SOSButton';
 import { Colors, FontFamily, FontSize, Radii, Shadows, Gradients } from '@/constants/theme';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
+
+// How far above the header the gradient extends, so pulling past the top on
+// iOS bounces into more of the same gradient instead of bare background.
+const OVERSCROLL_BUFFER = 1000;
 
 function useSheetAnimation(visible) {
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
@@ -47,6 +50,21 @@ const FILTERS = ['All Entries', 'Reflections', 'Victories', 'Struggles'];
 
 export default function Journal() {
   const insets = useSafeAreaInsets();
+  // Real measured height of the header's own content — the header and its
+  // overscroll-bounce buffer are ONE continuous gradient (see JSX below), so
+  // this is needed to recompute start/end fractions for the taller combined
+  // box such that the visible (bottom) slice still looks exactly like the
+  // original short header gradient did on its own.
+  const [headerContentHeight, setHeaderContentHeight] = useState(160);
+  const mergedHeight = OVERSCROLL_BUFFER + headerContentHeight;
+  const mergedGradientStart = {
+    x: Gradients.hero.start.x,
+    y: (OVERSCROLL_BUFFER + Gradients.hero.start.y * headerContentHeight) / mergedHeight,
+  };
+  const mergedGradientEnd = {
+    x: Gradients.hero.end.x,
+    y: (OVERSCROLL_BUFFER + Gradients.hero.end.y * headerContentHeight) / mergedHeight,
+  };
   const [activeFilter, setActiveFilter] = useState('All Entries');
   const [modalVisible, setModalVisible] = useState(false);
   const [entryType, setEntryType] = useState('Reflection');
@@ -122,45 +140,53 @@ export default function Journal() {
         style={{ flex: 1 }}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        contentInsetAdjustmentBehavior="never"
       >
-        {/* Overscroll fix: fills iOS bounce area with plum */}
-        <View style={styles.overscrollFill} />
-
-        {/* Plum gradient header - scrolls with content */}
-        <LinearGradient
-          colors={Gradients.hero.colors}
-          start={Gradients.hero.start}
-          end={Gradients.hero.end}
-          style={[styles.headerBg, { paddingTop: insets.top + 10 }]}
-        >
-          {/* Header Row */}
-          <View style={styles.headerRow}>
-            <Text style={styles.headerTitle}>Recovery Journal</Text>
-            <TouchableOpacity style={styles.searchBtn}>
-              <Ionicons name="search" size={22} color="white" />
-            </TouchableOpacity>
-          </View>
-
-          {/* Filter Chips */}
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.filterScroll}
-            contentContainerStyle={styles.filterContent}
+        {/*
+          Header + iOS overscroll-bounce buffer as ONE continuous gradient, so
+          there's no seam between two separately-painted layers regardless of
+          how the bounce is animating. See index.jsx for the same pattern.
+        */}
+        <View style={styles.headerWrap}>
+          <LinearGradient
+            colors={Gradients.hero.colors}
+            start={mergedGradientStart}
+            end={mergedGradientEnd}
+            style={[styles.headerBgGradient, { top: -OVERSCROLL_BUFFER, height: mergedHeight }]}
+          />
+          <View
+            onLayout={(e) => setHeaderContentHeight(e.nativeEvent.layout.height)}
+            style={[styles.headerBg, { paddingTop: insets.top + 10 }]}
           >
-            {FILTERS.map((f) => (
-              <TouchableOpacity
-                key={f}
-                style={[styles.filterChip, activeFilter === f && styles.filterChipActive]}
-                onPress={() => setActiveFilter(f)}
-              >
-                <Text style={[styles.filterChipText, activeFilter === f && styles.filterChipTextActive]}>
-                  {f}
-                </Text>
+            {/* Header Row */}
+            <View style={styles.headerRow}>
+              <Text style={styles.headerTitle}>Recovery Journal</Text>
+              <TouchableOpacity style={styles.searchBtn}>
+                <Ionicons name="search" size={22} color="white" />
               </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </LinearGradient>
+            </View>
+
+            {/* Filter Chips */}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.filterScroll}
+              contentContainerStyle={styles.filterContent}
+            >
+              {FILTERS.map((f) => (
+                <TouchableOpacity
+                  key={f}
+                  style={[styles.filterChip, activeFilter === f && styles.filterChipActive]}
+                  onPress={() => setActiveFilter(f)}
+                >
+                  <Text style={[styles.filterChipText, activeFilter === f && styles.filterChipTextActive]}>
+                    {f}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
 
         {/* New Entry Button */}
         <TouchableOpacity style={styles.newEntryBtn} onPress={openModal}>
@@ -206,8 +232,6 @@ export default function Journal() {
         {/* Bottom spacer */}
         <View style={{ height: 90 }} />
       </ScrollView>
-
-      <SOSButton />
 
       {/* New Entry Modal */}
       <Modal
@@ -348,17 +372,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.bg,
   },
-  overscrollFill: {
+  /* Matches the color Gradients.hero starts at (its top edge is Colors.plum,
+     not plumDeep), so there's no visible seam where this meets the header. */
+  headerWrap: {
+    position: 'relative',
+  },
+  headerBgGradient: {
     position: 'absolute',
-    top: -1000,
     left: 0,
     right: 0,
-    height: 1000,
-    backgroundColor: Colors.plumDeep,
-  },
-  headerBg: {
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
+  },
+  headerBg: {
     paddingBottom: 16,
   },
   scrollContent: {

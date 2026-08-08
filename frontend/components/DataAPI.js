@@ -43,6 +43,42 @@ export const getUserData = async () => {
     }
 }
 
+export const markRecoveryIntroSeen = async () => {
+    const token = await getToken();
+    try {
+        const response = await fetch(`${BASEURL}/api/mark-recovery-intro-seen`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : '',
+            },
+            credentials: 'include',
+        });
+        return response.ok;
+    } catch (error) {
+        console.log('Failed to mark recovery intro seen', error);
+        return false;
+    }
+};
+
+export const markAiCoachIntroSeen = async () => {
+    const token = await getToken();
+    try {
+        const response = await fetch(`${BASEURL}/api/mark-ai-coach-intro-seen`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : '',
+            },
+            credentials: 'include',
+        });
+        return response.ok;
+    } catch (error) {
+        console.log('Failed to mark AI coach intro seen', error);
+        return false;
+    }
+};
+
 export const updateProfile = async ({ first_name, email, current_password, new_password }) => {
     const token = await getToken();
     try {
@@ -64,6 +100,44 @@ export const updateProfile = async ({ first_name, email, current_password, new_p
     } catch (error) {
         console.log('Failed to update profile', error);
         return { success: false };
+    }
+};
+
+export const setDefaultUrgeScreen = async (screen) => {
+    const token = await getToken();
+    try {
+        const response = await fetch(`${BASEURL}/api/set-default-urge-screen`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : '',
+            },
+            body: JSON.stringify({ default_urge_screen: screen }),
+            credentials: 'include',
+        });
+        return response.ok;
+    } catch (error) {
+        console.log('Failed to set default urge screen', error);
+        return false;
+    }
+};
+
+export const updateReminderPreferences = async ({ reminder_enabled, reminder_time }) => {
+    const token = await getToken();
+    try {
+        const response = await fetch(`${BASEURL}/api/set-reminder-preferences`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : '',
+            },
+            body: JSON.stringify({ reminder_enabled, reminder_time }),
+            credentials: 'include',
+        });
+        return response.ok;
+    } catch (error) {
+        console.log('Failed to update reminder preferences', error);
+        return false;
     }
 };
 

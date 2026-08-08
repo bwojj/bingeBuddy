@@ -3,6 +3,8 @@ import { authenticated } from '../components/AuthApi';
 import { getUserData, getUserCredentials } from '../components/DataAPI';
 import { getUrgeCount, getUrgesByDay } from '../components/UrgeAPI';
 import { delToken, getToken } from '../components/authStorage';
+import { identifyPurchasesUser, logOutPurchases } from '../components/PurchasesAPI';
+import { scheduleHabitReminder, cancelHabitReminder } from '../lib/notifications';
 
 const BASEURL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -34,11 +36,26 @@ export function AuthProvider({ children }) {
             getUrgeCount(),
             getUrgesByDay(),
         ]);
-        setUserCredentials(creds?.[0] ?? null);
-        setUserPreferences(pref?.[0] ?? null);
+        const credentials = creds?.[0] ?? null;
+        const preferences = pref?.[0] ?? null;
+        setUserCredentials(credentials);
+        setUserPreferences(preferences);
         setUrgeCount(count ?? 0);
         setUrgesByDay(days ?? EMPTY_BARS);
         setUserLoading(false);
+        if (credentials?.id) {
+            identifyPurchasesUser(credentials.id).catch(() => {});
+        }
+        // Re-syncs the on-device reminder schedule to match the account's saved
+        // preference on every login/refresh -- restores it after reinstall/new
+        // device, and self-corrects a stale schedule left by a different
+        // account on a shared device (fixed notification identifier).
+        if (preferences?.reminder_enabled && preferences?.reminder_time) {
+            const [hours, minutes] = preferences.reminder_time.split(':').map(Number);
+            scheduleHabitReminder(hours, minutes);
+        } else {
+            cancelHabitReminder();
+        }
     }, []);
 
     useEffect(() => {
@@ -60,6 +77,7 @@ export function AuthProvider({ children }) {
             });
         } catch (_) {}
         await delToken();
+        await logOutPurchases();
         setIsAuthenticated(false);
         setUserCredentials(null);
         setUserPreferences(null);

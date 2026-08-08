@@ -15,11 +15,18 @@ import {
     HankenGrotesk_700Bold,
     HankenGrotesk_800ExtraBold,
 } from '@expo-google-fonts/hanken-grotesk';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import LoadingScreen from '../components/LoadingScreen';
+import { configurePurchases } from '../components/PurchasesAPI';
+import { configureNotificationHandler } from '../lib/notifications';
+
+configurePurchases();
+configureNotificationHandler();
 
 function RootLayoutNav() {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, userPreferences, userLoading } = useAuth();
     const segments = useSegments();
     const router = useRouter();
     const [fontsLoaded, fontError] = useFonts({
@@ -38,15 +45,21 @@ function RootLayoutNav() {
 
     useEffect(() => {
         if (isAuthenticated === null) return; // still loading
+        if (isAuthenticated && userLoading) return; // userPreferences not fetched yet -- avoid a premature recovery-intro bounce
 
         const inAuthGroup = segments[0] === '(auth)';
+        const onRecoveryIntro = segments[0] === 'recovery-intro';
 
-        if (!isAuthenticated && !inAuthGroup) {
+        if (!isAuthenticated && !inAuthGroup && !onRecoveryIntro) {
             router.replace('/(auth)/login');
         } else if (isAuthenticated && inAuthGroup) {
             router.replace('/(main)');
+        } else if (isAuthenticated && !userPreferences?.seen_recovery_intro && !onRecoveryIntro) {
+            // Gates every authenticated user -- new or existing -- behind the
+            // recovery intro until their UserData row shows they've seen it.
+            router.replace('/recovery-intro');
         }
-    }, [isAuthenticated, segments]);
+    }, [isAuthenticated, segments, userPreferences, userLoading]);
 
     return (
         <>
@@ -58,8 +71,12 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
     return (
-        <AuthProvider>
-            <RootLayoutNav />
-        </AuthProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+            <KeyboardProvider>
+                <AuthProvider>
+                    <RootLayoutNav />
+                </AuthProvider>
+            </KeyboardProvider>
+        </GestureHandlerRootView>
     );
 }

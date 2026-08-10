@@ -4,6 +4,7 @@ import { useRouter, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { usePostHog } from 'posthog-react-native';
 import HomeMotivation from '../components/HomeMotivation';
 import TabBar from '../components/TabBar';
 import ConsistencyCard from '../components/ConsistencyCard';
@@ -42,6 +43,7 @@ export default function Index() {
   };
 
   const { userCredentials, userPreferences, userLoading, urgeCount, refreshUserData } = useAuth();
+  const posthog = usePostHog();
 
   // Mirrors userPreferences.default_urge_screen locally so a tap in the sheet
   // takes effect (close + re-route) instantly, without waiting on the round
@@ -125,7 +127,13 @@ export default function Index() {
 
         {/* SOS Card - sits below the header, replaces the old daily-quote card */}
         <View style={styles.sosWrapper}>
-          <TouchableOpacity onPress={() => router.push('/urge-check-in')} activeOpacity={0.85}>
+          <TouchableOpacity
+            onPress={() => {
+              posthog?.capture('panic_button_clicked');
+              router.push('/urge-check-in');
+            }}
+            activeOpacity={0.85}
+          >
             <LinearGradient
               colors={Gradients.hero.colors}
               start={Gradients.hero.start}
@@ -156,7 +164,7 @@ export default function Index() {
         <ConsistencyCard
           mode="urges"
           urgeCount={urgeCount}
-          onPress={() => router.push('/my-plan')}
+          onPress={() => router.push(userPreferences?.seen_recovery_intro ? '/my-plan' : '/recovery-intro')}
         />
 
         {/* Latest Journal Entry */}

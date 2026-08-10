@@ -40,9 +40,19 @@ export default function SocialAuthButtons() {
     }
   }, []);
 
-  // Reuses the app's existing "frontend://" scheme instead of registering a
-  // new reversed-client-id URL scheme for the redirect.
-  const redirectUri = AuthSession.makeRedirectUri({ scheme: 'frontend', path: 'oauthredirect' });
+  // Google's authorization server only accepts a redirect_uri whose scheme is
+  // the reversed iOS client ID for an "iOS" type OAuth client (enforced
+  // server-side, not just convention) -- the app's own "frontend://" scheme
+  // gets rejected with "Error 400: invalid_request". This reversed scheme is
+  // registered as a second CFBundleURLTypes entry in app.json.
+  // `native` (not `scheme`+`path`) is required here: `scheme`+`path` goes
+  // through Linking.createURL, which always emits the authority form
+  // "scheme://path" -- Google rejects that with the same Error 400 since
+  // "oauthredirect" is parsed as a host. `native` returns the string as-is,
+  // giving the required single-slash path form "scheme:/oauthredirect".
+  const redirectUri = AuthSession.makeRedirectUri({
+    native: 'com.googleusercontent.apps.130968382458-ir4u3u007bp3qssjolledlqirmghqs9b:/oauthredirect',
+  });
   const [, response, promptAsync] = Google.useAuthRequest({
     iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
     redirectUri,
@@ -56,8 +66,9 @@ export default function SocialAuthButtons() {
     }
     if (result.is_new) {
       // Mirrors plain signup: don't flip isAuthenticated yet, just push into
-      // onboarding while still under the (auth) segment.
-      router.push('/(auth)/(onboarding)/maincause');
+      // onboarding while still under the (auth) segment. Social sign-in
+      // skips signup.jsx's name field, so it's collected here instead.
+      router.push('/(auth)/(onboarding)/name');
     } else {
       setIsAuthenticated(true);
     }

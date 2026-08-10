@@ -8,7 +8,8 @@ from .views import (CustomTokenObtainPairView, CustomTokenRefreshView,
                     add_to_habits, add_data_coaching_style, mark_recovery_intro_seen, mark_ai_coach_intro_seen, delete_habit,
                     set_habit_completion, habit_days, reset_habits, reorder_habits, set_default_urge_screen,
                     chat_sessions, chat_session_messages, add_memory, verify_email, resend_verification,
-                    verify_subscription, revenuecat_webhook, set_reminder_preferences)
+                    verify_subscription, revenuecat_webhook, set_reminder_preferences,
+                    request_password_reset, reset_password)
 
 router = routers.DefaultRouter()
 router.register(r'data', UserDataView, 'data')
@@ -25,6 +26,8 @@ urlpatterns = [
     path('api/register', register, name="register"),
     path('api/verify-email', verify_email, name="verify-email"),
     path('api/resend-verification', resend_verification, name="resend-verification"),
+    path('api/request-password-reset', request_password_reset, name="request-password-reset"),
+    path('api/reset-password', reset_password, name="reset-password"),
     path('api/logout', logout, name="logout"),
     path('api/add-data-main-cause', add_data_main_cause, name="main-cause"),
     path('api/add-data-coaching-style', add_data_coaching_style, name="coaching-style"),

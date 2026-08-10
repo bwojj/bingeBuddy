@@ -60,6 +60,41 @@ function rolloverAll() {
   habits.forEach(rolloverHabit);
 }
 
+// Plan-level streak, shown at the top of My Recovery -- deliberately separate
+// from any single habit's own `streak`. It only advances once every habit
+// scheduled for the day has been checked off, so completing just one (or
+// some) of today's habits doesn't move it by itself.
+let planStreak = { current: 0, best: 0, lastAllDoneDate: null };
+
+function rolloverPlanStreak() {
+  const today = localDateStr();
+  if (planStreak.lastAllDoneDate && planStreak.lastAllDoneDate !== today && planStreak.lastAllDoneDate !== yesterdayStr(today)) {
+    planStreak.current = 0;
+  }
+}
+
+function todaysHabits() {
+  const todayAbbr = DAY_ABBR[todayIdx()];
+  return habits.filter((h) => h.days.includes(todayAbbr));
+}
+
+function recomputePlanStreak() {
+  const todays = todaysHabits();
+  const allDone = todays.length > 0 && todays.every((h) => h.doneToday);
+  const today = localDateStr();
+  if (allDone && planStreak.lastAllDoneDate !== today) {
+    planStreak.current += 1;
+    planStreak.lastAllDoneDate = today;
+    planStreak.best = Math.max(planStreak.best, planStreak.current);
+  } else if (!allDone && planStreak.lastAllDoneDate === today) {
+    // Was fully complete today, then a habit got unchecked -- back it out.
+    planStreak.current = Math.max(0, planStreak.current - 1);
+    planStreak.lastAllDoneDate = null;
+  }
+}
+
+export const getPlanStreak = () => ({ streak: planStreak.current, bestStreak: planStreak.best });
+
 function markHabit(habit, done) {
   if (habit.doneToday === done) return;
   habit.doneToday = done;
@@ -123,6 +158,7 @@ async function fetchBackendHabits() {
 export const getHabits = async () => {
   mergeBackendHabits(await fetchBackendHabits());
   rolloverAll();
+  rolloverPlanStreak();
   const todayAbbr = DAY_ABBR[todayIdx()];
   return clone(
     habits
@@ -207,6 +243,7 @@ export const toggleHabitDone = async (id) => {
   if (!habit) return null;
   rolloverHabit(habit);
   markHabit(habit, !habit.doneToday);
+  recomputePlanStreak();
   setHabitCompletion(habit.name, habit.doneToday);
   return clone(habit);
 };
@@ -247,11 +284,25 @@ export const resetHabits = async () => {
     // Clear local state entirely -- otherwise any deleted custom habits would
     // linger as stale entries, since mergeBackendHabits only adds/updates.
     habits = [];
+    planStreak = { current: 0, best: 0, lastAllDoneDate: null };
     return true;
   } catch (error) {
     console.log('Failed to reset habits', error);
     return false;
   }
+};
+
+// Wipes the in-memory habit cache without touching the backend -- unlike
+// resetHabits(), which also calls /api/reset-habits and would destructively
+// delete the next user's custom habits. Must run on logout: the `habits`
+// array is module-level (not per-user), so without this a different account
+// signing in on the same device inherits the previous account's doneToday/
+// streak state for any habit with a matching name (guaranteed for the
+// seeded defaults -- Meditation/Exercise/Journaling -- since
+// mergeBackendHabits matches existing entries by slugified name).
+export const clearLocalHabitState = () => {
+  habits = [];
+  planStreak = { current: 0, best: 0, lastAllDoneDate: null };
 };
 
 // `orderedNames` is the full list of currently-visible habits' names, in

@@ -6,6 +6,8 @@ import time
 from django.http import StreamingHttpResponse
 from django.shortcuts import render
 from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db.models import Count
 from django.db.models.functions import TruncDate
 from django.utils import timezone
@@ -32,10 +34,11 @@ from rest_framework_simplejwt.views import (
 )
 import os
 from dotenv import load_dotenv
-from .models import UserData, JournalEntry, Urges, SocialAccount, ChatHistory, ChatSession, UserHabits, HabitCompletion, EmailVerificationCode
+from .models import UserData, JournalEntry, Urges, SocialAccount, ChatHistory, ChatSession, UserHabits, HabitCompletion, EmailVerificationCode, PasswordResetCode
 from .serializers import UserDataSerializer, UserSerializer, UserRegistrationSerializer, JournalEntrySerializer, UrgeSerializer, UserHabitsSerializer, ChatSessionSerializer, ChatHistorySerializer
 from .chatbot_utilities import chain, retriever, session_chain
-from .verification import create_verification_code, send_verification_email, MAX_ATTEMPTS, RESEND_COOLDOWN_SECONDS
+from .verification import (create_verification_code, send_verification_email, MAX_ATTEMPTS, RESEND_COOLDOWN_SECONDS,
+                            create_password_reset_code, send_password_reset_email)
 from .permissions import HasActiveSubscription
 from .throttling import AICoachBurstRateThrottle, AICoachSustainedRateThrottle
 
@@ -314,7 +317,68 @@ def resend_verification(request):
     return Response({'success': True, 'email_sent': sent})
 
 
-#defines logout function 
+# unauthenticated user (can't log in, so no JWT yet) requests a code to reset
+# their password. Always responds success regardless of whether the email is
+# registered -- distinguishing the two would let this endpoint enumerate
+# registered accounts.
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def request_password_reset(request):
+    email = str(request.data.get('email', '')).strip()
+    if not email:
+        return Response({'success': False, 'error': 'Email is required'}, status=400)
+
+    user = User.objects.filter(email__iexact=email).first()
+    if user:
+        existing = PasswordResetCode.objects.filter(user=user).first()
+        already_sent_recently = existing and (timezone.now() - existing.created_at).total_seconds() < RESEND_COOLDOWN_SECONDS
+        if not already_sent_recently:
+            try:
+                code_obj = create_password_reset_code(user)
+                send_password_reset_email(user, code_obj.code)
+            except Exception:
+                logger.exception("Failed to create/send password reset code for %s", email)
+    return Response({'success': True})
+
+
+# unauthenticated user submits the emailed code alongside a new password
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def reset_password(request):
+    email = str(request.data.get('email', '')).strip()
+    code_input = str(request.data.get('code', '')).strip()
+    new_password = request.data.get('new_password', '')
+    if not email or not code_input or not new_password:
+        return Response({'success': False, 'error': 'Email, code, and new password are required'}, status=400)
+
+    user = User.objects.filter(email__iexact=email).first()
+    # Same code/user combination either doesn't exist or is wrong -- collapse
+    # both into one message so this can't be used to confirm an email exists.
+    if not user:
+        return Response({'success': False, 'error': 'Invalid or expired code'}, status=400)
+
+    record = PasswordResetCode.objects.filter(user=user).first()
+    if not record or timezone.now() > record.expires_at:
+        return Response({'success': False, 'error': 'Invalid or expired code'}, status=400)
+    if record.attempts >= MAX_ATTEMPTS:
+        return Response({'success': False, 'error': 'Too many attempts. Please request a new code.'}, status=429)
+    if code_input != record.code:
+        record.attempts += 1
+        record.save(update_fields=['attempts'])
+        return Response({'success': False, 'error': 'Incorrect code'}, status=400)
+
+    try:
+        validate_password(new_password, user=user)
+    except DjangoValidationError as e:
+        return Response({'success': False, 'error': ' '.join(e.messages)}, status=400)
+
+    user.set_password(new_password)
+    user.save()
+    record.delete()
+    return Response({'success': True})
+
+
+#defines logout function
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout(request):
@@ -400,15 +464,22 @@ def mark_recovery_intro_seen(request):
     return Response({"success": True})
 
 # marks that a user has seen the one-time AI Coach intro screen, shown the
-# first time they tap the Coach tab -- mirrors mark_recovery_intro_seen
+# first time they tap the Coach tab -- mirrors mark_recovery_intro_seen.
+# Also records explicit consent to sending chat data to Google's Gemini API
+# (see ai-coach-intro.jsx's consent checkbox) -- only set when the client
+# actually reports the checkbox was checked, so older app builds that don't
+# send it yet simply leave consent unrecorded rather than defaulting to True.
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def mark_ai_coach_intro_seen(request):
+    defaults = {"seen_ai_coach_intro": True}
+    if request.data.get('ai_data_consent'):
+        defaults["ai_data_consent"] = True
+        defaults["ai_data_consent_at"] = timezone.now()
+
     UserData.objects.update_or_create(
         user=request.user,
-        defaults={
-            "seen_ai_coach_intro": True,
-        }
+        defaults=defaults,
     )
 
     return Response({"success": True})
@@ -417,10 +488,14 @@ def mark_ai_coach_intro_seen(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_data_motivation(request):
+    # Last step of the post-signup onboarding flow -- flips onboarding_complete
+    # so a refresh from here on lands in the main app instead of being sent
+    # back into onboarding (see _layout.jsx's redirect gate).
     data_obj, _ = UserData.objects.update_or_create(
-        user=request.user, 
+        user=request.user,
         defaults={
             "motivation": request.data.get('motivation'),
+            "onboarding_complete": True,
         }
     )
 
@@ -560,7 +635,6 @@ def social_auth(request):
                 return Response({'success': False, 'error': 'Invalid Google token'}, status=400)
             info = resp.json()
             email = info.get('email', '')
-            name = info.get('name', '')
             provider_id = info.get('id', '')
 
         elif provider == 'apple':
@@ -585,7 +659,6 @@ def social_auth(request):
                 audience=django_settings.APPLE_BUNDLE_ID,
             )
             email = payload.get('email', '')
-            name = ''
             provider_id = payload['sub']
 
         else:
@@ -612,11 +685,12 @@ def social_auth(request):
             while User.objects.filter(username=username).exists():
                 username = f'{base_username}{counter}'
                 counter += 1
-            first_name = name.split()[0] if name else ''
+            # Name is deliberately not pulled from the provider profile --
+            # the frontend prompts the user for it right after signup
+            # (onboarding's name step) and saves it via update-profile.
             user = User.objects.create_user(
                 username=username,
                 email=email,
-                first_name=first_name,
                 password=None,
             )
             is_new = True

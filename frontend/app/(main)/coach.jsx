@@ -6,9 +6,10 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { KeyboardAvoidingView, useKeyboardHandler } from 'react-native-keyboard-controller';
-import { runOnJS } from 'react-native-reanimated';
+import ReanimatedAnimated, { runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useEffect, useRef, useState } from 'react';
 import { MarkdownIt } from 'react-native-markdown-display';
+import { usePostHog } from 'posthog-react-native';
 import TabBar from '../components/TabBar';
 import ChatHistoryPanel from '../components/ChatHistoryPanel';
 import { useAuth } from '@/context/AuthContext';
@@ -17,6 +18,31 @@ import { streamChatMessage, getSessionMessages } from '@/components/ChatAPI';
 import { parseStyledWords, reconcileStyledWords } from '@/components/streamingMarkdown';
 
 const formatTime = (date) => date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
+// Shown in the empty state -- one is picked at random each time the screen
+// mounts so the greeting doesn't feel static across visits.
+const EMPTY_STATE_GREETINGS = [
+  'How can I help you today?',
+  "What's on your mind right now?",
+  "Hey, I'm here. What would you like to talk through?",
+  'How are you feeling today?',
+  'What can I support you with?',
+  "I'm here whenever you're ready. What's up?",
+  "Good to see you. How's today going?",
+  "What's coming up for you right now?",
+  "Let's talk. Where should we start?",
+  "I'm listening. What's on your mind?",
+  'What would feel helpful right now?',
+  'Checking in — how are you doing?',
+  "Whatever you're facing, I'm here for it.",
+  "What's happening for you today?",
+  'Take a breath. What would you like to work through?',
+  "I'm glad you're here. What can I help with?",
+  'How can I support you right now?',
+  "Where's your head at today?",
+  "No judgment here. What's going on?",
+  'Ready when you are. What would you like to talk about?',
+];
 
 // How much further the blur/fade zone extends below the button row itself —
 // gives the mask room to ease the blur out gradually instead of the content
@@ -100,6 +126,7 @@ export default function Coach() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { userPreferences, userLoading } = useAuth();
+  const posthog = usePostHog();
   const scrollViewRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -114,35 +141,36 @@ export default function Coach() {
     }
   }, [userLoading, userPreferences]);
 
+  const [emptyGreeting] = useState(
+    () => EMPTY_STATE_GREETINGS[Math.floor(Math.random() * EMPTY_STATE_GREETINGS.length)]
+  );
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [sending, setSending] = useState(false);
   const [awaitingReply, setAwaitingReply] = useState(false);
   const [sessionId, setSessionId] = useState(null);
+  const [chatError, setChatError] = useState(null);
   const [historyVisible, setHistoryVisible] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [tabBarHeight, setTabBarHeight] = useState(70 + (insets.bottom || 10));
   const [keyboardVisible, setKeyboardVisible] = useState(false);
-  const [viewportHeight, setViewportHeight] = useState(0);
   const [headerHeight, setHeaderHeight] = useState(insets.top + 62);
   const streamStateRef = useRef(null);
   const lastUserMessageIdRef = useRef(null);
-  const spacerHeight = useRef(new Animated.Value(0)).current;
+  const viewportHeightRef = useRef(0);
+  // Reserves room below the latest exchange for the AI reply to stream into
+  // (see the trailing spacer in the message list below). Opens instantly on
+  // send and, unlike an earlier version of this, deliberately never closes
+  // on its own once the reply finishes -- collapsing it right then read as
+  // the whitespace "snapping" shut. Instead it's collapsed in the keyboard
+  // handler below, timed to the keyboard's own rise so the two motions read
+  // as one and the user is never left able to scroll down into dead space.
+  const spacerHeight = useSharedValue(0);
+  const spacerStyle = useAnimatedStyle(() => ({ height: spacerHeight.value }));
 
-  // The spacer below the AI reply reserves room for it to fill in as it
-  // streams (see the trailing Animated.View in the message list below).
-  // Opening instantly on send matches the original feel, but closing
-  // instantly too (a plain conditional View unmounting) collapsed the
-  // reserved space in a single frame the moment the reply finished --
-  // visually a hard "snap". Easing it shut instead makes that transition
-  // read as intentional.
   useEffect(() => {
-    if (sending) {
-      spacerHeight.setValue(viewportHeight);
-    } else {
-      Animated.timing(spacerHeight, { toValue: 0, duration: 300, useNativeDriver: false }).start();
-    }
-  }, [sending, viewportHeight]);
+    if (sending) spacerHeight.value = viewportHeightRef.current;
+  }, [sending]);
 
   // `onStart` fires the instant the keyboard begins moving (same native event
   // that drives KeyboardAvoidingView's padding), so the tab-bar spacer
@@ -153,6 +181,13 @@ export default function Coach() {
       onStart: (e) => {
         'worklet';
         runOnJS(setKeyboardVisible)(e.progress === 1);
+        // Keyboard rising (not dismissing) is the moment the user's about to
+        // scroll/interact again -- close the reserved reply space then,
+        // timed to the keyboard's own animation duration so it's absorbed
+        // into that motion instead of being its own separate, visible jump.
+        if (e.progress === 1) {
+          spacerHeight.value = withTiming(0, { duration: e.duration });
+        }
       },
     },
     [],
@@ -193,6 +228,7 @@ export default function Coach() {
     cancelActiveStream();
     setSessionId(null);
     setMessages([]);
+    setChatError(null);
     Keyboard.dismiss();
   };
 
@@ -204,6 +240,7 @@ export default function Coach() {
     Keyboard.dismiss();
     setSessionId(session.session_id);
     setMessages([]);
+    setChatError(null);
     setLoadingHistory(true);
     try {
       const history = await getSessionMessages(session.session_id);
@@ -236,7 +273,9 @@ export default function Coach() {
     const text = (overrideText ?? inputText).trim();
     if (!text || sending) return;
 
+    posthog?.capture('ai_coach_message_sent');
     Keyboard.dismiss();
+    setChatError(null);
     const userMessageId = `${Date.now()}-user`;
     lastUserMessageIdRef.current = userMessageId;
     setMessages((prev) => [...prev, { id: userMessageId, sender: 'user', text, time: formatTime(new Date()) }]);
@@ -325,18 +364,28 @@ export default function Coach() {
       onError: () => {
         setSending(false);
         setAwaitingReply(false);
-        if (!started) {
-          const words = parseStyledWords(markdownItInstance, 'Something went wrong — try again.').map((word, index) => ({
-            ...word,
-            key: `err-${index}`,
-            opacity: new Animated.Value(1),
-          }));
-          setMessages((prev) => [...prev, { id: `${Date.now()}-error`, sender: 'ai', words, time: formatTime(new Date()) }]);
-        }
+        // Covers every failure mode the backend can hand back for this turn --
+        // our own rate limiting (DRF throttle, HTTP 429), the retriever not
+        // being ready (HTTP 503), and the LLM call itself failing mid-stream
+        // (e.g. the model's own rate limit or an upstream outage). All of
+        // them are equally "try again shortly" from the user's perspective,
+        // so they share one error state rather than being distinguished.
+        setChatError({ retryText: text });
+        // Unlike a successful reply, there's no streamed content coming to
+        // fill this space -- leaving it open (per the spacerHeight comment
+        // above) would let the user scroll down into a full screen of dead
+        // space below the short error card.
+        spacerHeight.value = withTiming(0, { duration: 200 });
       },
     }).then((cancel) => {
       state.closeEs = cancel;
     });
+  };
+
+  const handleRetry = () => {
+    const retryText = chatError?.retryText;
+    setChatError(null);
+    if (retryText) handleSend(retryText);
   };
 
   return (
@@ -353,14 +402,16 @@ export default function Coach() {
               { paddingTop: headerHeight },
             ]}
             showsVerticalScrollIndicator={false}
-            onLayout={(e) => setViewportHeight(e.nativeEvent.layout.height)}
+            bounces={false}
+            overScrollMode="never"
+            onLayout={(e) => { viewportHeightRef.current = e.nativeEvent.layout.height; }}
           >
             {loadingHistory ? (
               <ActivityIndicator color={Colors.plum} size="large" />
             ) : messages.length === 0 ? (
               <View style={styles.emptyState}>
                 <Image source={require('../../assets/images/bingebuddy3.png')} style={styles.emptyIconWrap} resizeMode="cover" />
-                <Text style={styles.emptyGreeting}>How can I help you today?</Text>
+                <Text style={styles.emptyGreeting}>{emptyGreeting}</Text>
               </View>
             ) : (
               <>
@@ -415,7 +466,26 @@ export default function Coach() {
                   </View>
                 )}
 
-                <Animated.View style={{ height: spacerHeight }} />
+                {chatError && (
+                  <View style={styles.errorCard}>
+                    <View style={styles.errorIconCircle}>
+                      <Ionicons name="cloud-offline-outline" size={26} color={Colors.alert} />
+                    </View>
+                    <Text style={styles.errorTitle}>AI Coach is currently unavailable</Text>
+                    <Text style={styles.errorBody}>
+                      This is usually due to rate limits — please try again in a few hours.
+                    </Text>
+                    <TouchableOpacity style={styles.errorRetryButton} onPress={handleRetry} activeOpacity={0.8}>
+                      <Text style={styles.errorRetryText}>Try Again</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+
+                {/* Reserves room below the latest exchange for the AI reply to
+                    fill in as it streams — matches ChatGPT's mobile app. See
+                    the spacerHeight comment above for why it closes on the
+                    keyboard rising rather than when the reply finishes. */}
+                <ReanimatedAnimated.View style={spacerStyle} />
               </>
             )}
           </ScrollView>
@@ -661,6 +731,55 @@ const styles = StyleSheet.create({
     color: Colors.inkFaint,
     marginTop: 4,
     marginLeft: 4,
+  },
+
+  /* AI Coach error state */
+  errorCard: {
+    alignItems: 'center',
+    backgroundColor: Colors.alertTint,
+    borderRadius: Radii.card,
+    borderLeftWidth: 4,
+    borderLeftColor: Colors.alert,
+    padding: 20,
+    marginBottom: 16,
+    ...Shadows.soft,
+  },
+  errorIconCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: Colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  errorTitle: {
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.bodyMd,
+    color: Colors.ink,
+    textAlign: 'center',
+    marginBottom: 6,
+  },
+  errorBody: {
+    fontFamily: FontFamily.sansMedium,
+    fontSize: FontSize.secondary,
+    color: Colors.inkSoft,
+    textAlign: 'center',
+    lineHeight: 19,
+    marginBottom: 16,
+  },
+  errorRetryButton: {
+    height: 42,
+    paddingHorizontal: 24,
+    borderRadius: Radii.btn,
+    backgroundColor: Colors.alert,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  errorRetryText: {
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.secondary,
+    color: 'white',
   },
 
   /* Typing indicator */

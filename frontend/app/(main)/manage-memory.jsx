@@ -56,6 +56,8 @@ export default function ManageMemory() {
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
+        bounces={false}
+        overScrollMode="never"
       >
         {/* Header */}
         <LinearGradient

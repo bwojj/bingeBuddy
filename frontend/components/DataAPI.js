@@ -61,7 +61,7 @@ export const markRecoveryIntroSeen = async () => {
     }
 };
 
-export const markAiCoachIntroSeen = async () => {
+export const markAiCoachIntroSeen = async (aiDataConsent = false) => {
     const token = await getToken();
     try {
         const response = await fetch(`${BASEURL}/api/mark-ai-coach-intro-seen`, {
@@ -71,6 +71,7 @@ export const markAiCoachIntroSeen = async () => {
                 'Authorization': token ? `Bearer ${token}` : '',
             },
             credentials: 'include',
+            body: JSON.stringify({ ai_data_consent: aiDataConsent }),
         });
         return response.ok;
     } catch (error) {

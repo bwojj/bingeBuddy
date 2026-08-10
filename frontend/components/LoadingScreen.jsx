@@ -126,6 +126,7 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.serifMedium,
     fontSize: FontSize.flowTitle,
     lineHeight: FontSize.flowTitle * 1.6,
+    paddingHorizontal: 16,
     paddingBottom: 6,
     color: 'white',
     letterSpacing: -0.3,

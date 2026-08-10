@@ -55,7 +55,7 @@ APPLE_BUNDLE_ID = os.environ.get('APPLE_BUNDLE_ID', '')
 
 # Resend -- used to send the email-verification code
 RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
-VERIFICATION_EMAIL_FROM = os.environ.get('VERIFICATION_EMAIL_FROM', 'BingeBuddy <onboarding@resend.dev>')
+VERIFICATION_EMAIL_FROM = os.environ.get('VERIFICATION_EMAIL_FROM', 'BingeBuddy <onboarding@mybingebuddy.com>')
 
 # RevenueCat -- gates the AI Coach subscription (see bingeBuddyAPI.permissions.HasActiveSubscription)
 REVENUECAT_SECRET_API_KEY = os.environ.get('REVENUECAT_SECRET_API_KEY', '')
@@ -125,7 +125,7 @@ REST_FRAMEWORK = {
         'anon': '100/hour',
         'user': '1000/hour',
         'ai_coach_burst': '30/min',
-        'ai_coach_sustained': '300/day',
+        'ai_coach_sustained': '100/day',
     },
 }
 

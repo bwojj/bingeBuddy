@@ -16,20 +16,44 @@ const TABS = [
 export default function TabBar({ activeTab }) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { userPreferences } = useAuth();
+  const { userPreferences, userLoading, refreshUserData } = useAuth();
 
   function handlePress(tab) {
+    if (tab.key === 'my-plan' && !userPreferences?.seen_recovery_intro) {
+      // First-ever tap detours through the one-time recovery-plan intro
+      // instead of going straight to My Recovery (see recovery-intro.jsx).
+      router.push('/recovery-intro');
+      return;
+    }
     if (tab.key === 'coach') {
+      if (userPreferences == null) {
+        // userPreferences is null both while the initial/refresh fetch is
+        // still in flight and when it already failed -- collapsing those
+        // into "not premium" would bounce a paying subscriber to /paywall
+        // on cold launch just because the fetch hadn't resolved yet.
+        if (userLoading) {
+          // Still loading: ignore the tap rather than guess. It resolves
+          // within a beat and a retap reads the real is_premium value.
+          return;
+        }
+        // Fetch finished but preferences never populated (backend error) --
+        // retry instead of leaving this tab permanently inert.
+        refreshUserData();
+        return;
+      }
       // Subscription gate comes before the one-time intro -- no point
       // walking a non-subscriber through a tutorial for a feature they
       // can't use yet (see paywall.jsx).
-      if (!userPreferences?.is_premium) {
+      if (!userPreferences.is_premium) {
         router.push('/paywall');
         return;
       }
       // First-ever tap (for a subscriber) detours through a one-time intro
       // screen instead of going straight to the chat (see ai-coach-intro.jsx).
-      if (!userPreferences?.seen_ai_coach_intro) {
+      // Also re-detours anyone who hasn't given explicit ai_data_consent yet
+      // -- covers users who saw the intro before that consent checkbox
+      // existed, so they still get the AI-disclosure/consent step once.
+      if (!userPreferences?.seen_ai_coach_intro || !userPreferences?.ai_data_consent) {
         router.push('/ai-coach-intro');
         return;
       }

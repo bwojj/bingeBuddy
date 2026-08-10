@@ -90,6 +90,10 @@ export default function ListenRecording() {
           ))}
         </View>
 
+        <Text style={styles.settingsNote}>
+          You can add or update your audio recording anytime in Settings.
+        </Text>
+
         <Text style={styles.sectionLabel}>YOUR MESSAGE</Text>
         {loading ? (
           <View style={[styles.card, styles.centerCard]}>
@@ -180,6 +184,14 @@ const styles = StyleSheet.create({
   centerCard: {
     alignItems: 'center',
     paddingVertical: 30,
+  },
+  settingsNote: {
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.secondarySm,
+    color: Colors.inkFaint,
+    lineHeight: 19,
+    marginHorizontal: 20,
+    marginBottom: 24,
   },
   cardTitleRow: {
     flexDirection: 'row',

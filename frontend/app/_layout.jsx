@@ -17,6 +17,7 @@ import {
 } from '@expo-google-fonts/hanken-grotesk';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { PostHogProvider } from 'posthog-react-native';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import LoadingScreen from '../components/LoadingScreen';
 import { configurePurchases } from '../components/PurchasesAPI';
@@ -45,19 +46,27 @@ function RootLayoutNav() {
 
     useEffect(() => {
         if (isAuthenticated === null) return; // still loading
-        if (isAuthenticated && userLoading) return; // userPreferences not fetched yet -- avoid a premature recovery-intro bounce
+        if (isAuthenticated && userLoading) return; // userPreferences not fetched yet -- avoid a premature onboarding bounce
 
         const inAuthGroup = segments[0] === '(auth)';
-        const onRecoveryIntro = segments[0] === 'recovery-intro';
+        // signup.jsx (outside the (onboarding) group) doubles as the "edit
+        // email" screen reachable from verify-email.jsx, so it counts as part
+        // of the onboarding continuum here too -- only login.jsx doesn't
+        // belong to a user who's authenticated but hasn't finished onboarding.
+        const onLoginScreen = segments[0] === '(auth)' && segments[1] === 'login';
 
-        if (!isAuthenticated && !inAuthGroup && !onRecoveryIntro) {
+        if (!isAuthenticated && !inAuthGroup) {
             router.replace('/(auth)/login');
+        } else if (isAuthenticated && !userPreferences?.onboarding_complete) {
+            // register()+login() (or a new social-auth account) already hand out a
+            // fully valid token before onboarding finishes, so a refresh mid-flow
+            // still resolves isAuthenticated to true. Route by onboarding_complete
+            // instead so that refresh lands back in the flow -- staying put if
+            // already there, or re-entering it if the refresh reset navigation --
+            // rather than dropping the user into the main app early.
+            if (!inAuthGroup || onLoginScreen) router.replace('/(auth)/(onboarding)/verify-email');
         } else if (isAuthenticated && inAuthGroup) {
             router.replace('/(main)');
-        } else if (isAuthenticated && !userPreferences?.seen_recovery_intro && !onRecoveryIntro) {
-            // Gates every authenticated user -- new or existing -- behind the
-            // recovery intro until their UserData row shows they've seen it.
-            router.replace('/recovery-intro');
         }
     }, [isAuthenticated, segments, userPreferences, userLoading]);
 
@@ -72,11 +81,21 @@ function RootLayoutNav() {
 export default function RootLayout() {
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
-            <KeyboardProvider>
-                <AuthProvider>
-                    <RootLayoutNav />
-                </AuthProvider>
-            </KeyboardProvider>
+            <PostHogProvider
+                apiKey={process.env.EXPO_PUBLIC_POSTHOG_API_KEY}
+                options={{ host: process.env.EXPO_PUBLIC_POSTHOG_HOST, disableGeoip: true }}
+                autocapture={{
+                    captureTouches: true,
+                    captureScreens: true,
+                    captureLifecycleEvents: true,
+                }}
+            >
+                <KeyboardProvider>
+                    <AuthProvider>
+                        <RootLayoutNav />
+                    </AuthProvider>
+                </KeyboardProvider>
+            </PostHogProvider>
         </GestureHandlerRootView>
     );
 }

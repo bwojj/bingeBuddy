@@ -17,6 +17,14 @@ class UserData(models.Model):
     # same pattern as seen_recovery_intro -- defaults to False so it gates the
     # one-time AI Coach intro screen the first time a user taps the Coach tab.
     seen_ai_coach_intro = models.BooleanField(default=False)
+    # explicit opt-in, captured on ai-coach-intro.jsx, to sending the user's
+    # messages/coaching style/memory notes to Google's Gemini API to generate
+    # a reply. Defaults to False for every row, including already-migrated
+    # existing users, so anyone who used the coach before this field existed
+    # is still routed back through the consent screen once (see TabBar.jsx's
+    # gate, which checks this in addition to seen_ai_coach_intro).
+    ai_data_consent = models.BooleanField(default=False)
+    ai_data_consent_at = models.DateTimeField(null=True, blank=True)
     # one of: 'mental_frameworks', 'actions', 'coach', 'audio' (validated client-side)
     default_urge_screen = models.CharField(max_length=32, blank=True, default='')
     ai_memory = models.JSONField(default=dict)
@@ -34,6 +42,15 @@ class UserData(models.Model):
     # user's local timezone -- see set_reminder_preferences
     reminder_enabled = models.BooleanField(default=False)
     reminder_time = models.TimeField(null=True, blank=True)
+    # Set True at the end of the post-signup onboarding flow (add_data_motivation).
+    # Unlike seen_recovery_intro, existing rows are backfilled to True by this
+    # field's migration rather than left False -- register()+login() already
+    # hand a fully valid token before onboarding finishes, so isAuthenticated
+    # alone can't tell "mid-onboarding" apart from "done"; the root layout uses
+    # this instead to send a refresh mid-onboarding back into the flow instead
+    # of into the main app, without also bouncing every already-onboarded
+    # existing user back into onboarding.
+    onboarding_complete = models.BooleanField(default=False)
 
 # create journal Entry field 
 class JournalEntry(models.Model):
@@ -63,6 +80,18 @@ class SocialAccount(models.Model):
 # successful verification
 class EmailVerificationCode(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='email_verification')
+    code = models.CharField(max_length=6)
+    created_at = models.DateTimeField()
+    expires_at = models.DateTimeField()
+    attempts = models.PositiveSmallIntegerField(default=0)
+
+
+# one active code per user -- (re)generated on each forgot-password request,
+# deleted once it's used to successfully set a new password. Separate from
+# EmailVerificationCode so an in-flight signup-verification code and an
+# in-flight password-reset code never collide.
+class PasswordResetCode(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='password_reset')
     code = models.CharField(max_length=6)
     created_at = models.DateTimeField()
     expires_at = models.DateTimeField()

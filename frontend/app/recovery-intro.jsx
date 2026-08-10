@@ -46,6 +46,11 @@ const STEPS = [
     title: 'Meditation',
     body: "Meditation is mindfulness you can practice, like training for your attention. The idea is simple. Focus on your breath, and every time your mind wanders off, bring it back without beating yourself up about it. That skill doesn't stay on the mat. Carried into your day, it keeps you present, and being present is where an urge loses its grip. It's hard to binge on autopilot when you're actually paying attention to what you're doing.",
     preview: PREVIEW_MEDITATION,
+    tips: [
+      { icon: (c) => <Ionicons name="timer-outline" size={18} color={c} />, text: 'Set a timer and focus on your breath' },
+      { icon: (c) => <Ionicons name="download-outline" size={18} color={c} />, text: 'Download a free meditation app' },
+      { icon: (c) => <Ionicons name="logo-youtube" size={18} color={c} />, text: 'Watch a guided session on YouTube' },
+    ],
   },
   {
     icon: (c) => <Ionicons name="add-circle-outline" size={30} color={c} />,
@@ -63,7 +68,7 @@ const STEPS = [
 export default function RecoveryIntro() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { setIsAuthenticated, refreshUserData } = useAuth();
+  const { refreshUserData } = useAuth();
   const [stepIndex, setStepIndex] = useState(0);
   const [finishing, setFinishing] = useState(false);
 
@@ -85,12 +90,11 @@ export default function RecoveryIntro() {
         Alert.alert('Something went wrong', "Couldn't save your progress. Please check your connection and try again.");
         return;
       }
-      // Refetch userPreferences before navigating so the root layout's gate
-      // (which reads userPreferences.seen_recovery_intro) doesn't bounce an
-      // already-authenticated existing user straight back to this screen.
+      // Refetch userPreferences before navigating so TabBar's gate (which
+      // reads userPreferences.seen_recovery_intro) doesn't route the user
+      // straight back into this screen on their next tap.
       await refreshUserData();
-      setIsAuthenticated(true);
-      router.replace('/(main)');
+      router.replace('/my-plan');
     } else {
       setStepIndex((i) => i + 1);
     }
@@ -101,7 +105,7 @@ export default function RecoveryIntro() {
       style={[styles.container, hasHabitPreview && styles.containerDark]}
       contentContainerStyle={[
         styles.content,
-        { paddingTop: insets.top + 10, paddingBottom: insets.bottom + 30 },
+        { paddingTop: insets.top + 6, paddingBottom: insets.bottom + 16 },
       ]}
       showsVerticalScrollIndicator={false}
     >
@@ -138,11 +142,24 @@ export default function RecoveryIntro() {
         {/* Body */}
         <Text style={styles.body}>{step.body}</Text>
 
+        {/* Getting-started tips (currently only used on the Meditation step) */}
+        {step.tips && (
+          <View style={styles.tipCard}>
+            <Text style={styles.tipHeader}>Getting Started</Text>
+            {step.tips.map((tip, i) => (
+              <View key={i} style={[styles.tipRow, i === step.tips.length - 1 && { marginBottom: 0 }]}>
+                <View style={styles.tipIconCircle}>{tip.icon(Colors.plum)}</View>
+                <Text style={styles.tipText}>{tip.text}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+
         {/* Habit box preview — set against a darker "stage" panel so the
             (white) card itself pops instead of blending into the page */}
         {step.preview && (
           <View style={styles.previewStage}>
-            <HabitCard habit={step.preview} />
+            <HabitCard habit={step.preview} style={styles.previewCard} />
           </View>
         )}
 
@@ -194,7 +211,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 24,
+    marginBottom: 16,
   },
   eyebrow: {
     fontFamily: FontFamily.sansBold,
@@ -208,13 +225,13 @@ const styles = StyleSheet.create({
   centerBlock: {
     flex: 1,
     justifyContent: "center",
-    paddingVertical: 12,
+    paddingVertical: 6,
   },
 
   /* Icon */
   iconWrapper: {
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 14,
   },
   iconCircle: {
     width: 64,
@@ -234,32 +251,78 @@ const styles = StyleSheet.create({
   /* Title */
   title: {
     fontFamily: FontFamily.serifMedium,
-    fontSize: FontSize.flowTitle,
+    fontSize: 29,
     color: Colors.ink,
     textAlign: "center",
-    marginBottom: 14,
-    lineHeight: 40,
+    marginBottom: 8,
+    lineHeight: 34,
     letterSpacing: -0.4,
   },
 
   /* Body */
   body: {
     fontFamily: FontFamily.sansMedium,
-    fontSize: FontSize.body,
+    fontSize: 14,
     color: Colors.inkSoft,
-    lineHeight: 23,
+    lineHeight: 19,
     textAlign: "center",
-    marginBottom: 24,
+    marginBottom: 16,
+  },
+
+  /* Getting-started tip card */
+  tipCard: {
+    width: '100%',
+    backgroundColor: Colors.plumTint2,
+    borderWidth: 1,
+    borderColor: Colors.line,
+    borderRadius: Radii.card,
+    padding: 12,
+    marginBottom: 14,
+  },
+  tipHeader: {
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.eyebrowSm,
+    color: Colors.plumSoft,
+    letterSpacing: 1,
+    textAlign: 'left',
+    marginBottom: 8,
+  },
+  tipRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 8,
+  },
+  tipIconCircle: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: Colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tipText: {
+    flex: 1,
+    fontFamily: FontFamily.sansMedium,
+    fontSize: FontSize.secondarySm,
+    color: Colors.ink,
+    textAlign: 'left',
+    lineHeight: 16,
   },
 
   /* Habit preview — a darker "stage" panel bleeding edge-to-edge, so the
      white habit card sitting on it visibly pops off the page */
   previewStage: {
     marginHorizontal: -24,
-    marginBottom: 8,
-    paddingVertical: 16,
+    marginBottom: 6,
+    paddingVertical: 8,
     backgroundColor: Colors.plumTint,
     borderRadius: Radii.lg,
+  },
+  // Trims the shared HabitCard's own padding for this preview-only context —
+  // the real My Recovery list keeps its normal padding untouched.
+  previewCard: {
+    padding: 12,
   },
 
   /* Add-a-habit preview */
@@ -287,8 +350,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
     marginTop: 'auto',
-    paddingTop: 24,
-    marginBottom: 20,
+    paddingTop: 14,
+    marginBottom: 12,
   },
   dot: {
     width: 8,

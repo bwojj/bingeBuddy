@@ -105,6 +105,36 @@ export const resendVerificationCode = async () => {
     }
 };
 
+// requests a 6-digit code emailed to reset a forgotten password. Always
+// resolves success (the backend responds the same way whether or not the
+// email is registered, to avoid leaking which emails have accounts).
+export const requestPasswordReset = async (email) => {
+    try {
+        const response = await fetch(`${BASEURL}/api/request-password-reset`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }),
+        });
+        return await response.json();
+    } catch (_) {
+        return { success: false, error: 'Something went wrong. Please try again.' };
+    }
+};
+
+// submits the emailed code plus a new password to complete a password reset
+export const resetPassword = async (email, code, new_password) => {
+    try {
+        const response = await fetch(`${BASEURL}/api/reset-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, code, new_password }),
+        });
+        return await response.json();
+    } catch (_) {
+        return { success: false, error: 'Something went wrong. Please try again.' };
+    }
+};
+
 // register function
 export const register = async (username, first_name, email, password) => {
     try {

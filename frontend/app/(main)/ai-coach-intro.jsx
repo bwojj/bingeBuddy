@@ -18,10 +18,12 @@ export default function AiCoachIntro() {
   const router = useRouter();
   const { refreshUserData } = useAuth();
   const [entering, setEntering] = useState(false);
+  const [consentChecked, setConsentChecked] = useState(false);
 
   async function handleStart() {
+    if (!consentChecked) return;
     setEntering(true);
-    await markAiCoachIntroSeen();
+    await markAiCoachIntroSeen(true);
     await refreshUserData();
     router.replace('/coach');
   }
@@ -57,10 +59,38 @@ export default function AiCoachIntro() {
         <Text style={styles.body}>
           You never have to face an urge alone again. Your coach is here around the clock, ready the second your head gets loud or a craving hits hard. Tell it what you&apos;re going through and it&apos;ll help you work through it right then, whether you&apos;re fighting an urge, sitting with a slip you feel bad about, or trying to untangle a thought you can&apos;t shake. It draws on real binge eating recovery, not generic wellness tips, so it understands this specific struggle and knows how to actually help. Whenever you need to talk, it&apos;s right here.
         </Text>
+
+        {/* AI-generated content disclosure */}
+        <View style={styles.disclosureCard}>
+          <View style={styles.disclosureHeader}>
+            <Ionicons name="sparkles" size={15} color={Colors.plum} />
+            <Text style={styles.disclosureLabel}>AI-GENERATED</Text>
+          </View>
+          <Text style={styles.disclosureText}>
+            Every reply in this chat is written by an AI model, not a human therapist. It can be wrong or give advice that doesn&apos;t fit your situation, and it isn&apos;t a substitute for professional medical or mental health care. If you&apos;re in crisis, please contact a crisis line or emergency services.
+          </Text>
+        </View>
+
+        {/* Consent checkbox — required before the first message can ever be sent */}
+        <View style={styles.termsRow}>
+          <TouchableOpacity
+            style={[styles.checkbox, consentChecked && styles.checkboxChecked]}
+            onPress={() => setConsentChecked((v) => !v)}
+          >
+            {consentChecked && <Ionicons name="checkmark" size={13} color="white" />}
+          </TouchableOpacity>
+          <Text style={styles.termsText}>
+            I understand my messages, coaching style, and memory notes will be sent to Google&apos;s Gemini AI to generate responses, and I consent to that.
+          </Text>
+        </View>
       </View>
 
       {/* Start button */}
-      <TouchableOpacity style={styles.nextButton} onPress={handleStart} disabled={entering}>
+      <TouchableOpacity
+        style={[styles.nextButton, !consentChecked && styles.nextButtonDisabled]}
+        onPress={handleStart}
+        disabled={entering || !consentChecked}
+      >
         <Text style={styles.nextButtonText}>{entering ? 'Entering…' : 'Start Chatting'}</Text>
       </TouchableOpacity>
     </ScrollView>
@@ -130,7 +160,64 @@ const styles = StyleSheet.create({
     color: Colors.inkSoft,
     lineHeight: 23,
     textAlign: "center",
-    marginBottom: 24,
+    marginBottom: 20,
+  },
+
+  /* AI-generated content disclosure */
+  disclosureCard: {
+    width: "100%",
+    backgroundColor: Colors.plumTint2,
+    borderRadius: Radii.card,
+    borderWidth: 1,
+    borderColor: Colors.line,
+    padding: 14,
+    marginBottom: 16,
+  },
+  disclosureHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 6,
+  },
+  disclosureLabel: {
+    fontFamily: FontFamily.sansBold,
+    fontSize: FontSize.eyebrowSm,
+    color: Colors.plum,
+    letterSpacing: 1,
+  },
+  disclosureText: {
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.secondarySm,
+    color: Colors.inkSoft,
+    lineHeight: 19,
+  },
+
+  /* Consent checkbox */
+  termsRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 10,
+  },
+  checkbox: {
+    width: 21,
+    height: 21,
+    borderWidth: 1.6,
+    borderColor: '#cabfce',
+    borderRadius: 6,
+    marginTop: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  checkboxChecked: {
+    backgroundColor: Colors.plum,
+    borderColor: Colors.plum,
+  },
+  termsText: {
+    flex: 1,
+    fontFamily: FontFamily.sansRegular,
+    fontSize: FontSize.secondarySm,
+    color: Colors.inkSoft,
+    lineHeight: 19,
   },
 
   /* Start button */
@@ -142,6 +229,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     ...Shadows.pop,
+  },
+  nextButtonDisabled: {
+    opacity: 0.5,
   },
   nextButtonText: {
     color: "white",

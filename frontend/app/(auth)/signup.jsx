@@ -1,16 +1,19 @@
-import { useState } from 'react';
-import { Text, View, StyleSheet, ScrollView, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator, Alert } from "react-native";
+import { useState, useEffect } from 'react';
+import { Text, View, StyleSheet, ScrollView, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator, Alert, Linking } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { login, register } from '../../components/AuthApi.js'
 import { updateProfile } from '../../components/DataAPI.js'
 import { Colors, FontFamily, FontSize, Radii } from '../../constants/theme';
 import SocialAuthButtons from '../components/SocialAuthButtons';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Signup() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { editEmail } = useLocalSearchParams();
+  const { userCredentials } = useAuth();
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('' );
@@ -18,11 +21,38 @@ export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  // Flips true once the account has actually been created. If the user comes
-  // back here from the verify-email step to fix a typo'd address, the account
-  // already exists -- re-running register() would just fail on the taken
-  // username, so this branches to updating the existing account's email instead.
-  const [alreadyRegistered, setAlreadyRegistered] = useState(false);
+  // Flips true once the account has actually been created. Normally set by
+  // handleSignup right after registering. Also seeded from the editEmail
+  // param for the case where verify-email.jsx had no navigation history to
+  // pop back to and had to land here via a fresh navigation instead of
+  // back() -- see verify-email.jsx's editEmail(). Either way, re-running
+  // register() would just fail on the taken username, so this branches to
+  // updating the existing account's email instead.
+  const [alreadyRegistered, setAlreadyRegistered] = useState(editEmail === '1');
+
+  // The editEmail=1 fallback is a fresh mount (not the still-mounted signup
+  // screen from the normal flow), so `email` starts blank -- prefill it from
+  // AuthContext, which is already populated by the time _layout.jsx redirects
+  // here (it only redirects once userLoading is false).
+  useEffect(() => {
+    if (editEmail === '1' && userCredentials?.email) {
+      setEmail(userCredentials.email);
+    }
+  }, [editEmail, userCredentials]);
+
+  // In the normal flow this pops back to wherever preceded signup, which is
+  // fine. But when we're here via the editEmail=1 fallback, this screen is
+  // the only entry in the stack (verify-email.jsx got here the same way --
+  // see its editEmail()), so router.back() has nothing to pop and silently
+  // no-ops. Send the user back to verify-email instead, which is the screen
+  // this edit-email detour was reached from.
+  const goBack = () => {
+    if (editEmail === '1') {
+      router.replace('/(auth)/(onboarding)/verify-email');
+    } else {
+      router.back();
+    }
+  };
 
   const handleUpdateEmail = async () => {
     setSubmitting(true);
@@ -47,6 +77,7 @@ export default function Signup() {
       const res = await login(username, password);
       if (res === true) {
         setAlreadyRegistered(true);
+        setSubmitting(false);
         router.push('/(auth)/(onboarding)/verify-email');
       }
       else {
@@ -72,7 +103,7 @@ export default function Signup() {
     >
       {/* Top row */}
       <View style={styles.topRow}>
-        <TouchableOpacity onPress={() => router.back()}>
+        <TouchableOpacity onPress={goBack}>
           <Ionicons name="chevron-back" size={26} color={Colors.ink} />
         </TouchableOpacity>
         <Text style={styles.stepText}>STEP 1 OF 4</Text>
@@ -121,6 +152,8 @@ export default function Signup() {
               placeholderTextColor={Colors.inkFaint}
               value={name}
               onChangeText={setName}
+              textContentType="name"
+              autoComplete="name"
             />
           </View>
 
@@ -135,6 +168,8 @@ export default function Signup() {
               value={username}
               onChangeText={setUsername}
               autoCapitalize="none"
+              textContentType="username"
+              autoComplete="username"
             />
           </View>
         </>
@@ -152,6 +187,8 @@ export default function Signup() {
           onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
+          textContentType="emailAddress"
+          autoComplete="email"
         />
       </View>
 
@@ -169,6 +206,15 @@ export default function Signup() {
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
               autoCapitalize="none"
+              // Pairing a `username` field with `newPassword` is exactly what
+              // makes iOS activate its own "Automatic Strong Password"
+              // AutoFill UI (system-drawn, wide-tracked lettering) on the
+              // username field above -- and without Associated Domains
+              // configured for this app, that feature can't actually
+              // complete anyway, so it's pure cosmetic side effect with no
+              // upside. Plain "password" avoids triggering it.
+              textContentType="password"
+              autoComplete="password"
             />
             <TouchableOpacity onPress={() => setShowPassword(v => !v)}>
               <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={19} color={Colors.inkFaint} />
@@ -185,9 +231,9 @@ export default function Signup() {
             </TouchableOpacity>
             <Text style={styles.termsText}>
               {"I agree to the "}
-              <Text style={styles.termsLink}>Terms of Service</Text>
+              <Text style={styles.termsLink} onPress={() => Linking.openURL('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/')}>Terms of Service</Text>
               {" and "}
-              <Text style={styles.termsLink}>Privacy Policy</Text>
+              <Text style={styles.termsLink} onPress={() => Linking.openURL('https://mybingebuddy.com/privacy-policy.html')}>Privacy Policy</Text>
             </Text>
           </View>
         </>

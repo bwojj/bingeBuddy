@@ -3,6 +3,7 @@ import { Text, View, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert,
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { usePostHog } from 'posthog-react-native';
 import { login } from '../../components/AuthApi';
 import { useAuth } from '../../context/AuthContext';
 import { Colors, FontFamily, FontSize, Radii } from '../../constants/theme';
@@ -12,6 +13,7 @@ export default function Login() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { setIsAuthenticated } = useAuth();
+  const posthog = usePostHog();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -19,6 +21,7 @@ export default function Login() {
   const handleLogin = async () => {
     const ok = await login(username, password);
     if (ok === true) {
+      posthog?.capture('login', { method: 'password' });
       setIsAuthenticated(true);
     } else {
       Alert.alert('Login failed', 'Incorrect username or password.');
@@ -52,6 +55,8 @@ export default function Login() {
           value={username}
           onChangeText={setUsername}
           autoCapitalize="none"
+          textContentType="username"
+          autoComplete="username"
         />
       </View>
 
@@ -67,6 +72,8 @@ export default function Login() {
           onChangeText={setPassword}
           secureTextEntry={!showPassword}
           autoCapitalize="none"
+          textContentType="password"
+          autoComplete="password"
         />
         <TouchableOpacity onPress={() => setShowPassword(v => !v)}>
           <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={19} color={Colors.inkFaint} />
@@ -74,7 +81,7 @@ export default function Login() {
       </View>
 
       {/* Forgot password */}
-      <TouchableOpacity onPress={() => {}}>
+      <TouchableOpacity onPress={() => router.push('/(auth)/forgot-password')}>
         <Text style={styles.forgotText}>Forgot password?</Text>
       </TouchableOpacity>
 

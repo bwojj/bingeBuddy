@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { getAllUrges, deleteUrge } from '@/components/UrgeAPI';
 import LoadingScreen from '@/components/LoadingScreen';
+import { useAuth } from '@/context/AuthContext';
 import { Colors, FontFamily, FontSize, Radii, Shadows, Gradients } from '@/constants/theme';
 
 function formatDate(isoString) {
@@ -18,6 +19,7 @@ function formatDate(isoString) {
 export default function AllUrges() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { refreshUserData } = useAuth();
   const [urges, setUrges] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,6 +38,10 @@ export default function AllUrges() {
     const ok = await deleteUrge(id);
     if (ok) {
       setUrges((prev) => prev.filter((u) => u.id !== id));
+      // This screen's own "urges defeated" count recomputes locally from
+      // `urges`, but the Me screen and milestone cards read urgeCount from
+      // AuthContext -- without this they'd keep showing the pre-delete total.
+      await refreshUserData();
     }
   }
 

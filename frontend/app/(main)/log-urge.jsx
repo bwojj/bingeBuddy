@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from 'react';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { usePostHog } from 'posthog-react-native';
 import { logUrge } from '@/components/UrgeAPI';
 import { useAuth } from '@/context/AuthContext';
 import { maybeRequestReview } from '@/lib/reviewPrompt';
@@ -16,7 +17,8 @@ function formatDisplayDate(d) {
 export default function LogUrge() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { refreshUserData } = useAuth();
+  const { refreshUserData, userPreferences } = useAuth();
+  const posthog = usePostHog();
   const [date, setDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
   const [note, setNote] = useState('');
@@ -57,10 +59,11 @@ export default function LogUrge() {
     const ok = await logUrge(note.trim(), date.toISOString());
     setSaving(false);
     if (ok) {
+      posthog?.capture('urge_logged', { has_note: note.trim().length > 0 });
       await refreshUserData();
       maybeRequestReview();
     }
-    router.replace('/my-plan');
+    router.replace(userPreferences?.seen_recovery_intro ? '/my-plan' : '/recovery-intro');
   }
 
   return (

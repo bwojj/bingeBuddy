@@ -14,6 +14,20 @@ export default function OnboardingVerifyEmail() {
 
   const proceed = () => router.push('/(auth)/(onboarding)/maincause');
 
+  // Normally just pops back to signup.jsx's still-mounted "edit email" mode.
+  // But this screen can also be landed on directly (e.g. the root layout's
+  // onboarding-incomplete redirect after an app refresh), which leaves no
+  // history to pop -- back() would then throw "GO_BACK not handled by any
+  // navigator". Falls back to a fresh navigation to signup in that case;
+  // signup.jsx reads the editEmail param to still land in the right mode.
+  const editEmail = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(auth)/signup?editEmail=1');
+    }
+  };
+
   return (
     <ScrollView
       style={styles.container}
@@ -30,7 +44,7 @@ export default function OnboardingVerifyEmail() {
 
       <VerifyEmailForm onVerified={proceed} />
 
-      <TouchableOpacity onPress={() => router.back()} style={styles.linkRow}>
+      <TouchableOpacity onPress={editEmail} style={styles.linkRow}>
         <Text style={styles.linkText}>Sent to the wrong address? Edit it</Text>
       </TouchableOpacity>
 

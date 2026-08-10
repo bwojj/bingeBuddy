@@ -6,10 +6,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import DraggableFlatList from 'react-native-draggable-flatlist';
+import { usePostHog } from 'posthog-react-native';
 import TabBar from '../components/TabBar';
 import ConsistencyCard from '../components/ConsistencyCard';
 import HabitCard, { HabitIcon } from '../components/HabitCard';
-import { getHabits, toggleHabitDone, addCustomHabit, deleteHabit, resetHabits, reorderHabits } from '@/components/HabitAPI';
+import { getHabits, getPlanStreak, toggleHabitDone, addCustomHabit, deleteHabit, resetHabits, reorderHabits } from '@/components/HabitAPI';
 import LoadingScreen from '@/components/LoadingScreen';
 import { Colors, FontFamily, FontSize, Radii, Shadows, Gradients, Spacing } from '@/constants/theme';
 
@@ -32,6 +33,7 @@ const ICON_CHOICES = [
 export default function MyPlan() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const posthog = usePostHog();
   // Real measured height of the header's own content — the header and its
   // overscroll-bounce buffer are ONE continuous gradient (see listHeader
   // below), so this is needed to recompute start/end fractions for the
@@ -48,6 +50,7 @@ export default function MyPlan() {
     y: (OVERSCROLL_BUFFER + Gradients.hero.end.y * headerContentHeight) / mergedHeight,
   };
   const [habits, setHabits] = useState([]);
+  const [planStreakData, setPlanStreakData] = useState({ streak: 0, bestStreak: 0 });
   const [loading, setLoading] = useState(true);
   const [addModalVisible, setAddModalVisible] = useState(false);
   const [newHabitName, setNewHabitName] = useState('');
@@ -63,6 +66,7 @@ export default function MyPlan() {
   const fetchAll = useCallback(async () => {
     const h = await getHabits();
     setHabits(h);
+    setPlanStreakData(getPlanStreak());
     setLoading(false);
   }, []);
 
@@ -76,6 +80,10 @@ export default function MyPlan() {
     const updated = await toggleHabitDone(id);
     if (updated) {
       setHabits((prev) => prev.map((h) => (h.id === id ? updated : h)));
+      setPlanStreakData(getPlanStreak());
+      if (updated.doneToday) {
+        posthog?.capture('habit_completed', { habit_name: updated.name });
+      }
     }
   }
 
@@ -177,8 +185,8 @@ export default function MyPlan() {
   }
 
   const doneCount = habits.filter((h) => h.doneToday).length;
-  const planStreak = habits.length ? Math.max(...habits.map((h) => h.streak)) : 0;
-  const planBestStreak = habits.length ? Math.max(...habits.map((h) => h.bestStreak)) : 0;
+  const planStreak = planStreakData.streak;
+  const planBestStreak = planStreakData.bestStreak;
 
   if (loading) return <LoadingScreen />;
 

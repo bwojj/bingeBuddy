@@ -3,7 +3,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from '@expo/vector-icons';
 import { KeyboardAvoidingView, useKeyboardHandler } from 'react-native-keyboard-controller';
-import { runOnJS } from 'react-native-reanimated';
+import ReanimatedAnimated, { runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useEffect, useRef, useState } from 'react';
 import { MarkdownIt } from 'react-native-markdown-display';
 import TryAnotherLink from '../components/TryAnotherLink';
@@ -92,15 +92,36 @@ export default function UrgeCoach() {
   const [sessionId, setSessionId] = useState(null);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [switchVisible, setSwitchVisible] = useState(false);
-  const [viewportHeight, setViewportHeight] = useState(0);
   const streamStateRef = useRef(null);
   const lastUserMessageIdRef = useRef(null);
+  const viewportHeightRef = useRef(0);
+  // Reserves room below the latest exchange for the AI reply to stream into
+  // (see the trailing spacer in the message list below). Opens instantly on
+  // send and deliberately never closes on its own once the reply finishes --
+  // collapsing it right then reads as the whitespace "snapping" shut.
+  // Instead it's collapsed in the keyboard handler below, timed to the
+  // keyboard's own rise so the two motions read as one and the user is never
+  // left able to scroll down into dead space. Mirrors coach.jsx's identical
+  // spacer -- keep the two in sync if this changes.
+  const spacerHeight = useSharedValue(0);
+  const spacerStyle = useAnimatedStyle(() => ({ height: spacerHeight.value }));
+
+  useEffect(() => {
+    if (sending) spacerHeight.value = viewportHeightRef.current;
+  }, [sending]);
 
   useKeyboardHandler(
     {
       onStart: (e) => {
         'worklet';
         runOnJS(setKeyboardVisible)(e.progress === 1);
+        // Keyboard rising (not dismissing) is the moment the user's about to
+        // scroll/interact again -- close the reserved reply space then,
+        // timed to the keyboard's own animation duration so it's absorbed
+        // into that motion instead of being its own separate, visible jump.
+        if (e.progress === 1) {
+          spacerHeight.value = withTiming(0, { duration: e.duration });
+        }
       },
     },
     [],
@@ -247,7 +268,9 @@ export default function UrgeCoach() {
           style={{ flex: 1 }}
           contentContainerStyle={messages.length === 0 ? styles.emptyContent : styles.chatContent}
           showsVerticalScrollIndicator={false}
-          onLayout={(e) => setViewportHeight(e.nativeEvent.layout.height)}
+          bounces={false}
+          overScrollMode="never"
+          onLayout={(e) => { viewportHeightRef.current = e.nativeEvent.layout.height; }}
         >
           {messages.length === 0 ? (
             <View style={styles.emptyState}>
@@ -302,7 +325,11 @@ export default function UrgeCoach() {
                 </View>
               )}
 
-              <View style={{ height: viewportHeight }} />
+              {/* Reserves room below the latest exchange for the AI reply to
+                  fill in as it streams — matches ChatGPT's mobile app. See
+                  the spacerHeight comment above for why it closes on the
+                  keyboard rising rather than when the reply finishes. */}
+              <ReanimatedAnimated.View style={spacerStyle} />
             </>
           )}
         </ScrollView>

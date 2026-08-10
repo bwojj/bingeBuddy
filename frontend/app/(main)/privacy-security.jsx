@@ -204,7 +204,7 @@ export default function PrivacySecurity() {
         <View style={styles.menuCard}>
           <TouchableOpacity
             style={styles.menuRow}
-            onPress={() => openUrl('https://bingebuddy.app/privacy', 'Privacy Policy')}
+            onPress={() => openUrl('https://mybingebuddy.com/privacy-policy.html', 'Privacy Policy')}
           >
             <View style={[styles.iconWrap, { backgroundColor: Colors.sageTint }]}>
               <Ionicons name="shield-outline" size={20} color={Colors.sage} />

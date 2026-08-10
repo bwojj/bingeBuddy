@@ -5,7 +5,10 @@
     "version": "2.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/bingebuddy3.png",
-    "scheme": "frontend",
+    "scheme": [
+      "frontend",
+      "com.googleusercontent.apps.130968382458-ir4u3u007bp3qssjolledlqirmghqs9b"
+    ],
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -59,7 +62,9 @@
       "expo-audio",
       "@react-native-community/datetimepicker",
       "expo-notifications",
-      "expo-font"
+      "expo-font",
+      "expo-asset",
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { Text, View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter, useFocusEffect } from "expo-router";
 import { useCallback, useState } from 'react';
@@ -38,13 +38,17 @@ function formatDate(isoString) {
 export default function Me() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { userCredentials, urgeCount } = useAuth();
+  const { userCredentials, urgeCount, userLoading } = useAuth();
   const [recentUrges, setRecentUrges] = useState([]);
+  const [recentUrgesLoading, setRecentUrgesLoading] = useState(true);
   const [message] = useState(() => ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)]);
 
   useFocusEffect(
     useCallback(() => {
-      getAllUrges().then((urges) => setRecentUrges(urges.slice(0, 5)));
+      setRecentUrgesLoading(true);
+      getAllUrges()
+        .then((urges) => setRecentUrges(urges.slice(0, 5)))
+        .finally(() => setRecentUrgesLoading(false));
     }, [])
   );
 
@@ -90,7 +94,11 @@ export default function Me() {
           <View style={styles.countIconBadge}>
             <MaterialCommunityIcons name="trophy" size={26} color={Colors.plum} />
           </View>
-          <Text style={styles.countNumber}>{urgeCount}</Text>
+          {userLoading ? (
+            <ActivityIndicator color={Colors.plum} size="large" style={styles.countLoading} />
+          ) : (
+            <Text style={styles.countNumber}>{urgeCount}</Text>
+          )}
           <Text style={styles.countLabel}>URGES DEFEATED</Text>
           <Text style={styles.encouragement}>{message}</Text>
         </View>
@@ -109,7 +117,12 @@ export default function Me() {
           </TouchableOpacity>
         </View>
 
-        {recentUrges.length === 0 ? (
+        {recentUrgesLoading ? (
+          <View style={styles.emptyCard}>
+            <ActivityIndicator color={Colors.plum} size="small" />
+            <Text style={styles.emptyText}>Loading recent urges…</Text>
+          </View>
+        ) : recentUrges.length === 0 ? (
           <View style={styles.emptyCard}>
             <Ionicons name="checkmark-done-outline" size={22} color={Colors.inkFaint} />
             <Text style={styles.emptyText}>No urges logged yet.</Text>
@@ -253,6 +266,13 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.serifMedium,
     fontSize: FontSize.statHuge,
     color: Colors.plum,
+    marginTop: 10,
+  },
+  // Matches countNumber's rendered height so the label below doesn't jump
+  // when swapping between the two.
+  countLoading: {
+    height: 74,
+    justifyContent: 'center',
     marginTop: 10,
   },
   countLabel: {

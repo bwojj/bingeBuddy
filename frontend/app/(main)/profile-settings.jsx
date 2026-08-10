@@ -107,6 +107,8 @@ export default function ProfileSettings() {
             placeholder="First name"
             placeholderTextColor={Colors.inkFaint}
             autoCapitalize="words"
+            textContentType="name"
+            autoComplete="name"
           />
           <View style={styles.divider} />
           <Text style={styles.fieldLabel}>Email</Text>
@@ -118,6 +120,8 @@ export default function ProfileSettings() {
             placeholderTextColor={Colors.inkFaint}
             keyboardType="email-address"
             autoCapitalize="none"
+            textContentType="emailAddress"
+            autoComplete="email"
           />
         </View>
 
@@ -132,6 +136,8 @@ export default function ProfileSettings() {
             placeholder="Enter current password"
             placeholderTextColor={Colors.inkFaint}
             secureTextEntry
+            textContentType="password"
+            autoComplete="password"
           />
           <View style={styles.divider} />
           <Text style={styles.fieldLabel}>New Password</Text>
@@ -142,6 +148,16 @@ export default function ProfileSettings() {
             placeholder="Enter new password"
             placeholderTextColor={Colors.inkFaint}
             secureTextEntry
+            // iOS's AutoFill heuristics don't only key off textContentType --
+            // they also read the field's own label/placeholder text, and
+            // "New Password" / "Enter new password" spells out "new
+            // password" directly. That was enough on its own to trigger
+            // iOS's Strong Password UI even with a neutral "password"
+            // contentType (see signup.jsx's password field for the original
+            // version of this bug). "none" explicitly opts the field out of
+            // content-type inference instead of leaving iOS to guess.
+            textContentType="none"
+            autoComplete="off"
           />
           <View style={styles.divider} />
           <Text style={styles.fieldLabel}>Confirm New Password</Text>
@@ -152,6 +168,8 @@ export default function ProfileSettings() {
             placeholder="Re-enter new password"
             placeholderTextColor={Colors.inkFaint}
             secureTextEntry
+            textContentType="none"
+            autoComplete="off"
           />
         </View>
 

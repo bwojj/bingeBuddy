@@ -19,8 +19,8 @@ django-cloudinary-storage
 langchain_google_genai
 langchain_core
 dotenv
-langchain_community
-langchain_text_splitters
+# langchain_community        # only needed if the commented-out ingestion block in chatbot_utilities.py is re-enabled
+# langchain_text_splitters   # only needed if the commented-out ingestion block in chatbot_utilities.py is re-enabled
 langchain_huggingface
 langchain_chroma
 sentence-transformers

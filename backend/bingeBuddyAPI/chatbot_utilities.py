@@ -1,14 +1,17 @@
-import hashlib
 import logging
 import os
 import chromadb
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import SystemMessagePromptTemplate, HumanMessagePromptTemplate, ChatPromptTemplate, MessagesPlaceholder
-from langchain_community.document_loaders import DirectoryLoader, TextLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
+# Ingestion-only imports -- unused now that the collection is pre-built on the
+# hosted Chroma server. Only needed if the commented-out ingestion block in
+# get_retriever() below is re-enabled.
+# import hashlib
+# from langchain_community.document_loaders import DirectoryLoader, TextLoader
+# from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 logger = logging.getLogger(__name__)
 
@@ -17,73 +20,91 @@ logger = logging.getLogger(__name__)
 # standalone (e.g. `python3 bingeBuddyAPI/chatbot_utilities.py`) for testing.
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env'))
 
+CHROMA_COLLECTION_NAME = os.environ.get("CHROMA_COLLECTION_NAME", "ai-coach-collection")
 
-# defines loader to load directory markdown files
-RAG_DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "rag_data")
-AI_COACH_DB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ai_coach_db")
+# The hosted collection was built by embedding chunks client-side with this exact
+# model before upload -- Chroma has no server-side embedding function here, so a
+# mismatched model_name would silently return wrong nearest-neighbors, not an error.
+EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
-# Builds the retriever from the RAG docs. This does network I/O (downloading the
-# embedding model) and CPU work at import time, which happens during Django startup
-# (urls.py -> views.py -> this module). A failure here must not crash the whole app,
-# so retriever is None on failure and callers must check for that.
-retriever = None
-try:
-    loader = DirectoryLoader(
-        path=RAG_DATA_DIR,
-        glob="*.md",
-        loader_cls=TextLoader,
-        loader_kwargs={'encoding': 'utf-8'}
-    )
-    docs = loader.load()
+# RAG_DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "rag_data")
+# AI_COACH_DB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ai_coach_db")
 
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=800, # chunks are 800 character each
-        chunk_overlap=50, # chunks can contain same 50 characters, some chunks with similar data to others
-    )
-    chunks = splitter.split_documents(docs)
+_retriever = None
+_retriever_initialized = False
 
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
-    # defines chroma client to hold embeddings
-    chroma_client = chromadb.HttpClient(
-        host=os.environ.get("CHROMA_URL"),
-        port=os.environ.get("CHROMA_PORT"),
-        ssl=True
-    )
+def get_retriever():
+    # Connects to the existing hosted Chroma collection on first call and caches
+    # the result (success or failure) for the life of the process, so a connection
+    # failure degrades ai_coach to a 503 instead of being retried per-request or
+    # crashing app boot.
+    global _retriever, _retriever_initialized
+    if _retriever_initialized:
+        return _retriever
 
-    vectorstore = Chroma(
-        client=chroma_client,
-        collection_name="ai-coach-collection",
-        embedding_function=embeddings,
-    )
+    _retriever_initialized = True
+    try:
+        chroma_client = chromadb.HttpClient(
+            host=os.environ.get("CHROMA_URL"),
+            port=os.environ.get("CHROMA_PORT"),
+            ssl=True,
+        )
+        embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
+        vectorstore = Chroma(
+            client=chroma_client,
+            collection_name=CHROMA_COLLECTION_NAME,
+            embedding_function=embeddings,
+            create_collection_if_not_exists=False,
+        )
 
-    # The remote Chroma collection persists across deploys/restarts, and without
-    # explicit ids, add_documents() assigns a fresh random uuid to every chunk on
-    # every call -- so re-running this on restart would duplicate every existing
-    # chunk. Deriving each chunk's id from its source file + content instead makes
-    # the same chunk hash to the same id every time, so we can diff against what's
-    # already stored and add only genuinely new/changed chunks.
-    chunk_ids = [
-        hashlib.sha256(f"{chunk.metadata.get('source', '')}::{chunk.page_content}".encode('utf-8')).hexdigest()
-        for chunk in chunks
-    ]
-    existing_ids = set(vectorstore._collection.get(ids=chunk_ids, include=[])['ids']) if chunk_ids else set()
-    new_chunks, new_ids = [], []
-    for chunk, chunk_id in zip(chunks, chunk_ids):
-        if chunk_id not in existing_ids:
-            new_chunks.append(chunk)
-            new_ids.append(chunk_id)
+        # --- Ingestion (disabled) ---
+        # Documents are already embedded and stored on the hosted Chroma server, so
+        # the app only retrieves. Uncomment this block (and the ingestion imports
+        # above) to re-run ingestion against the same collection.
+        #
+        # loader = DirectoryLoader(
+        #     path=RAG_DATA_DIR,
+        #     glob="*.md",
+        #     loader_cls=TextLoader,
+        #     loader_kwargs={'encoding': 'utf-8'}
+        # )
+        # docs = loader.load()
+        #
+        # splitter = RecursiveCharacterTextSplitter(
+        #     chunk_size=800, # chunks are 800 character each
+        #     chunk_overlap=50, # chunks can contain same 50 characters, some chunks with similar data to others
+        # )
+        # chunks = splitter.split_documents(docs)
+        #
+        # # The remote Chroma collection persists across deploys/restarts, and without
+        # # explicit ids, add_documents() assigns a fresh random uuid to every chunk on
+        # # every call -- so re-running this on restart would duplicate every existing
+        # # chunk. Deriving each chunk's id from its source file + content instead makes
+        # # the same chunk hash to the same id every time, so we can diff against what's
+        # # already stored and add only genuinely new/changed chunks.
+        # chunk_ids = [
+        #     hashlib.sha256(f"{chunk.metadata.get('source', '')}::{chunk.page_content}".encode('utf-8')).hexdigest()
+        #     for chunk in chunks
+        # ]
+        # existing_ids = set(vectorstore._collection.get(ids=chunk_ids, include=[])['ids']) if chunk_ids else set()
+        # new_chunks, new_ids = [], []
+        # for chunk, chunk_id in zip(chunks, chunk_ids):
+        #     if chunk_id not in existing_ids:
+        #         new_chunks.append(chunk)
+        #         new_ids.append(chunk_id)
+        #
+        # if new_chunks:
+        #     vectorstore.add_documents(new_chunks, ids=new_ids)
+        # --- end ingestion ---
 
-    if new_chunks:
-        vectorstore.add_documents(new_chunks, ids=new_ids)
+        _retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
+    except Exception:
+        logger.exception("Failed to initialize AI coach retriever; ai_coach endpoint will be unavailable")
+        _retriever = None
 
-    # defines retriever to retrieve 5 most similar answers
-    retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
+    return _retriever
 
-    if retriever:
-        print('Success')
-except Exception:
-    logger.exception("Failed to initialize AI coach retriever; ai_coach endpoint will be unavailable")
 
 # defines LLM
 llm = ChatGoogleGenerativeAI(

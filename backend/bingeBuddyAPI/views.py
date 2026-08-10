@@ -36,7 +36,7 @@ import os
 from dotenv import load_dotenv
 from .models import UserData, JournalEntry, Urges, SocialAccount, ChatHistory, ChatSession, UserHabits, HabitCompletion, EmailVerificationCode, PasswordResetCode
 from .serializers import UserDataSerializer, UserSerializer, UserRegistrationSerializer, JournalEntrySerializer, UrgeSerializer, UserHabitsSerializer, ChatSessionSerializer, ChatHistorySerializer
-from .chatbot_utilities import chain, retriever, session_chain
+from .chatbot_utilities import chain, get_retriever, session_chain
 from .verification import (create_verification_code, send_verification_email, MAX_ATTEMPTS, RESEND_COOLDOWN_SECONDS,
                             create_password_reset_code, send_password_reset_email)
 from .permissions import HasActiveSubscription
@@ -801,6 +801,7 @@ def ai_coach(request):
     if not message or not message.strip():
         return Response({'error': 'no message provided'}, status=400)
 
+    retriever = get_retriever()
     if retriever is None:
         return Response({'error': 'AI coach is temporarily unavailable'}, status=503)
 

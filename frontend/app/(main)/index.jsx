@@ -20,6 +20,13 @@ import { Colors, FontFamily, FontSize, Radii, Shadows, Gradients, Spacing } from
 // iOS bounces into more of the same gradient instead of bare background.
 const OVERSCROLL_BUFFER = 1000;
 
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good Morning';
+  if (hour < 18) return 'Good Afternoon';
+  return 'Good Evening';
+}
+
 export default function Index() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -119,7 +126,7 @@ export default function Index() {
             style={[styles.headerBg, { paddingTop: insets.top + 15 }]}
           >
             <View style={styles.greetingContainer}>
-              <Text style={styles.greeting}>Good Morning, {userCredentials?.first_name}!</Text>
+              <Text style={styles.greeting}>{getGreeting()}, {userCredentials?.first_name}!</Text>
               <Text style={styles.date}>{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</Text>
             </View>
           </View>
@@ -164,7 +171,7 @@ export default function Index() {
         <ConsistencyCard
           mode="urges"
           urgeCount={urgeCount}
-          onPress={() => router.push(userPreferences?.seen_recovery_intro ? '/my-plan' : '/recovery-intro')}
+          onPress={() => router.push('/my-plan')}
         />
 
         {/* Latest Journal Entry */}

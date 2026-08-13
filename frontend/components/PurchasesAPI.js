@@ -9,13 +9,31 @@ const BASEURL = process.env.EXPO_PUBLIC_API_URL;
 // from AuthContext right after auth resolves) can await the same in-flight
 // configure() instead of racing ahead of it -- Purchases.logIn() throws if
 // called before configure() has actually landed.
+//
+// Purchases.configure() is a void native method -- RN has no promise to
+// reject it through, so a native-side throw (e.g. RevenueCat rejecting a
+// missing/empty API key) is fatal to the whole app, not just this call.
+// EXPO_PUBLIC_* vars are inlined from a gitignored .env at bundle time, so a
+// build pipeline that doesn't have that var set (e.g. an EAS Build profile
+// without it configured) ships with apiKey undefined. Validate before
+// crossing into native so a missing key degrades to "purchases unavailable"
+// instead of crashing on every launch.
 let configurePromise = null;
 export function configurePurchases() {
     if (!configurePromise) {
         configurePromise = (async () => {
-            const alreadyConfigured = await Purchases.isConfigured?.();
-            if (!alreadyConfigured) {
-                Purchases.configure({ apiKey: process.env.EXPO_PUBLIC_REVENUECAT_IOS_API_KEY });
+            const apiKey = process.env.EXPO_PUBLIC_REVENUECAT_IOS_API_KEY;
+            if (!apiKey) {
+                console.error('EXPO_PUBLIC_REVENUECAT_IOS_API_KEY is not set -- skipping Purchases.configure()');
+                return;
+            }
+            try {
+                const alreadyConfigured = await Purchases.isConfigured?.();
+                if (!alreadyConfigured) {
+                    Purchases.configure({ apiKey });
+                }
+            } catch (error) {
+                console.error('Purchases.configure() failed', error);
             }
         })();
     }

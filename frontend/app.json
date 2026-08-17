@@ -2,9 +2,9 @@
   "expo": {
     "name": "My Binge Buddy",
     "slug": "frontend",
-    "version": "3.0.1",
+    "version": "3.0.2",
     "orientation": "portrait",
-    "icon": "./assets/images/bingebuddy3.png",
+    "icon": "./assets/images/bingebuddy6.png",
     "scheme": [
       "frontend",
       "com.googleusercontent.apps.130968382458-ir4u3u007bp3qssjolledlqirmghqs9b"

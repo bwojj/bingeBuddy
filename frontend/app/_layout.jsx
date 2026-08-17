@@ -1,6 +1,7 @@
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { useEffect } from 'react';
 import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 import {
     Spectral_400Regular,
     Spectral_500Medium,
@@ -26,6 +27,12 @@ import { configureNotificationHandler } from '../lib/notifications';
 configurePurchases();
 configureNotificationHandler();
 
+// Keep the native splash screen (image only, no text) up until the custom
+// fonts are loaded, so LoadingScreen never paints its first frame with an
+// unresolved fontFamily -- that gap is what flashes as Apple's system font
+// before swapping to Spectral/Hanken Grotesk on cold launch.
+SplashScreen.preventAutoHideAsync().catch(() => {});
+
 function RootLayoutNav() {
     const { isAuthenticated, userPreferences, userLoading } = useAuth();
     const segments = useSegments();
@@ -42,7 +49,12 @@ function RootLayoutNav() {
         HankenGrotesk_700Bold,
         HankenGrotesk_800ExtraBold,
     });
-    const stillLoading = isAuthenticated === null || (!fontsLoaded && !fontError);
+    const fontsReady = fontsLoaded || fontError;
+    const stillLoading = isAuthenticated === null;
+
+    useEffect(() => {
+        if (fontsReady) SplashScreen.hideAsync();
+    }, [fontsReady]);
 
     useEffect(() => {
         if (isAuthenticated === null) return; // still loading
@@ -69,6 +81,12 @@ function RootLayoutNav() {
             router.replace('/(main)');
         }
     }, [isAuthenticated, segments, userPreferences, userLoading]);
+
+    if (!fontsReady) {
+        // Native splash screen (image only, no custom fontFamily) stays up
+        // for this gap instead of LoadingScreen, which needs the fonts.
+        return null;
+    }
 
     return (
         <>

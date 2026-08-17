@@ -1,5 +1,6 @@
 import logging
 import os
+import threading
 import chromadb
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -32,6 +33,11 @@ EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
 _retriever = None
 _retriever_initialized = False
+# Guards initialization so a request thread that calls get_retriever() while a
+# background warmup (see BingebuddyapiConfig.ready()) is still in flight blocks
+# until it finishes, instead of reading the not-yet-initialized state as
+# initialized and getting back None -- see the double-checked read below.
+_retriever_lock = threading.Lock()
 
 
 def get_retriever():
@@ -43,65 +49,70 @@ def get_retriever():
     if _retriever_initialized:
         return _retriever
 
-    _retriever_initialized = True
-    try:
-        chroma_client = chromadb.HttpClient(
-            host=os.environ.get("CHROMA_URL"),
-            port=os.environ.get("CHROMA_PORT"),
-            ssl=True,
-        )
-        embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
-        vectorstore = Chroma(
-            client=chroma_client,
-            collection_name=CHROMA_COLLECTION_NAME,
-            embedding_function=embeddings,
-            create_collection_if_not_exists=False,
-        )
+    with _retriever_lock:
+        if _retriever_initialized:
+            return _retriever
 
-        # --- Ingestion (disabled) ---
-        # Documents are already embedded and stored on the hosted Chroma server, so
-        # the app only retrieves. Uncomment this block (and the ingestion imports
-        # above) to re-run ingestion against the same collection.
-        #
-        # loader = DirectoryLoader(
-        #     path=RAG_DATA_DIR,
-        #     glob="*.md",
-        #     loader_cls=TextLoader,
-        #     loader_kwargs={'encoding': 'utf-8'}
-        # )
-        # docs = loader.load()
-        #
-        # splitter = RecursiveCharacterTextSplitter(
-        #     chunk_size=800, # chunks are 800 character each
-        #     chunk_overlap=50, # chunks can contain same 50 characters, some chunks with similar data to others
-        # )
-        # chunks = splitter.split_documents(docs)
-        #
-        # # The remote Chroma collection persists across deploys/restarts, and without
-        # # explicit ids, add_documents() assigns a fresh random uuid to every chunk on
-        # # every call -- so re-running this on restart would duplicate every existing
-        # # chunk. Deriving each chunk's id from its source file + content instead makes
-        # # the same chunk hash to the same id every time, so we can diff against what's
-        # # already stored and add only genuinely new/changed chunks.
-        # chunk_ids = [
-        #     hashlib.sha256(f"{chunk.metadata.get('source', '')}::{chunk.page_content}".encode('utf-8')).hexdigest()
-        #     for chunk in chunks
-        # ]
-        # existing_ids = set(vectorstore._collection.get(ids=chunk_ids, include=[])['ids']) if chunk_ids else set()
-        # new_chunks, new_ids = [], []
-        # for chunk, chunk_id in zip(chunks, chunk_ids):
-        #     if chunk_id not in existing_ids:
-        #         new_chunks.append(chunk)
-        #         new_ids.append(chunk_id)
-        #
-        # if new_chunks:
-        #     vectorstore.add_documents(new_chunks, ids=new_ids)
-        # --- end ingestion ---
+        try:
+            chroma_client = chromadb.HttpClient(
+                host=os.environ.get("CHROMA_URL"),
+                port=os.environ.get("CHROMA_PORT"),
+                ssl=True,
+            )
+            embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
+            vectorstore = Chroma(
+                client=chroma_client,
+                collection_name=CHROMA_COLLECTION_NAME,
+                embedding_function=embeddings,
+                create_collection_if_not_exists=False,
+            )
 
-        _retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
-    except Exception:
-        logger.exception("Failed to initialize AI coach retriever; ai_coach endpoint will be unavailable")
-        _retriever = None
+            # --- Ingestion (disabled) ---
+            # Documents are already embedded and stored on the hosted Chroma server, so
+            # the app only retrieves. Uncomment this block (and the ingestion imports
+            # above) to re-run ingestion against the same collection.
+            #
+            # loader = DirectoryLoader(
+            #     path=RAG_DATA_DIR,
+            #     glob="*.md",
+            #     loader_cls=TextLoader,
+            #     loader_kwargs={'encoding': 'utf-8'}
+            # )
+            # docs = loader.load()
+            #
+            # splitter = RecursiveCharacterTextSplitter(
+            #     chunk_size=800, # chunks are 800 character each
+            #     chunk_overlap=50, # chunks can contain same 50 characters, some chunks with similar data to others
+            # )
+            # chunks = splitter.split_documents(docs)
+            #
+            # # The remote Chroma collection persists across deploys/restarts, and without
+            # # explicit ids, add_documents() assigns a fresh random uuid to every chunk on
+            # # every call -- so re-running this on restart would duplicate every existing
+            # # chunk. Deriving each chunk's id from its source file + content instead makes
+            # # the same chunk hash to the same id every time, so we can diff against what's
+            # # already stored and add only genuinely new/changed chunks.
+            # chunk_ids = [
+            #     hashlib.sha256(f"{chunk.metadata.get('source', '')}::{chunk.page_content}".encode('utf-8')).hexdigest()
+            #     for chunk in chunks
+            # ]
+            # existing_ids = set(vectorstore._collection.get(ids=chunk_ids, include=[])['ids']) if chunk_ids else set()
+            # new_chunks, new_ids = [], []
+            # for chunk, chunk_id in zip(chunks, chunk_ids):
+            #     if chunk_id not in existing_ids:
+            #         new_chunks.append(chunk)
+            #         new_ids.append(chunk_id)
+            #
+            # if new_chunks:
+            #     vectorstore.add_documents(new_chunks, ids=new_ids)
+            # --- end ingestion ---
+
+            _retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
+        except Exception:
+            logger.exception("Failed to initialize AI coach retriever; ai_coach endpoint will be unavailable")
+            _retriever = None
+        finally:
+            _retriever_initialized = True
 
     return _retriever
 
@@ -122,19 +133,17 @@ system_prompt = SystemMessagePromptTemplate.from_template(
         You are an AI binge eating coach placed within a Binge Eating Recovery app, that
         is focused on the beating the urge mindset, meaning the main vehicle to stop users
         from binge eating is to help them stop the urge. The main components are all mindset
-        related. Users might ask questions for reassurance, help to beat an urge, or more. The
-        mindset shifts you need to point to include the following: understand that the user has
+        related. The mindset shifts you need to point to include the following: understand that the user has
         full control, the user only eats as a conscious decision, the binge eating goes against
         the users goal, the user should NOT refer to themselves as a binge eater. Beyond that be
-        a helpful, and very sympathetic therapist for the user. Refer to the users coaching style to adjust
+        a helpful therapist for the user. Refer to the users coaching style to adjust
         the answers. The users question
         will be fed to a RAG pipleine to give you the following context, reply based directly on the RAG, using
         your previous training for formatting exc. The RAG might mention other names, however do not mention any source under
         any circumstances.  
 
         If the user's prompt has absolutely nothing to do with binge eating OR mental health or anything in that sort, 
-        tell the user that your purpose is to help with their binge eating AND mental health. This can be anything like 
-        asking coding questions, math problems, exc, if it cannot relate to mental health, tell the user that is not your purpose. 
+        tell the user that your purpose is to help with their binge eating AND mental health. If it cannot relate to mental health, tell the user that is not your purpose. 
 
         Try to keep messages as short and concise as possible 
 

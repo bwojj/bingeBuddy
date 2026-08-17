@@ -3,6 +3,7 @@ import json
 import hmac
 import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 from django.http import StreamingHttpResponse
 from django.shortcuts import render
 from django.contrib.auth.models import User
@@ -45,6 +46,12 @@ from .throttling import AICoachBurstRateThrottle, AICoachSustainedRateThrottle
 load_dotenv()
 
 logger = logging.getLogger(__name__)
+
+# Backs ai_coach()'s retrieval/DB overlap -- retriever.invoke() only touches
+# the embedding model + Chroma (no Django ORM), so running it here doesn't
+# need per-thread DB connection cleanup the way threading.Thread(daemon=True)
+# call sites in this module do.
+_ai_coach_executor = ThreadPoolExecutor(max_workers=4)
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs): 
@@ -805,6 +812,12 @@ def ai_coach(request):
     if retriever is None:
         return Response({'error': 'AI coach is temporarily unavailable'}, status=503)
 
+    # retriever.invoke() only depends on `message`, so kick it off now and let
+    # it run concurrently with the session lookup/create + history query below
+    # instead of paying for both serially.
+    retrieval_start = time.monotonic()
+    retrieval_future = _ai_coach_executor.submit(retriever.invoke, message)
+
     if session_id_str:
         session = ChatSession.objects.filter(session_id=session_id_str, user=request.user).first()
         if session is None:
@@ -816,13 +829,11 @@ def ai_coach(request):
         session = ChatSession.objects.create(user=request.user, session_title=message.strip()[:40])
         threading.Thread(target=_apply_ai_session_title, args=(session.session_id, message), daemon=True).start()
 
-    db_messages = list(session.messages.order_by('-timestamp')[:20])[::-1]
+    db_messages = list(session.messages.order_by('-timestamp')[10])[::-1]
     chat_history = [(msg.sender, msg.text) for msg in db_messages]
 
-
     # get relevant chunks for question
-    retrieval_start = time.monotonic()
-    chunks = retriever.invoke(message)
+    chunks = retrieval_future.result()
     logger.info("ai_coach retrieval took %.2fs for session %s", time.monotonic() - retrieval_start, session.session_id)
 
     # forms the chunks into single page string

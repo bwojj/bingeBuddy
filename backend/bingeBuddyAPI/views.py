@@ -829,7 +829,7 @@ def ai_coach(request):
         session = ChatSession.objects.create(user=request.user, session_title=message.strip()[:40])
         threading.Thread(target=_apply_ai_session_title, args=(session.session_id, message), daemon=True).start()
 
-    db_messages = list(session.messages.order_by('-timestamp')[10])[::-1]
+    db_messages = list(session.messages.order_by('-timestamp')[:10])[::-1]
     chat_history = [(msg.sender, msg.text) for msg in db_messages]
 
     # get relevant chunks for question

@@ -19,8 +19,7 @@ import { parseStyledWords, reconcileStyledWords } from '@/components/streamingMa
 
 const formatTime = (date) => date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 
-// Shown in the empty state -- one is picked at random each time the screen
-// mounts so the greeting doesn't feel static across visits.
+// randomly picked each open
 const EMPTY_STATE_GREETINGS = [
   'How can I help you today?',
   "What's on your mind right now?",
@@ -44,10 +43,7 @@ const EMPTY_STATE_GREETINGS = [
   'Ready when you are. What would you like to talk about?',
 ];
 
-// How much further the blur/fade zone extends below the button row itself —
-// gives the mask room to ease the blur out gradually instead of the content
-// switching from fully-blurred to fully-sharp in a single frame at the row's
-// own edge (which reads as a hard visible line).
+
 const HEADER_FADE_TAIL = 32;
 
 function TypingDots() {
@@ -56,10 +52,6 @@ function TypingDots() {
   const dot3 = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // A single dot's up-down bounce -- staggering (not looping) is handled
-    // one level up so all three dots share one animation clock instead of
-    // three independent Animated.loop()s that have no guaranteed shared
-    // phase and can drift into looking synchronized with each other.
     const bounce = (dot) =>
       Animated.sequence([
         Animated.timing(dot, { toValue: -6, duration: 300, useNativeDriver: true }),
@@ -72,12 +64,6 @@ function TypingDots() {
         Animated.delay(300),
       ])
     );
-    // On the very first message, this mounts mid-transition from the empty
-    // state to the message list -- the busiest the JS thread gets on this
-    // screen. Animated.stagger's delayed starts are scheduled via JS timers,
-    // so if that thread is congested right as they're due, dot2/dot3's
-    // starts (150ms/300ms out) can bunch together while dot1 (0ms, starts
-    // synchronously) doesn't. Deferring until the thread is idle avoids it.
     const task = InteractionManager.runAfterInteractions(() => loop.start());
     return () => {
       task.cancel();
@@ -101,9 +87,6 @@ function AnimatedWord({ word }) {
   if (word.hr) {
     return <View style={styles.aiHr} />;
   }
-  // Nesting Animated.Text inside a parent Text gets flattened into a single
-  // native text view (no independent node for the native driver to animate),
-  // so each word needs its own real native view to actually fade.
   return (
     <Animated.View style={{ opacity: word.opacity }}>
       <Text
@@ -130,10 +113,6 @@ export default function Coach() {
   const scrollViewRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Defense-in-depth against direct deep links bypassing TabBar's
-  // subscription check (see TabBar.jsx's handlePress). Gated on userLoading
-  // so this doesn't fire a false redirect while AuthContext's initial fetch
-  // is still in flight.
   useEffect(() => {
     if (userLoading) return;
     if (!userPreferences?.is_premium) {
@@ -158,13 +137,6 @@ export default function Coach() {
   const streamStateRef = useRef(null);
   const lastUserMessageIdRef = useRef(null);
   const viewportHeightRef = useRef(0);
-  // Reserves room below the latest exchange for the AI reply to stream into
-  // (see the trailing spacer in the message list below). Opens instantly on
-  // send and, unlike an earlier version of this, deliberately never closes
-  // on its own once the reply finishes -- collapsing it right then read as
-  // the whitespace "snapping" shut. Instead it's collapsed in the keyboard
-  // handler below, timed to the keyboard's own rise so the two motions read
-  // as one and the user is never left able to scroll down into dead space.
   const spacerHeight = useSharedValue(0);
   const spacerStyle = useAnimatedStyle(() => ({ height: spacerHeight.value }));
 
@@ -172,19 +144,11 @@ export default function Coach() {
     if (sending) spacerHeight.value = viewportHeightRef.current;
   }, [sending]);
 
-  // `onStart` fires the instant the keyboard begins moving (same native event
-  // that drives KeyboardAvoidingView's padding), so the tab-bar spacer
-  // collapses/expands in lockstep with the animation rather than lagging
-  // until it fully finishes (which is what `useKeyboardState().isVisible` does).
   useKeyboardHandler(
     {
       onStart: (e) => {
         'worklet';
         runOnJS(setKeyboardVisible)(e.progress === 1);
-        // Keyboard rising (not dismissing) is the moment the user's about to
-        // scroll/interact again -- close the reserved reply space then,
-        // timed to the keyboard's own animation duration so it's absorbed
-        // into that motion instead of being its own separate, visible jump.
         if (e.progress === 1) {
           spacerHeight.value = withTiming(0, { duration: e.duration });
         }
@@ -194,10 +158,6 @@ export default function Coach() {
   );
 
   useEffect(() => {
-    // Wait for the screen's own push-in transition (and any other pending
-    // interactions) to finish before opening the keyboard — focusing too early
-    // makes the keyboard finish rising while the screen is still sliding in,
-    // which reads as the input bar "popping" into place afterward.
     const task = InteractionManager.runAfterInteractions(() => {
       inputRef.current?.focus();
     });
@@ -233,9 +193,6 @@ export default function Coach() {
   };
 
   const handleSelectSession = async (session) => {
-    // Panel closes itself (see ChatHistoryPanel's onSelectSession handler) —
-    // this fires immediately so the new session starts loading while the
-    // panel is still sliding shut, instead of waiting for it to fully close.
     cancelActiveStream();
     Keyboard.dismiss();
     setSessionId(session.session_id);
@@ -257,9 +214,6 @@ export default function Coach() {
         return { id: `h-${index}`, sender: 'ai', words, time };
       });
       setMessages(loaded);
-      // No reserved trailing space for a loaded (non-streaming) session, so
-      // this naturally lands right at the last real message — no dead space
-      // to scroll past it, and the preceding message stays visible above it.
       requestAnimationFrame(() => scrollViewRef.current?.scrollToEnd({ animated: false }));
     } catch (err) {
       console.error('Failed to load session messages', err);
@@ -292,17 +246,7 @@ export default function Coach() {
     let currentWords = [];
     const queue = [];
 
-    // Gemini's stream() only yields a handful of large, bursty chunks (not
-    // token-by-token), so we re-chunk each incoming piece into words and
-    // drip them in one at a time. Each raw chunk gets appended to rawText,
-    // then re-parsed as markdown and flattened into styled word fragments
-    // (see streamingMarkdown.js) — reconcileStyledWords reuses each word's
-    // existing Animated.Value when its text hasn't changed, so only the
-    // newly revealed word(s) fade in on each tick. currentWords (not React
-    // state) is the source of truth for the diff, and animations are kicked
-    // off outside setMessages — state updater functions aren't guaranteed to
-    // run exactly once synchronously (StrictMode double-invokes them in dev),
-    // so side effects like starting an animation can't safely live inside one.
+    // since gemini releases large chunks
     const state = { cancelled: false, closeEs: null };
     streamStateRef.current = state;
 
@@ -330,15 +274,6 @@ export default function Coach() {
       newlyCreated.forEach((opacity) => {
         Animated.timing(opacity, { toValue: 1, duration: 350, useNativeDriver: true }).start();
       });
-      // Adaptive cadence instead of a fixed 40ms/word: gemini-3.1-flash-lite's
-      // chunks land with much less even spacing than 2.5's did, so a fixed
-      // rate either outruns the network (queue hits 0, reveal freezes mid-
-      // sentence until the next chunk lands) or lags behind it. Draining
-      // faster while a backlog exists and slower as it thins keeps a small
-      // buffer in reserve, absorbing gaps between chunks instead of
-      // stalling on them. Range is centered on the original 40ms/word pace
-      // (a ~14-word backlog lands right around there) rather than the
-      // previous 18ms floor, which read as too fast once bursts were large.
       const delay = Math.max(30, Math.min(75, 1350 / (queue.length + 18)));
       setTimeout(pump, delay);
     };
@@ -364,17 +299,7 @@ export default function Coach() {
       onError: () => {
         setSending(false);
         setAwaitingReply(false);
-        // Covers every failure mode the backend can hand back for this turn --
-        // our own rate limiting (DRF throttle, HTTP 429), the retriever not
-        // being ready (HTTP 503), and the LLM call itself failing mid-stream
-        // (e.g. the model's own rate limit or an upstream outage). All of
-        // them are equally "try again shortly" from the user's perspective,
-        // so they share one error state rather than being distinguished.
         setChatError({ retryText: text });
-        // Unlike a successful reply, there's no streamed content coming to
-        // fill this space -- leaving it open (per the spacerHeight comment
-        // above) would let the user scroll down into a full screen of dead
-        // space below the short error card.
         spacerHeight.value = withTiming(0, { duration: 200 });
       },
     }).then((cancel) => {
@@ -432,14 +357,6 @@ export default function Coach() {
                       key={message.id}
                       style={styles.userMessageRow}
                       onLayout={(e) => {
-                        // Pins the just-sent message just below the floating
-                        // header's blur/fade zone (not screen y=0 — the header
-                        // overlays the top of the screen regardless of scroll
-                        // position, so scrolling to the message's raw layout y
-                        // would tuck it directly under the blur), leaving the
-                        // spacer below as room for the AI reply to fill in as
-                        // it streams — matches how ChatGPT's mobile app
-                        // scrolls on send.
                         if (message.id === lastUserMessageIdRef.current) {
                           const y = Math.max(0, e.nativeEvent.layout.y - (headerHeight + HEADER_FADE_TAIL));
                           scrollViewRef.current?.scrollTo({ y, animated: true });
@@ -481,10 +398,6 @@ export default function Coach() {
                   </View>
                 )}
 
-                {/* Reserves room below the latest exchange for the AI reply to
-                    fill in as it streams — matches ChatGPT's mobile app. See
-                    the spacerHeight comment above for why it closes on the
-                    keyboard rising rather than when the reply finishes. */}
                 <ReanimatedAnimated.View style={spacerStyle} />
               </>
             )}
@@ -519,16 +432,9 @@ export default function Coach() {
             </TouchableOpacity>
           </View>
 
-          {/* Reserves room for the tab bar below; collapses instantly so it never
-              competes with the keyboard-avoiding view above. */}
           <View style={{ height: keyboardVisible ? 0 : tabBarHeight }} />
         </KeyboardAvoidingView>
 
-        {/* Floating glass header — messages scroll underneath and blur
-            through it, buttons stay crisp on top (matches Claude's app).
-            The blur/mask zone runs taller than the button row itself so the
-            fade-to-sharp happens gradually over the content below the
-            buttons, instead of cutting off right at the row's own edge. */}
         <View style={[styles.headerBlurZone, { height: headerHeight + HEADER_FADE_TAIL }]} pointerEvents="box-none">
           <MaskedView
             style={StyleSheet.absoluteFillObject}
@@ -556,10 +462,6 @@ export default function Coach() {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
-                // iOS remembers whichever input was focused when the modal
-                // was presented and hands focus back to it on dismissal --
-                // blurring only on close fights that after the fact and
-                // loses. Blur before it opens so there's nothing to restore.
                 inputRef.current?.blur();
                 Keyboard.dismiss();
                 setHistoryVisible(true);
@@ -570,9 +472,6 @@ export default function Coach() {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
-                // Same reasoning as the history panel: blur before leaving
-                // so there's nothing for iOS to restore focus to when the
-                // user comes back via the memory screen's back button.
                 inputRef.current?.blur();
                 Keyboard.dismiss();
                 router.push('/manage-memory');
@@ -598,11 +497,6 @@ export default function Coach() {
         visible={historyVisible}
         onClose={() => {
           setHistoryVisible(false);
-          // The input keeps native focus the whole time the panel is open
-          // (the panel just visually covers it) -- Keyboard.dismiss() alone
-          // hides the keyboard cosmetically but doesn't resign the input's
-          // first responder status, so dismissing the modal hands focus
-          // (and the keyboard) right back to it. Explicitly blur it too.
           inputRef.current?.blur();
           Keyboard.dismiss();
         }}
@@ -869,14 +763,8 @@ const styles = StyleSheet.create({
 
 const monospace = Platform.select({ ios: 'Menlo', android: 'monospace', default: 'monospace' });
 
-// `breaks: true` makes a single newline render as a real line break instead
-// of the CommonMark default of collapsing it into a space — the AI's replies
-// rely on single newlines for line breaks, not the "two spaces" hard-break.
 const markdownItInstance = MarkdownIt({ typographer: true, breaks: true });
 
-// Per-word styles for AnimatedWord — each word is a flat, independent Text
-// leaf (not nested inside another styled Text), so formatting is just a
-// style prop on that word rather than something requiring nested markup.
 const wordStyles = StyleSheet.create({
   base: {
     fontFamily: FontFamily.sansRegular,

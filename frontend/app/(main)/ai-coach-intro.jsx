@@ -7,12 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { markAiCoachIntroSeen } from '@/components/DataAPI';
 import { Colors, FontFamily, FontSize, Radii, Shadows } from '@/constants/theme';
 
-// One-time intro shown the first time a user taps the AI Coach tab (see
-// TabBar.jsx, which checks userPreferences.seen_ai_coach_intro before
-// routing here vs. straight to /coach). Styled to match recovery-intro.jsx's
-// walkthrough screens, but as a single page with one CTA rather than a
-// multi-step flow. Closing without continuing leaves the flag unset, so the
-// intro simply shows again next time the tab is tapped.
+
 export default function AiCoachIntro() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -71,7 +66,7 @@ export default function AiCoachIntro() {
           </Text>
         </View>
 
-        {/* Consent checkbox — required before the first message can ever be sent */}
+        {/* required before the first message can ever be sent */}
         <View style={styles.termsRow}>
           <TouchableOpacity
             style={[styles.checkbox, consentChecked && styles.checkboxChecked]}
@@ -85,7 +80,7 @@ export default function AiCoachIntro() {
         </View>
       </View>
 
-      {/* Start button */}
+      {/* start button */}
       <TouchableOpacity
         style={[styles.nextButton, !consentChecked && styles.nextButtonDisabled]}
         onPress={handleStart}

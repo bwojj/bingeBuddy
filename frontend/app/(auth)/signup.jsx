@@ -21,31 +21,14 @@ export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  // Flips true once the account has actually been created. Normally set by
-  // handleSignup right after registering. Also seeded from the editEmail
-  // param for the case where verify-email.jsx had no navigation history to
-  // pop back to and had to land here via a fresh navigation instead of
-  // back() -- see verify-email.jsx's editEmail(). Either way, re-running
-  // register() would just fail on the taken username, so this branches to
-  // updating the existing account's email instead.
   const [alreadyRegistered, setAlreadyRegistered] = useState(editEmail === '1');
 
-  // The editEmail=1 fallback is a fresh mount (not the still-mounted signup
-  // screen from the normal flow), so `email` starts blank -- prefill it from
-  // AuthContext, which is already populated by the time _layout.jsx redirects
-  // here (it only redirects once userLoading is false).
   useEffect(() => {
     if (editEmail === '1' && userCredentials?.email) {
       setEmail(userCredentials.email);
     }
   }, [editEmail, userCredentials]);
 
-  // In the normal flow this pops back to wherever preceded signup, which is
-  // fine. But when we're here via the editEmail=1 fallback, this screen is
-  // the only entry in the stack (verify-email.jsx got here the same way --
-  // see its editEmail()), so router.back() has nothing to pop and silently
-  // no-ops. Send the user back to verify-email instead, which is the screen
-  // this edit-email detour was reached from.
   const goBack = () => {
     if (editEmail === '1') {
       router.replace('/(auth)/(onboarding)/verify-email');

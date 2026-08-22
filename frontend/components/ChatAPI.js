@@ -13,7 +13,7 @@ export const streamChatMessage = async (message, sessionId, { onToken, onDone, o
         },
         body: JSON.stringify({ message, 'session-id': sessionId }),
         withCredentials: true,
-        pollingInterval: 0, // one-shot request/response, not a persistent stream to reconnect to
+        pollingInterval: 0, 
     });
 
     es.addEventListener('message', (event) => {

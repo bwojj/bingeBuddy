@@ -12,8 +12,6 @@ import { Colors, FontFamily, FontSize, Radii } from '@/constants/theme';
 
 WebBrowser.maybeCompleteAuthSession();
 
-// Google's official "G" logomark, reproduced at brand color -- a single-tone
-// icon font glyph can't represent this, so it's drawn directly.
 function GoogleLogo({ size = 18 }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 18 18">
@@ -25,9 +23,6 @@ function GoogleLogo({ size = 18 }) {
   );
 }
 
-// Google/Apple sign-in, dropped into both signup and login -- a returning
-// social user hitting either screen is functionally doing the same thing, so
-// both routing branches below are correct regardless of which screen called this.
 export default function SocialAuthButtons() {
   const router = useRouter();
   const { setIsAuthenticated } = useAuth();
@@ -40,16 +35,6 @@ export default function SocialAuthButtons() {
     }
   }, []);
 
-  // Google's authorization server only accepts a redirect_uri whose scheme is
-  // the reversed iOS client ID for an "iOS" type OAuth client (enforced
-  // server-side, not just convention) -- the app's own "frontend://" scheme
-  // gets rejected with "Error 400: invalid_request". This reversed scheme is
-  // registered as a second CFBundleURLTypes entry in app.json.
-  // `native` (not `scheme`+`path`) is required here: `scheme`+`path` goes
-  // through Linking.createURL, which always emits the authority form
-  // "scheme://path" -- Google rejects that with the same Error 400 since
-  // "oauthredirect" is parsed as a host. `native` returns the string as-is,
-  // giving the required single-slash path form "scheme:/oauthredirect".
   const redirectUri = AuthSession.makeRedirectUri({
     native: 'com.googleusercontent.apps.130968382458-ir4u3u007bp3qssjolledlqirmghqs9b:/oauthredirect',
   });

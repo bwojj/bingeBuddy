@@ -5,9 +5,6 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import TryAnotherLink from './TryAnotherLink';
 import { Colors, FontFamily, FontSize, Radii, Shadows } from '@/constants/theme';
 
-// Shared bottom bar for the urge-tool screens (Mental Frameworks, Activities to
-// Take, Listen to Recording) — sits outside any ScrollView so both the "Try
-// another" link and the victory button stay pinned at the true screen bottom.
 export default function UrgeFooter({ onTryAnother, onLongPressTryAnother }) {
   const insets = useSafeAreaInsets();
   const router = useRouter();

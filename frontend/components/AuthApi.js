@@ -68,7 +68,7 @@ export const socialAuth = async (provider, token) => {
     return null;
 };
 
-// submits the 6-digit code emailed on signup
+// submits the 6 digit code emailed on signup
 export const verifyEmailCode = async (code) => {
     const token = await getToken();
     try {
@@ -105,9 +105,7 @@ export const resendVerificationCode = async () => {
     }
 };
 
-// requests a 6-digit code emailed to reset a forgotten password. Always
-// resolves success (the backend responds the same way whether or not the
-// email is registered, to avoid leaking which emails have accounts).
+// requests a 6-digit code emailed to reset a forgotten password
 export const requestPasswordReset = async (email) => {
     try {
         const response = await fetch(`${BASEURL}/api/request-password-reset`, {
@@ -149,9 +147,7 @@ export const register = async (username, first_name, email, password) => {
         if (response.ok) {
             return { success: true };
         }
-        // register returns DRF field errors (e.g. { username: [...], email: [...] })
-        // rather than a single message, so translate the fields we know about into
-        // one readable string and fall back to something generic otherwise.
+        // register returns DRF field errors 
         if (data.username && data.email) {
             return { success: false, error: 'That username and email are already taken.' };
         }

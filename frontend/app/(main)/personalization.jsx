@@ -15,7 +15,7 @@ import { Colors, FontFamily, FontSize, Radii, Shadows, Gradients } from '@/const
 
 const ALL_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-/* ── Onboarding data ─────────────────────────────── */
+
 const TRIGGERS = [
   { id: 'stress',   title: 'Stress',             subtitle: 'Feeling overwhelmed by work or life',   icon: (c) => <MaterialCommunityIcons name="lightning-bolt" size={20} color={c} /> },
   { id: 'boredom',  title: 'Boredom',             subtitle: 'Eating when there is nothing to do',    icon: (c) => <Ionicons name="time-outline" size={20} color={c} /> },
@@ -30,7 +30,7 @@ const COACHING_STYLES = [
   { id: 'neutral',    title: 'Neutral',          subtitle: 'Calm, matter-of-fact guidance',         icon: (c) => <MaterialCommunityIcons name="scale-balance" size={20} color={c} /> },
 ];
 
-/* ── Component ───────────────────────────────────── */
+
 export default function Personalization() {
   const insets = useSafeAreaInsets();
   const router = useRouter();

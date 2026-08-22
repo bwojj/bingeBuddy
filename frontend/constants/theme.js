@@ -35,9 +35,7 @@ export const Colors = {
   white: '#FFFFFF',
 };
 
-// expo-linear-gradient uses start/end {x,y} points rather than a CSS angle.
-// Converted from mbb.css's `linear-gradient(<deg>, ...)` via:
-//   x2 = 0.5 + 0.5*sin(rad), y2 = 0.5 - 0.5*cos(rad), x1 = 1-x2, y1 = 1-y2
+
 export const Gradients = {
   hero: { colors: [Colors.plum, Colors.plumDeep], start: { x: 0.305, y: 0.04 }, end: { x: 0.695, y: 0.96 } }, // 157deg
   sos: { colors: [Colors.plum, Colors.plumDeep], start: { x: 0.305, y: 0.04 }, end: { x: 0.695, y: 0.96 } }, // 157deg
@@ -50,12 +48,7 @@ function mixHex(hexA, hexB, t) {
   return `#${[16, 8, 0].map((shift) => lerp(shift).toString(16).padStart(2, '0')).join('')}`;
 }
 
-// expo-linear-gradient's start/end are *fractional* {x,y} points relative to
-// the gradient's own box, so the same numbers produce a very different real
-// -world angle depending on that box's pixel aspect ratio — a wide, short
-// header skews the visual angle much more horizontal than the raw fractions
-// alone suggest. This reproduces its internal fraction-along-the-axis math in
-// real pixel units (width/height), so it actually matches what's on screen.
+
 function heroColorAt(xFrac, yFrac, width, height) {
   const { start, end, colors } = Gradients.hero;
   const dx = (end.x - start.x) * width, dy = (end.y - start.y) * height;
@@ -64,14 +57,6 @@ function heroColorAt(xFrac, yFrac, width, height) {
   return mixHex(colors[0], colors[1], t);
 }
 
-// `Gradients.hero` is diagonal, so its top edge (y=0) isn't a single flat
-// color — for a typical wide/short header box it runs from Colors.plum
-// (top-left) almost all the way to plumDeep by the top-right corner. Screens
-// that need to extend that top edge upward (e.g. the iOS overscroll-bounce
-// fill on index/journal/my-plan) should build their fill color from this,
-// using the header's *actual measured* width/height (via onLayout), rather
-// than a flat color — otherwise they'll show a visible seam against the real
-// header, worst on the right side where the true gradient has darkened most.
 export function getHeroTopEdgeGradient(width, height) {
   return {
     colors: [heroColorAt(0, 0, width, height), heroColorAt(1, 0, width, height)],
@@ -126,9 +111,7 @@ export const Spacing = {
   cardPadding: 18,
 };
 
-// mbb.css stacks two box-shadow layers; RN only supports one shadow on iOS and
-// `elevation` (no offset/blur/color control) on Android, so this approximates
-// each token's felt depth rather than reproducing the stack exactly.
+
 export const Shadows = Platform.select({
   ios: {
     card: { shadowColor: Colors.ink, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.05, shadowRadius: 9 },

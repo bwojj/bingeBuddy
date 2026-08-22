@@ -2,33 +2,15 @@ import * as StoreReview from 'expo-store-review';
 import * as SecureStore from 'expo-secure-store';
 import { Linking, Platform } from 'react-native';
 
-// Trigger logic for the native App Store / Play Store review prompt.
-//
-// Call `maybeRequestReview()` once, right after an urge is successfully
-// logged as defeated. It decides whether to *attempt* a prompt, then only
-// actually calls the native `requestReview()` if the platform reports the
-// action is available:
-//   1. Track { defeatedCount, timesAsked, lastAskedAt } in SecureStore.
-//   2. On the first ever defeated urge, always attempt.
-//   3. On every later defeated urge, attempt with REVIEW_PROBABILITY odds.
-//   4. Never attempt if timesAsked >= MAX_ASKS, or if we last asked less
-//      than MIN_DAYS_BETWEEN_ASKS days ago.
-//   5. `timesAsked` / `lastAskedAt` are only updated when requestReview()
-//      is actually invoked, not on every attempt.
-// The native prompt is itself rate-limited by the OS and may silently no-op
-// even when we do call it — that's expected and is never retried here.
-// Every exported function swallows its own errors so a failure here can
-// never break the urge-logging flow that triggers it.
+
 
 export const REVIEW_PROMPT_STATE_KEY = 'review_prompt_state';
 export const REVIEW_PROBABILITY = 0.15;
 export const MAX_ASKS = 3;
 export const MIN_DAYS_BETWEEN_ASKS = 60;
 
-// TODO: fill in with the numeric Apple App Store ID once the app is listed.
+
 const IOS_APP_STORE_ID = 'TODO_APP_STORE_ID';
-// TODO: com.anonymous.frontend looks like a placeholder — confirm this matches
-// the real Play Store listing (iOS bundle id is com.pixacor.mybingebuddy).
 const ANDROID_PACKAGE_NAME = 'com.anonymous.frontend';
 
 const DEFAULT_STATE = { defeatedCount: 0, timesAsked: 0, lastAskedAt: null };

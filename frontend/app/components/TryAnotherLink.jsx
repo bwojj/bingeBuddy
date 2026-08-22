@@ -2,8 +2,7 @@ import { Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontFamily, FontSize } from '@/constants/theme';
 
-// Tap = jump to a different urge-support tool at random; long-press = open the
-// full picker so the user can choose exactly which one instead.
+
 export default function TryAnotherLink({ onPress, onLongPress }) {
   return (
     <TouchableOpacity style={styles.wrap} onPress={onPress} onLongPress={onLongPress} activeOpacity={0.6}>

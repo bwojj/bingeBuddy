@@ -6,9 +6,7 @@ import { Colors, FontFamily, FontSize, Radii } from '@/constants/theme';
 
 const RESEND_COOLDOWN_SECONDS = 60;
 
-// Shared by the post-signup onboarding step and the main-app verify screen
-// (reachable from the dashboard banner/Settings) -- both just wrap this with
-// their own header/skip/back chrome and pass what to do once verified.
+
 export default function VerifyEmailForm({ onVerified }) {
   const { refreshUserData } = useAuth();
   const [code, setCode] = useState('');

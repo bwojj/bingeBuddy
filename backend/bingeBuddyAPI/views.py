@@ -47,10 +47,6 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-# Backs ai_coach()'s retrieval/DB overlap -- retriever.invoke() only touches
-# the embedding model + Chroma (no Django ORM), so running it here doesn't
-# need per-thread DB connection cleanup the way threading.Thread(daemon=True)
-# call sites in this module do.
 _ai_coach_executor = ThreadPoolExecutor(max_workers=4)
 
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -144,8 +140,8 @@ class CustomTokenRefreshView(TokenRefreshView):
         except: 
             return Response({'refreshed': False})
 
-@api_view(['POST']) # post request only
-@permission_classes([IsAuthenticated]) # if authenticated, true, else fail
+@api_view(['POST']) 
+@permission_classes([IsAuthenticated]) 
 def is_authenticated(request):
     return Response({'authenticated': True})
 
@@ -194,13 +190,7 @@ class UrgesView(viewsets.ModelViewSet):
         serializer = self.get_serializer(self.get_queryset(), many=True)
         return Response(serializer.data)
 
-# every user gets these by default, scheduled every day, the first time
-# their habits are ever loaded — from then on GET /api/habits/ is the
-# single source of truth (defaults included) for what habits they track.
 ALL_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-# `order` drives display order on My Recovery. It has to live as a per-habit
-# value inside this JSON blob rather than relying on dict/JSON key ordering --
-# Postgres's jsonb type does not guarantee object key order is preserved.
 DEFAULT_HABITS = {
     'Meditation': {'Days': list(ALL_DAYS), 'order': 0},
     'Exercise': {'Days': list(ALL_DAYS), 'order': 1},
@@ -222,7 +212,7 @@ class UserHabitsView(viewsets.ModelViewSet):
         get_or_seed_user_habits(self.request.user)
         return UserHabits.objects.filter(user=self.request.user)
 
-# view for adding an urge 
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def log_urge(request):
@@ -237,7 +227,7 @@ def log_urge(request):
 
     return Response({'success': True})
 
-# view for deleting an urge
+
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_urge(request):
@@ -251,17 +241,12 @@ def delete_urge(request):
 
     return Response({'success': True})
 
-# defines view for registering
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register(request):
-    # gets serializers
     serializer = UserRegistrationSerializer(data=request.data)
-    # if it is valid, saves it else returns an error
     if serializer.is_valid():
         user = serializer.save()
-        # never let a verification-email hiccup fail registration itself --
-        # the user can always request a resend from inside the app
         try:
             code_obj = create_verification_code(user)
             send_verification_email(user, code_obj.code)
@@ -301,7 +286,7 @@ def verify_email(request):
     return Response({'success': True})
 
 
-# authenticated user requests a fresh code (e.g. the first one expired or never arrived)
+# authenticated user requests a fresh code 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def resend_verification(request):
@@ -324,10 +309,6 @@ def resend_verification(request):
     return Response({'success': True, 'email_sent': sent})
 
 
-# unauthenticated user (can't log in, so no JWT yet) requests a code to reset
-# their password. Always responds success regardless of whether the email is
-# registered -- distinguishing the two would let this endpoint enumerate
-# registered accounts.
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def request_password_reset(request):
@@ -359,8 +340,7 @@ def reset_password(request):
         return Response({'success': False, 'error': 'Email, code, and new password are required'}, status=400)
 
     user = User.objects.filter(email__iexact=email).first()
-    # Same code/user combination either doesn't exist or is wrong -- collapse
-    # both into one message so this can't be used to confirm an email exists.
+    # Same code/user combination either doesn't exist or is wrong
     if not user:
         return Response({'success': False, 'error': 'Invalid or expired code'}, status=400)
 
@@ -439,9 +419,7 @@ def set_default_urge_screen(request):
 
     return Response({"Success": True})
 
-# defines function to set the user's daily habit-reminder preferences --
-# reminder_time is scheduled/fired entirely on-device (see frontend/lib/notifications.js),
-# this just persists the choice so it can be restored after reinstall/new-device login
+# defines function to set the user's daily habit-reminder preferences
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def set_reminder_preferences(request):
@@ -455,9 +433,7 @@ def set_reminder_preferences(request):
 
     return Response({"Success": True})
 
-# marks that a user has completed the My Recovery intro walkthrough -- used both
-# right after onboarding (new users) and retroactively (existing users, whose
-# rows default to False) to gate access to the main app until it's been seen
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def mark_recovery_intro_seen(request):
@@ -470,12 +446,7 @@ def mark_recovery_intro_seen(request):
 
     return Response({"success": True})
 
-# marks that a user has seen the one-time AI Coach intro screen, shown the
-# first time they tap the Coach tab -- mirrors mark_recovery_intro_seen.
-# Also records explicit consent to sending chat data to Google's Gemini API
-# (see ai-coach-intro.jsx's consent checkbox) -- only set when the client
-# actually reports the checkbox was checked, so older app builds that don't
-# send it yet simply leave consent unrecorded rather than defaulting to True.
+# marks that a user has seen the one-time AI Coach intro screen
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def mark_ai_coach_intro_seen(request):
@@ -495,20 +466,17 @@ def mark_ai_coach_intro_seen(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_data_motivation(request):
-    # Last step of the post-signup onboarding flow -- flips onboarding_complete
-    # so a refresh from here on lands in the main app instead of being sent
-    # back into onboarding (see _layout.jsx's redirect gate).
     data_obj, _ = UserData.objects.update_or_create(
         user=request.user,
         defaults={
             "motivation": request.data.get('motivation'),
-            "onboarding_complete": True,
+            "onboarding_complete": True, # last piece of onboarding
         }
     )
 
     return Response({"Success": True})
 
-# defines view to add to image
+# defines view to add to image 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def set_motivation_image(request):
@@ -533,7 +501,7 @@ def urges_by_day(request):
 
     now_local = timezone.now().astimezone(user_tz)
     today = now_local.date()
-    start_of_week = today - timedelta(days=today.weekday())  # Monday
+    start_of_week = today - timedelta(days=today.weekday())  
 
     start_dt = datetime(start_of_week.year, start_of_week.month, start_of_week.day, tzinfo=user_tz)
     end_dt = start_dt + timedelta(days=7)
@@ -578,8 +546,7 @@ def update_profile(request):
     user.save()
 
     if email_changed:
-        # A changed address hasn't been proven yet -- drop verified status and
-        # send a fresh code, whether this came from onboarding or Settings.
+        # if changed, not verified
         UserData.objects.update_or_create(user=user, defaults={'email_verified': False})
         try:
             code_obj = create_verification_code(user)
@@ -632,7 +599,7 @@ def social_auth(request):
 
     try:
         if provider == 'google':
-            # Verify by calling Google's userinfo endpoint with the access token
+            # verify by calling google's userinfo endpoint with the access token
             resp = http_requests.get(
                 'https://www.googleapis.com/oauth2/v2/userinfo',
                 headers={'Authorization': f'Bearer {token}'},
@@ -645,7 +612,7 @@ def social_auth(request):
             provider_id = info.get('id', '')
 
         elif provider == 'apple':
-            # Verify Apple identity token (JWT) using Apple's public JWKS
+            # verify apple identity token using apple's public JWKS
             apple_resp = http_requests.get('https://appleid.apple.com/auth/keys', timeout=10)
             apple_keys = apple_resp.json()['keys']
 
@@ -674,7 +641,6 @@ def social_auth(request):
     except Exception as e:
         return Response({'success': False, 'error': f'Token verification failed: {str(e)}'}, status=400)
 
-    # Find or create user
     is_new = False
     social_account = SocialAccount.objects.filter(provider=provider, provider_id=provider_id).first()
 
@@ -692,9 +658,7 @@ def social_auth(request):
             while User.objects.filter(username=username).exists():
                 username = f'{base_username}{counter}'
                 counter += 1
-            # Name is deliberately not pulled from the provider profile --
-            # the frontend prompts the user for it right after signup
-            # (onboarding's name step) and saves it via update-profile.
+            # Name is deliberately not pulled from the provider profile - onboarding step
             user = User.objects.create_user(
                 username=username,
                 email=email,
@@ -704,10 +668,10 @@ def social_auth(request):
 
         SocialAccount.objects.create(provider=provider, provider_id=provider_id, user=user)
 
-    # Google/Apple already vouch for the email -- skip our own verification gate
+    # google/gpple already recognizes email - skip our own verification gate
     UserData.objects.update_or_create(user=user, defaults={'email_verified': True})
 
-    # Issue JWT tokens (same cookie pattern as regular login)
+    # issue JWT tokens
     refresh = RefreshToken.for_user(user)
     access_token = str(refresh.access_token)
     refresh_token = str(refresh)
@@ -779,10 +743,6 @@ class EventStreamRenderer(BaseRenderer):
 
 
 def _apply_ai_session_title(session_id, message):
-    # Runs off-thread so the AI-generated title (a full extra LLM round-trip)
-    # never sits on the critical path of the user's first message -- the
-    # session already has the cheap placeholder title from ai_coach() by the
-    # time this resolves.
     from django.db import connections
     try:
         title = session_chain.invoke({"message": message}).text
@@ -812,9 +772,7 @@ def ai_coach(request):
     if retriever is None:
         return Response({'error': 'AI coach is temporarily unavailable'}, status=503)
 
-    # retriever.invoke() only depends on `message`, so kick it off now and let
-    # it run concurrently with the session lookup/create + history query below
-    # instead of paying for both serially.
+    # retriever.invoke() only depends on `message`, so run it sooner
     retrieval_start = time.monotonic()
     retrieval_future = _ai_coach_executor.submit(retriever.invoke, message)
 
@@ -823,9 +781,6 @@ def ai_coach(request):
         if session is None:
             return Response({'error': 'session not found'}, status=404)
     else:
-        # Cheap placeholder so the first message isn't blocked on a second
-        # full LLM round-trip before streaming can even start -- the real
-        # AI-generated title fills in a moment later, off-thread.
         session = ChatSession.objects.create(user=request.user, session_title=message.strip()[:40])
         threading.Thread(target=_apply_ai_session_title, args=(session.session_id, message), daemon=True).start()
 
@@ -960,7 +915,7 @@ def revenuecat_webhook(request):
         )
         UserData.objects.filter(user__id=int(app_user_id)).update(premium_expires_at=expires_at)
 
-    # Always 2xx (even for an unrecognized app_user_id) to avoid RevenueCat retry storms.
+    # Always 2xx to avoid RevenueCat retry storms
     return Response(status=200)
 
 @api_view(['POST'])
@@ -983,12 +938,10 @@ def add_to_habits(request):
     # formats users new habit
     new_habit = ' '.join(word.capitalize() for word in new_habit_raw.split())
 
-    # appends after whatever the highest existing order is (not just len()),
-    # so a previously-deleted habit can't leave a gap that causes a collision
+    # appends after whatever the highest existing order is
     next_order = max((meta.get('order', 0) for meta in user_habits.values()), default=-1) + 1
 
     # `custom: True` is what lets reset_habits tell this apart from a default
-    # habit and preserve it instead of wiping it out on reset.
     user_habits[new_habit] = {"Days": days, "custom": True, "order": next_order}
 
     habits_model.habits = user_habits
@@ -1013,9 +966,7 @@ def delete_habit(request):
 
     return Response({'Success': f'Deleted {habit_to_delete} from habits'})
 
-# records/un-records that a habit was completed on a given local-calendar day --
-# an idempotent "set" (not a blind toggle) so it can't drift from the client's
-# own optimistic local state if a previous call silently failed
+# records/un-records that a habit was completed on a given local-calendar day
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def set_habit_completion(request):
@@ -1033,10 +984,7 @@ def set_habit_completion(request):
 
     return Response({'success': True})
 
-# returns, for every local-calendar day since the user joined through today,
-# how many scheduled habits were completed that day. `total` is computed from
-# the user's *current* habit schedule (there's no historical schedule log), so
-# it's a best-effort figure for days before today rather than an exact replay.
+# returns, for every local-calendar day since user joined, habits completed
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def habit_days(request):
@@ -1080,9 +1028,7 @@ def habit_days(request):
 def reset_habits(request):
     habits_model = get_or_seed_user_habits(request.user)
 
-    # Preserve custom habits -- flagged explicitly via `custom: True` (set by
-    # add_to_habits), but also fall back to "name isn't one of the defaults"
-    # so habits added before this flag existed still survive a reset.
+    # Preserve custom habits
     custom_habits = {
         name: meta for name, meta in habits_model.habits.items()
         if meta.get('custom') or name not in DEFAULT_HABITS
@@ -1093,9 +1039,7 @@ def reset_habits(request):
 
     return Response({'habits': habits_model.habits})
 
-# updates each named habit's `order` to match its index in the given list --
-# this is how My Recovery's drag-to-reorder persists (see DEFAULT_HABITS note
-# above on why this can't just rely on the dict's own key order)
+# updates each named habit's order to match correct index
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def reorder_habits(request):

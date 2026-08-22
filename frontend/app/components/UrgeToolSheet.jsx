@@ -26,13 +26,7 @@ function useSheetAnimation(visible) {
   return translateY;
 }
 
-// Shared bottom sheet for picking one of the 4 urge-support tools — used both
-// by the home screen's "Configure Urge Details" (sets the default, `selectedKey`
-// shows the current choice) and by each tool page's "Try another" long-press
-// (no `selectedKey`, and `excludeKey` hides the page you're already on).
-// `options` lets a caller override the full list (e.g. "Configure Urge
-// Details" hiding AI Coach for non-premium users) without affecting other
-// callers that don't pass it.
+
 export default function UrgeToolSheet({ visible, onClose, onSelect, title, subtitle, selectedKey, excludeKey, options: optionsProp }) {
   const insets = useSafeAreaInsets();
   const slide = useSheetAnimation(visible);

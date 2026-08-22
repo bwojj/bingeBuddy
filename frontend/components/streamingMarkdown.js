@@ -1,11 +1,3 @@
-// React Native can't independently animate nested <Text> — RN flattens
-// nested text into a single native view with no separate node for the
-// native driver to target. So instead of handing markdown off to a
-// tree-based renderer (which nests <Text> for bold/italic/etc.), this
-// flattens markdown-it's inline token stream into a sequence of "words",
-// each tagged with whatever formatting currently applies to it. Every word
-// then renders as its own flat, independently-animatable native view with
-// the right style baked in directly — no nesting required.
 
 const WORD_RE = /\S+\s*|\s+/g;
 
@@ -21,29 +13,12 @@ function flagsFrom(bold, italic, code, link, quote) {
   return { bold: bold > 0, italic: italic > 0, code: code > 0, link: link > 0, quote: quote > 0 };
 }
 
-// markdown-it can't recognize "**bold**" as bold until the *closing* "**"
-// has streamed in — until then it's genuinely just literal asterisks, which
-// flashes on screen for a moment before the closer arrives and the whole
-// span retroactively becomes bold. Optimistically appending a closer to a
-// parse-only copy of the text (never to the stored rawText) means the
-// instant an opening "**"/"__" streams in, everything after it renders bold
-// right away instead of showing raw syntax first.
 function closeUnterminatedMarkers(text) {
   let result = text;
-  // Single backtick is ambiguous with a triple-backtick fence ("```") still
-  // streaming in -- inserting a closer mid-fence would cut it into a bogus
-  // inline code span instead. Skip it in that case; the flash is rare there
-  // anyway since fenced blocks aren't one word, they arrive over many ticks.
   const markers = result.includes('```') ? ['**', '__'] : ['**', '__', '`'];
   for (const marker of markers) {
     const count = result.split(marker).length - 1;
     if (count % 2 === 1) {
-      // CommonMark requires a closing delimiter to not be preceded by
-      // whitespace ("right-flanking") — our reveal chunks always include
-      // their trailing space (e.g. "...complete "), so appending the closer
-      // at the very end would produce "complete **" and markdown-it would
-      // correctly refuse to treat it as a valid closer. Insert it right
-      // after the last non-whitespace character instead.
       const trimmed = result.replace(/\s+$/, '');
       const trailingWhitespace = result.slice(trimmed.length);
       result = trimmed + marker + trailingWhitespace;
@@ -52,11 +27,6 @@ function closeUnterminatedMarkers(text) {
   return result;
 }
 
-// Parses `text` as markdown and returns a flat list of
-// { text, bold, italic, code, link, quote } word entries, plus layout-only
-// { break: 'line' | 'paragraph' } and { hr: true } markers in place of block
-// boundaries. Safe to call on a partial/incomplete markdown string (e.g. an
-// unterminated "**") — markdown-it degrades unmatched syntax to literal text.
 export function parseStyledWords(markdownIt, text) {
   const words = [];
   if (!text) return words;
@@ -163,13 +133,6 @@ export function parseStyledWords(markdownIt, text) {
 
   return words;
 }
-
-// Merges a freshly re-parsed word list against the previously rendered one
-// so already-visible words keep their existing Animated.Value (and whatever
-// fade progress/completion it has) instead of restarting every time more
-// text streams in — only genuinely new words (or ones whose text changed,
-// e.g. a word that was mid-stream and just got completed) get a fresh
-// opacity value via `makeOpacity()`, which the caller should animate in.
 export function reconcileStyledWords(prevWords, nextWords, makeOpacity) {
   return nextWords.map((word, index) => {
     const prev = prevWords[index];
@@ -181,13 +144,6 @@ export function reconcileStyledWords(prevWords, nextWords, makeOpacity) {
       if (prev.text === word.text) {
         return { ...prev, key, bold: word.bold, italic: word.italic, code: word.code, link: word.link, quote: word.quote };
       }
-      // LLM streaming splits words mid-token constantly (e.g. "under" then
-      // "understand" then "understanding" as separate deltas), so the word
-      // at this slot keeps growing across ticks rather than actually being a
-      // new word. Reuse the same opacity/animation state instead of handing
-      // back a fresh one -- otherwise an already-visible word re-flashes
-      // (fades in from 0 again) on every growth step, which is what reads as
-      // flicker/twitch/erratic pacing.
       if (word.text.startsWith(prev.text) || prev.text.startsWith(word.text)) {
         return { ...word, key, opacity: prev.opacity };
       }

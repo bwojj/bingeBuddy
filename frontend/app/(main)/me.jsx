@@ -9,8 +9,7 @@ import { getAllUrges } from '@/components/UrgeAPI';
 import TabBar from '../components/TabBar';
 import { Colors, FontFamily, FontSize, Radii, Shadows } from '@/constants/theme';
 
-// Shown under the urge count — one is picked at random each time the
-// screen is focused (see useState lazy initializer below).
+// Shown under the urge count
 const ENCOURAGEMENTS = [
   "You are stronger than this urge.",
   "This feeling will pass. You won't let it win.",
@@ -268,8 +267,6 @@ const styles = StyleSheet.create({
     color: Colors.plum,
     marginTop: 10,
   },
-  // Matches countNumber's rendered height so the label below doesn't jump
-  // when swapping between the two.
   countLoading: {
     height: 74,
     justifyContent: 'center',

@@ -12,7 +12,6 @@ import { pickAnotherUrgeScreen, getUrgeScreenRoute, markUrgeMethodVisited } from
 const CURRENT_KEY = 'mental_frameworks';
 const STEP_LOCK_SECONDS = 8;
 
-// **bold** segments are rendered emphasized — see renderStepText below.
 const FRAMEWORKS = [
   {
     icon: 'crystal-ball',
@@ -121,9 +120,6 @@ export default function MentalFrameworks() {
     markUrgeMethodVisited(CURRENT_KEY);
   }, []);
 
-  // Every time the visible step changes (either by swiping within a
-  // framework or by "Try another" jumping to a new one), re-lock the
-  // carousel and count back down from STEP_LOCK_SECONDS.
   useEffect(() => {
     setSecondsLeft(STEP_LOCK_SECONDS);
     const interval = setInterval(() => {

@@ -11,9 +11,7 @@ import { Colors, FontFamily, FontSize, Radii, Shadows } from '../constants/theme
 const ALL_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const BLANK_WEEK = [false, false, false, false, false, false, false];
 
-// Shaped exactly like a real, freshly-seeded habit (0 streak, nothing done
-// yet) — these previews are what the actual box on My Recovery looks like on
-// day one, not a lookalike mockup.
+
 const PREVIEW_EXERCISE = { name: 'Exercise', icon: 'exercise', streak: 0, doneToday: false, days: ALL_DAYS, weekCompletion: BLANK_WEEK };
 const PREVIEW_JOURNALING = { name: 'Journaling', icon: 'journaling', streak: 0, doneToday: false, days: ALL_DAYS, weekCompletion: BLANK_WEEK };
 const PREVIEW_MEDITATION = { name: 'Meditation', icon: 'meditation', streak: 0, doneToday: false, days: ALL_DAYS, weekCompletion: BLANK_WEEK };
@@ -90,9 +88,6 @@ export default function RecoveryIntro() {
         Alert.alert('Something went wrong', "Couldn't save your progress. Please check your connection and try again.");
         return;
       }
-      // Refetch userPreferences before navigating so TabBar's gate (which
-      // reads userPreferences.seen_recovery_intro) doesn't route the user
-      // straight back into this screen on their next tap.
       await refreshUserData();
       router.replace('/my-plan');
     } else {
@@ -122,8 +117,6 @@ export default function RecoveryIntro() {
         <View style={{ width: 26 }} />
       </View>
 
-      {/* Centered body — the screen's focal content sits in the middle of the
-          page rather than pinned under the top row */}
       <View style={styles.centerBlock}>
         {/* Icon */}
         <View style={styles.iconWrapper}>
@@ -196,8 +189,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.surface,
   },
-  // Used on steps with a habit-card preview so the (white) card has a
-  // darker page behind it to stand out against, instead of blending in.
   containerDark: {
     backgroundColor: Colors.bg,
   },
@@ -310,8 +301,6 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
 
-  /* Habit preview — a darker "stage" panel bleeding edge-to-edge, so the
-     white habit card sitting on it visibly pops off the page */
   previewStage: {
     marginHorizontal: -24,
     marginBottom: 6,
@@ -319,8 +308,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.plumTint,
     borderRadius: Radii.lg,
   },
-  // Trims the shared HabitCard's own padding for this preview-only context —
-  // the real My Recovery list keeps its normal padding untouched.
+
   previewCard: {
     padding: 12,
   },

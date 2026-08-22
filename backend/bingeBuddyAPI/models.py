@@ -11,45 +11,16 @@ class UserData(models.Model):
     coaching_style = models.TextField(blank=True, default='')
     motivation_image = models.ImageField(upload_to='motivation_images/', blank=True, null=True)
     panic_audio = models.URLField(blank=True, null=True)
-    # defaults to False for every row, including existing users' already-migrated
-    # rows -- that's what forces current users through the recovery intro too.
     seen_recovery_intro = models.BooleanField(default=False)
-    # same pattern as seen_recovery_intro -- defaults to False so it gates the
-    # one-time AI Coach intro screen the first time a user taps the Coach tab.
     seen_ai_coach_intro = models.BooleanField(default=False)
-    # explicit opt-in, captured on ai-coach-intro.jsx, to sending the user's
-    # messages/coaching style/memory notes to Google's Gemini API to generate
-    # a reply. Defaults to False for every row, including already-migrated
-    # existing users, so anyone who used the coach before this field existed
-    # is still routed back through the consent screen once (see TabBar.jsx's
-    # gate, which checks this in addition to seen_ai_coach_intro).
     ai_data_consent = models.BooleanField(default=False)
     ai_data_consent_at = models.DateTimeField(null=True, blank=True)
-    # one of: 'mental_frameworks', 'actions', 'coach', 'audio' (validated client-side)
     default_urge_screen = models.CharField(max_length=32, blank=True, default='')
     ai_memory = models.JSONField(default=dict)
-    # False for plain email/password signups until they enter their emailed
-    # code; social_auth sets this True immediately since Google/Apple already
-    # vouch for the email.
     email_verified = models.BooleanField(default=False)
-    # RevenueCat's webhook events (INITIAL_PURCHASE/RENEWAL/CANCELLATION/
-    # EXPIRATION/...) all report the subscriber's current expiration
-    # timestamp -- always overwriting this with the latest one makes
-    # cancel-until-period-end, renewal, and true expiry all fall out of a
-    # single `premium_expires_at > now()` check, no event-type branching.
     premium_expires_at = models.DateTimeField(null=True, blank=True, default=None)
-    # daily local-notification reminder, fired on-device at this time in the
-    # user's local timezone -- see set_reminder_preferences
     reminder_enabled = models.BooleanField(default=False)
     reminder_time = models.TimeField(null=True, blank=True)
-    # Set True at the end of the post-signup onboarding flow (add_data_motivation).
-    # Unlike seen_recovery_intro, existing rows are backfilled to True by this
-    # field's migration rather than left False -- register()+login() already
-    # hand a fully valid token before onboarding finishes, so isAuthenticated
-    # alone can't tell "mid-onboarding" apart from "done"; the root layout uses
-    # this instead to send a refresh mid-onboarding back into the flow instead
-    # of into the main app, without also bouncing every already-onboarded
-    # existing user back into onboarding.
     onboarding_complete = models.BooleanField(default=False)
 
 # create journal Entry field 
@@ -69,15 +40,14 @@ class Urges(models.Model):
 # links OAuth provider accounts to users
 class SocialAccount(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='social_accounts')
-    provider = models.CharField(max_length=20)   # 'google' or 'apple'
+    provider = models.CharField(max_length=20)
     provider_id = models.CharField(max_length=255)
 
     class Meta:
         unique_together = ('provider', 'provider_id')
 
 
-# one active code per user -- (re)generated on register/resend, deleted on
-# successful verification
+# one active code per user 
 class EmailVerificationCode(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='email_verification')
     code = models.CharField(max_length=6)
@@ -86,10 +56,7 @@ class EmailVerificationCode(models.Model):
     attempts = models.PositiveSmallIntegerField(default=0)
 
 
-# one active code per user -- (re)generated on each forgot-password request,
-# deleted once it's used to successfully set a new password. Separate from
-# EmailVerificationCode so an in-flight signup-verification code and an
-# in-flight password-reset code never collide.
+# one active code per user 
 class PasswordResetCode(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='password_reset')
     code = models.CharField(max_length=6)
@@ -115,9 +82,7 @@ class UserHabits(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_habits')
     habits = models.JSONField(default=dict) # stores habits in json format of 'habit' and consistent days
 
-# records that a given habit was completed on a given (local-calendar) day --
-# existence of a row means done, absence means not done. Powers the "View All
-# Days" history; doneToday/streak/weekCompletion remain purely client-side.
+
 class HabitCompletion(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='habit_completions')
     habit_name = models.CharField(max_length=64)

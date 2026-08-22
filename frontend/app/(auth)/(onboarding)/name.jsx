@@ -6,9 +6,7 @@ import { useRouter } from 'expo-router';
 import { updateProfile } from '../../../components/DataAPI';
 import { Colors, FontFamily, FontSize, Radii } from '../../../constants/theme';
 
-// Google/Apple sign-in skips signup.jsx entirely, so this is the social-auth
-// equivalent of its "Preferred Name" field -- deliberately asked here rather
-// than taken from the provider profile (see social_auth() in views.py).
+
 export default function OnboardingName() {
   const insets = useSafeAreaInsets();
   const router = useRouter();

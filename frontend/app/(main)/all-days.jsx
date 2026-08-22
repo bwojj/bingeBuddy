@@ -8,9 +8,7 @@ import { getHabitDays } from '@/components/HabitAPI';
 import LoadingScreen from '@/components/LoadingScreen';
 import { Colors, FontFamily, FontSize, Radii, Shadows, Gradients } from '@/constants/theme';
 
-// `dateStr` is a plain 'YYYY-MM-DD' local-calendar day from the backend --
-// parsed manually (not `new Date(dateStr)`) so it isn't reinterpreted as a
-// UTC midnight and shifted a day back in timezones behind UTC.
+
 function formatDate(dateStr) {
   const [y, m, d] = dateStr.split('-').map(Number);
   return new Date(y, m - 1, d)

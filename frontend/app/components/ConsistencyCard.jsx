@@ -3,9 +3,6 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, FontFamily, FontSize, Radii, Shadows } from '@/constants/theme';
 
-// Single-stat card shared by the dashboard (urges defeated) and My Recovery
-// (habit streak). `onPress` is optional — My Recovery is already the
-// destination this card would link to, so it renders inert there.
 export default function ConsistencyCard({ mode, urgeCount, dayStreak, bestStreak, onPress }) {
   const Wrapper = onPress ? TouchableOpacity : View;
   const isStreak = mode === 'streak';

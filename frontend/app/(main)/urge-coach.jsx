@@ -75,10 +75,6 @@ function AnimatedWord({ word }) {
   );
 }
 
-// Urge-flow-specific AI Coach — same chat experience as the general /coach
-// tab, but scoped to an urge episode: no tab bar (so the user can't wander
-// off to other parts of the app mid-urge), a "Try another" link up top, and
-// a greeting tailored to the moment.
 export default function UrgeCoach() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -95,14 +91,6 @@ export default function UrgeCoach() {
   const streamStateRef = useRef(null);
   const lastUserMessageIdRef = useRef(null);
   const viewportHeightRef = useRef(0);
-  // Reserves room below the latest exchange for the AI reply to stream into
-  // (see the trailing spacer in the message list below). Opens instantly on
-  // send and deliberately never closes on its own once the reply finishes --
-  // collapsing it right then reads as the whitespace "snapping" shut.
-  // Instead it's collapsed in the keyboard handler below, timed to the
-  // keyboard's own rise so the two motions read as one and the user is never
-  // left able to scroll down into dead space. Mirrors coach.jsx's identical
-  // spacer -- keep the two in sync if this changes.
   const spacerHeight = useSharedValue(0);
   const spacerStyle = useAnimatedStyle(() => ({ height: spacerHeight.value }));
 
@@ -115,10 +103,6 @@ export default function UrgeCoach() {
       onStart: (e) => {
         'worklet';
         runOnJS(setKeyboardVisible)(e.progress === 1);
-        // Keyboard rising (not dismissing) is the moment the user's about to
-        // scroll/interact again -- close the reserved reply space then,
-        // timed to the keyboard's own animation duration so it's absorbed
-        // into that motion instead of being its own separate, visible jump.
         if (e.progress === 1) {
           spacerHeight.value = withTiming(0, { duration: e.duration });
         }
@@ -167,18 +151,6 @@ export default function UrgeCoach() {
     let rawText = '';
     let currentWords = [];
     const queue = [];
-
-    // Gemini's stream() only yields a handful of large, bursty chunks (not
-    // token-by-token), so we re-chunk each incoming piece into words and
-    // drip them in one at a time. Each raw chunk gets appended to rawText,
-    // then re-parsed as markdown and flattened into styled word fragments
-    // (see streamingMarkdown.js) — reconcileStyledWords reuses each word's
-    // existing Animated.Value when its text hasn't changed, so only the
-    // newly revealed word(s) fade in on each tick. currentWords (not React
-    // state) is the source of truth for the diff, and animations are kicked
-    // off outside setMessages — state updater functions aren't guaranteed to
-    // run exactly once synchronously (StrictMode double-invokes them in dev),
-    // so side effects like starting an animation can't safely live inside one.
     const state = { cancelled: false, closeEs: null };
     streamStateRef.current = state;
 
@@ -296,10 +268,6 @@ export default function UrgeCoach() {
                     key={message.id}
                     style={styles.userMessageRow}
                     onLayout={(e) => {
-                      // Pins the just-sent message near the top of the
-                      // screen, leaving the spacer below as room for the
-                      // AI reply to fill in as it streams — matches how
-                      // ChatGPT's mobile app scrolls on send.
                       if (message.id === lastUserMessageIdRef.current) {
                         scrollViewRef.current?.scrollTo({ y: e.nativeEvent.layout.y, animated: true });
                       }
@@ -324,11 +292,6 @@ export default function UrgeCoach() {
                   </View>
                 </View>
               )}
-
-              {/* Reserves room below the latest exchange for the AI reply to
-                  fill in as it streams — matches ChatGPT's mobile app. See
-                  the spacerHeight comment above for why it closes on the
-                  keyboard rising rather than when the reply finishes. */}
               <ReanimatedAnimated.View style={spacerStyle} />
             </>
           )}
@@ -565,14 +528,8 @@ const styles = StyleSheet.create({
 
 const monospace = Platform.select({ ios: 'Menlo', android: 'monospace', default: 'monospace' });
 
-// `breaks: true` makes a single newline render as a real line break instead
-// of the CommonMark default of collapsing it into a space — the AI's replies
-// rely on single newlines for line breaks, not the "two spaces" hard-break.
 const markdownItInstance = MarkdownIt({ typographer: true, breaks: true });
 
-// Per-word styles for AnimatedWord — each word is a flat, independent Text
-// leaf (not nested inside another styled Text), so formatting is just a
-// style prop on that word rather than something requiring nested markup.
 const wordStyles = StyleSheet.create({
   base: {
     fontFamily: FontFamily.sansRegular,

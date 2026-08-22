@@ -9,10 +9,6 @@ import { Colors, FontFamily, FontSize, Radii, Shadows, Gradients } from '../../c
 
 const RESEND_COOLDOWN_SECONDS = 60;
 
-// Mirrors the "CHANGE PASSWORD" card on (main)/profile-settings.jsx -- same
-// header/card/save-button chrome and field styling -- but lives in the
-// unauthenticated (auth) group and swaps the Current Password field (which a
-// user who forgot their password by definition doesn't have) for the code
 // emailed by forgot-password.jsx.
 export default function ResetPassword() {
   const insets = useSafeAreaInsets();

@@ -61,21 +61,11 @@ function RootLayoutNav() {
         if (isAuthenticated && userLoading) return; // userPreferences not fetched yet -- avoid a premature onboarding bounce
 
         const inAuthGroup = segments[0] === '(auth)';
-        // signup.jsx (outside the (onboarding) group) doubles as the "edit
-        // email" screen reachable from verify-email.jsx, so it counts as part
-        // of the onboarding continuum here too -- only login.jsx doesn't
-        // belong to a user who's authenticated but hasn't finished onboarding.
         const onLoginScreen = segments[0] === '(auth)' && segments[1] === 'login';
 
         if (!isAuthenticated && !inAuthGroup) {
             router.replace('/(auth)/login');
         } else if (isAuthenticated && !userPreferences?.onboarding_complete) {
-            // register()+login() (or a new social-auth account) already hand out a
-            // fully valid token before onboarding finishes, so a refresh mid-flow
-            // still resolves isAuthenticated to true. Route by onboarding_complete
-            // instead so that refresh lands back in the flow -- staying put if
-            // already there, or re-entering it if the refresh reset navigation --
-            // rather than dropping the user into the main app early.
             if (!inAuthGroup || onLoginScreen) router.replace('/(auth)/(onboarding)/verify-email');
         } else if (isAuthenticated && inAuthGroup) {
             router.replace('/(main)');
@@ -83,8 +73,6 @@ function RootLayoutNav() {
     }, [isAuthenticated, segments, userPreferences, userLoading]);
 
     if (!fontsReady) {
-        // Native splash screen (image only, no custom fontFamily) stays up
-        // for this gap instead of LoadingScreen, which needs the fonts.
         return null;
     }
 

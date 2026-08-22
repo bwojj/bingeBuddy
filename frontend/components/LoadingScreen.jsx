@@ -10,7 +10,6 @@ export default function LoadingScreen({ overlay = false }) {
   const dot3Opacity = useRef(new Animated.Value(0.25)).current;
 
   useEffect(() => {
-    // Icon gentle pulse
     Animated.loop(
       Animated.sequence([
         Animated.timing(iconScale, { toValue: 1, duration: 900, useNativeDriver: true }),
@@ -18,7 +17,6 @@ export default function LoadingScreen({ overlay = false }) {
       ])
     ).start();
 
-    // Sequential dot wave
     const dotWave = Animated.loop(
       Animated.sequence([
         Animated.timing(dot1Opacity, { toValue: 1, duration: 280, useNativeDriver: true }),
@@ -83,7 +81,6 @@ const styles = StyleSheet.create({
     zIndex: 9999,
   },
 
-  /* Icon + its decorative glow rings, centered as one unit */
   iconStack: {
     alignItems: 'center',
     justifyContent: 'center',

@@ -5,21 +5,13 @@ import { useRouter } from 'expo-router';
 import VerifyEmailForm from '../../components/VerifyEmailForm';
 import { Colors, FontFamily, FontSize } from '../../../constants/theme';
 
-// Shown right after signup, before the rest of onboarding -- intentionally
-// not numbered as one of the "STEP X OF 4" screens since it's skippable and
-// not part of the required onboarding path (soft gate, not a hard block).
+
 export default function OnboardingVerifyEmail() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
   const proceed = () => router.push('/(auth)/(onboarding)/maincause');
 
-  // Normally just pops back to signup.jsx's still-mounted "edit email" mode.
-  // But this screen can also be landed on directly (e.g. the root layout's
-  // onboarding-incomplete redirect after an app refresh), which leaves no
-  // history to pop -- back() would then throw "GO_BACK not handled by any
-  // navigator". Falls back to a fresh navigation to signup in that case;
-  // signup.jsx reads the editEmail param to still land in the right mode.
   const editEmail = () => {
     if (router.canGoBack()) {
       router.back();

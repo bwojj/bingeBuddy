@@ -7,10 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Colors, FontFamily, FontSize, Radii, Shadows, Gradients } from '@/constants/theme';
 import { URGE_SCREEN_OPTIONS, resetUrgeSession, markUrgeMethodVisited } from '@/constants/urgeScreenOptions';
 
-// First stop after tapping "Feeling an urge?" on the home screen — a quick
-// check-in before diving into tools, since "I already lost control" needs a
-// very different (self-compassion, not problem-solving) response than
-// "I'm having an urge right now".
+
 export default function UrgeCheckIn() {
   const insets = useSafeAreaInsets();
   const router = useRouter();

@@ -17,13 +17,9 @@ import { Colors, FontFamily, FontSize, Radii, Shadows, Gradients, Spacing } from
 const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 const DAY_ABBR = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-// How far above the header the gradient extends, so pulling past the top on
-// iOS bounces into more of the same gradient instead of bare background.
+
 const OVERSCROLL_BUFFER = 1000;
 
-// Icons offered in the "Add a Habit" picker — a subset of HABIT_ICONS (the
-// default habits' own icons — meditation/exercise/journaling/checkin — are
-// left out here so users pick from icons meant for custom habits).
 const ICON_CHOICES = [
   'custom', 'water', 'sleep', 'walk', 'nutrition', 'gratitude', 'creative', 'social',
   'music', 'reading', 'yoga', 'sunlight', 'writing', 'cooking', 'finance', 'work',
@@ -34,11 +30,6 @@ export default function MyPlan() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const posthog = usePostHog();
-  // Real measured height of the header's own content — the header and its
-  // overscroll-bounce buffer are ONE continuous gradient (see listHeader
-  // below), so this is needed to recompute start/end fractions for the
-  // taller combined box such that the visible (bottom) slice still looks
-  // exactly like the original short header gradient did on its own.
   const [headerContentHeight, setHeaderContentHeight] = useState(160);
   const mergedHeight = OVERSCROLL_BUFFER + headerContentHeight;
   const mergedGradientStart = {
@@ -57,10 +48,6 @@ export default function MyPlan() {
   const [selectedDays, setSelectedDays] = useState([]);
   const [selectedIcon, setSelectedIcon] = useState('custom');
   const [saving, setSaving] = useState(false);
-  // Tracked separately from the library's own `isActive` (passed into
-  // renderItem): that only clears after the drop-into-place spring animation
-  // finishes, which reads as a laggy "still big" moment. onRelease fires the
-  // instant the finger lifts, so the scale reverts right away instead.
   const [draggingId, setDraggingId] = useState(null);
 
   const fetchAll = useCallback(async () => {
@@ -192,11 +179,6 @@ export default function MyPlan() {
 
   const listHeader = (
     <>
-      {/*
-        Header + iOS overscroll-bounce buffer as ONE continuous gradient, so
-        there's no seam between two separately-painted layers regardless of
-        how the bounce is animating. See index.jsx for the same pattern.
-      */}
       <View style={styles.headerWrap}>
         <LinearGradient
           colors={Gradients.hero.colors}
@@ -361,8 +343,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.bg,
   },
-  /* Matches the color Gradients.hero starts at (its top edge is Colors.plum,
-     not plumDeep), so there's no visible seam where this meets the header. */
   headerWrap: {
     position: 'relative',
   },
@@ -456,9 +436,6 @@ const styles = StyleSheet.create({
     marginTop: 24,
     marginBottom: 12,
   },
-
-  /* Swipe-to-delete habit row -- the margin normally on HabitCard itself moves
-     here so the revealed delete action lines up flush with the card's edges */
   swipeableRow: {
     marginHorizontal: 20,
     marginBottom: 12,
@@ -472,9 +449,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // Wider than the tap target/reveal width and shifted left, so a sliver of
-  // red stays tucked behind the card's edge instead of a hard clean seam --
-  // reads as the red continuing behind the card rather than a butt-joint.
   deleteActionBg: {
     position: 'absolute',
     top: 0,

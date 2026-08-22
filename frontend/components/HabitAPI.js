@@ -1,12 +1,4 @@
-// GET /api/habits/ (backend/bingeBuddyAPI/views.py, UserHabitsView) is the
-// single source of truth for which habits a user tracks — defaults included.
-// The backend seeds the default habits (Meditation, Exercise, Journaling),
-// scheduled every day, into a user's UserHabits row the first time it's ever
-// touched; everything after that (defaults + anything added via "Add a
-// Habit") lives in that same { "Habit Name": { "Days": [...] } } dict.
-// Completion tracking (streak/weekCompletion/doneToday) has no backend
-// support yet, so it's layered on in-memory here once a habit is loaded —
-// state resets on app reload.
+
 import { getToken } from './authStorage';
 
 const BASEURL = process.env.EXPO_PUBLIC_API_URL;
@@ -22,14 +14,10 @@ const DEFAULT_ICONS = {
 };
 const slugify = (name) => name.toLowerCase().replace(/\s+/g, '-');
 
-// Starts blank for every user — no fabricated history. Streaks/week dots only
-// fill in as the user actually checks habits off.
 const BLANK_WEEK = [false, false, false, false, false, false, false];
 
 let habits = [];
 
-// Local-calendar-day helpers (never UTC — a habit "day" is the user's own
-// midnight-to-midnight, not the server's or GMT's).
 function localDateStr(d = new Date()) {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -44,8 +32,7 @@ function yesterdayStr(todayStr) {
   return localDateStr(date);
 }
 
-// Un-checks doneToday once local midnight has passed, and breaks the streak
-// if a full day (or more) was skipped since the habit was last completed.
+
 function rolloverHabit(habit) {
   const today = localDateStr();
   if (habit.lastCompletedDate && habit.lastCompletedDate !== today && habit.lastCompletedDate !== yesterdayStr(today)) {
@@ -60,10 +47,7 @@ function rolloverAll() {
   habits.forEach(rolloverHabit);
 }
 
-// Plan-level streak, shown at the top of My Recovery -- deliberately separate
-// from any single habit's own `streak`. It only advances once every habit
-// scheduled for the day has been checked off, so completing just one (or
-// some) of today's habits doesn't move it by itself.
+
 let planStreak = { current: 0, best: 0, lastAllDoneDate: null };
 
 function rolloverPlanStreak() {
@@ -87,7 +71,6 @@ function recomputePlanStreak() {
     planStreak.lastAllDoneDate = today;
     planStreak.best = Math.max(planStreak.best, planStreak.current);
   } else if (!allDone && planStreak.lastAllDoneDate === today) {
-    // Was fully complete today, then a habit got unchecked -- back it out.
     planStreak.current = Math.max(0, planStreak.current - 1);
     planStreak.lastAllDoneDate = null;
   }
@@ -167,10 +150,6 @@ export const getHabits = async () => {
   );
 };
 
-// `icon` is one of the ICON_CHOICES keys from my-plan.jsx's icon picker — the
-// backend habits dict has no concept of icons, so it's attached client-side,
-// after the merge, by matching on name. It lives only in this module's
-// in-memory `habits` array (see file-top note), so it resets on app reload.
 export const addCustomHabit = async (name, days, icon) => {
   const token = await getToken();
   try {
@@ -218,9 +197,6 @@ export const deleteHabit = async (name) => {
   }
 };
 
-// Fire-and-forget sync to the backend history that powers "View All Days" --
-// an idempotent "set" of that day's completion state, not a blind toggle, so
-// it can't drift from the local optimistic state if a prior call failed.
 async function setHabitCompletion(habitName, done) {
   const token = await getToken();
   try {
@@ -281,8 +257,6 @@ export const resetHabits = async () => {
       credentials: 'include',
     });
     if (!response.ok) return false;
-    // Clear local state entirely -- otherwise any deleted custom habits would
-    // linger as stale entries, since mergeBackendHabits only adds/updates.
     habits = [];
     planStreak = { current: 0, best: 0, lastAllDoneDate: null };
     return true;
@@ -292,21 +266,13 @@ export const resetHabits = async () => {
   }
 };
 
-// Wipes the in-memory habit cache without touching the backend -- unlike
-// resetHabits(), which also calls /api/reset-habits and would destructively
-// delete the next user's custom habits. Must run on logout: the `habits`
-// array is module-level (not per-user), so without this a different account
-// signing in on the same device inherits the previous account's doneToday/
-// streak state for any habit with a matching name (guaranteed for the
-// seeded defaults -- Meditation/Exercise/Journaling -- since
-// mergeBackendHabits matches existing entries by slugified name).
+
 export const clearLocalHabitState = () => {
   habits = [];
   planStreak = { current: 0, best: 0, lastAllDoneDate: null };
 };
 
-// `orderedNames` is the full list of currently-visible habits' names, in
-// their new display order (drag-and-drop on My Recovery).
+
 export const reorderHabits = async (orderedNames) => {
   const token = await getToken();
   try {

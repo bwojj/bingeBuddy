@@ -23,16 +23,6 @@ export function AuthProvider({ children }) {
     const [urgesByDay, setUrgesByDay] = useState(EMPTY_BARS);
     const [userLoading, setUserLoading] = useState(true);
 
-    // login.jsx/motivation.jsx/SocialAuthButtons.jsx call setIsAuthenticated(true)
-    // directly, before userPreferences has been (re)fetched for the new
-    // session. Without this, there's a one-render window where isAuthenticated
-    // is already true but userLoading/userPreferences are still stale from the
-    // prior logged-out state (userLoading false, userPreferences null) --
-    // the root layout's redirect gate reads that as onboarding_complete being
-    // false and briefly flashes the user to verify-email before the real
-    // fetch (kicked off by the effect below) resolves. Marking userLoading
-    // true synchronously during render, in the same render isAuthenticated
-    // flips true, closes that window instead of waiting a render for the effect.
     const prevIsAuthenticatedRef = useRef(isAuthenticated);
     if (isAuthenticated && !prevIsAuthenticatedRef.current && !userLoading) {
         setUserLoading(true);
@@ -71,10 +61,7 @@ export function AuthProvider({ children }) {
                 username: credentials.username,
             });
         }
-        // Re-syncs the on-device reminder schedule to match the account's saved
-        // preference on every login/refresh -- restores it after reinstall/new
-        // device, and self-corrects a stale schedule left by a different
-        // account on a shared device (fixed notification identifier).
+
         if (preferences?.reminder_enabled && preferences?.reminder_time) {
             const [hours, minutes] = preferences.reminder_time.split(':').map(Number);
             scheduleHabitReminder(hours, minutes);

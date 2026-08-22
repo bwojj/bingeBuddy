@@ -39,14 +39,6 @@ export default function Motivation() {
       addMotivationImage(photoAsset),
     ]);
     if (whyOk && imageOk) {
-      // Recovery intro no longer runs here -- it now shows the first time the
-      // user taps the My Recovery tab (see TabBar.jsx), not on account
-      // creation. Refresh userPreferences before navigating -- the backend
-      // just flipped onboarding_complete to True (see add_data_motivation in
-      // views.py), but the context still holds the stale pre-onboarding
-      // value. Without this, the root layout's redirect effect re-runs on
-      // the segment change into (main), still sees onboarding_complete:
-      // false, and bounces straight back to verify-email.
       await refreshUserData();
       setIsAuthenticated(true);
       router.replace('/(main)');

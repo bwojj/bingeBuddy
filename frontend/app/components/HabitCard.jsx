@@ -42,11 +42,7 @@ export function HabitIcon({ icon, size = 22, color = Colors.plum }) {
   return <IconComponent name={mapped.name} size={size} color={color} />;
 }
 
-// The single habit-card look used both on My Recovery (interactive, real
-// data) and the recovery intro walkthrough (static preview data, no
-// `onToggle`) — so both places render the exact same box.
-// `onDragHandleLongPress` is optional and only wired up by My Recovery's
-// draggable list -- the recovery-intro preview omits it, so no handle renders there.
+
 export default function HabitCard({ habit, onToggle, style, onDragHandleLongPress, dragActive }) {
   const CheckboxWrapper = onToggle ? TouchableOpacity : View;
 
@@ -72,15 +68,6 @@ export default function HabitCard({ habit, onToggle, style, onDragHandleLongPres
           </View>
         </View>
         {onDragHandleLongPress && (
-          // Uses gesture-handler's own TouchableOpacity (not core RN's) so the
-          // long-press hands off to DraggableFlatList's pan gesture on the
-          // same native gesture system, instead of bridging through RN's
-          // separate JS-thread responder system -- that mismatch was most of
-          // the perceived latency. delayLongPress is shortened for the same
-          // reason. activeOpacity is disabled to avoid the touchable's own
-          // press-fade opacity getting stuck mid-fade once the drag gesture
-          // takes over; disabled while dragging so a second drag can't start
-          // mid-gesture.
           <GestureTouchableOpacity
             onLongPress={onDragHandleLongPress}
             delayLongPress={150}

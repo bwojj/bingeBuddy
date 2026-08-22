@@ -7,8 +7,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, FontFamily, FontSize, Radii, Shadows, Gradients } from '@/constants/theme';
 import { URGE_SCREEN_OPTIONS, markUrgeMethodVisited } from '@/constants/urgeScreenOptions';
 
-// Shown at the top of the urge screen — one is picked at random each time
-// the screen opens (see useState lazy initializer below).
 const ENCOURAGEMENTS = [
   "You are stronger than this urge.",
   "This feeling will pass. You won't let it win.",
@@ -76,7 +74,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.bg,
   },
 
-  /* Header — ~10-15% of screen height, purple gradient with encouraging message */
   header: {
     minHeight: '13%',
     justifyContent: 'flex-end',

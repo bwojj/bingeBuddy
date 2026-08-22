@@ -14,9 +14,6 @@ const formatSessionDate = (isoString) => {
 };
 
 function usePanelAnimation(visible) {
-  // Docked position is the left edge of the screen, so "hidden" is just off
-  // that same edge (-PANEL_WIDTH) — sliding in travels the short distance
-  // from just off-screen-left into its resting spot on the left.
   const translateX = useRef(new Animated.Value(-PANEL_WIDTH)).current;
 
   useEffect(() => {
@@ -32,11 +29,6 @@ function usePanelAnimation(visible) {
     }
   }, [visible, translateX]);
 
-  // Animates the panel shut on demand (rather than snapping instantly via
-  // the `visible` prop) so switching sessions reads as the panel sliding
-  // away while the new session opens behind it, instead of the screen just
-  // cutting over. `visible` stays true for the duration — the Modal itself
-  // gets dismissed by the caller once this finishes.
   const animateClosed = (onDone) => {
     Animated.timing(translateX, {
       toValue: -PANEL_WIDTH,
@@ -50,9 +42,7 @@ function usePanelAnimation(visible) {
   return [translateX, animateClosed];
 }
 
-// Left-side slide-in panel listing the user's AI Coach chat sessions —
-// mirrors UrgeToolSheet's Modal + Pressable-backdrop + Animated.View
-// structure, swapping the bottom-sheet's translateY for a translateX.
+// Left-side slide-in panel listing the user's ai coach chat sessions
 export default function ChatHistoryPanel({ visible, onClose, onSelectSession, onNewChat, activeSessionId }) {
   const insets = useSafeAreaInsets();
   const [slide, animateClosed] = usePanelAnimation(visible);
@@ -97,10 +87,6 @@ export default function ChatHistoryPanel({ visible, onClose, onSelectSession, on
                     key={session.session_id}
                     style={[styles.sessionRow, active && styles.sessionRowActive]}
                     onPress={() => {
-                      // Kick off the switch right away so the new session
-                      // starts opening behind the panel as it slides shut,
-                      // rather than waiting for the close animation to
-                      // finish first.
                       onSelectSession(session);
                       animateClosed(onClose);
                     }}

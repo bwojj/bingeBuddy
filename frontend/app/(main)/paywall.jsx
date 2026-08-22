@@ -8,10 +8,7 @@ import { useAuth } from '@/context/AuthContext';
 import { configurePurchases, verifySubscription } from '@/components/PurchasesAPI';
 import { Colors, FontFamily, FontSize, Radii, Shadows } from '@/constants/theme';
 
-// Shown when TabBar/coach.jsx redirect an unsubscribed user instead of
-// letting them into /coach (see TabBar.jsx's handlePress and coach.jsx's
-// mount-time guard). Styled to match ai-coach-intro.jsx's single-page
-// interstitial layout.
+
 export default function Paywall() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -44,9 +41,7 @@ export default function Paywall() {
   async function handleEntitled() {
     await verifySubscription();
     const preferences = await refreshUserData();
-    // Mirrors TabBar's own gate (see TabBar.jsx's handlePress) -- a brand
-    // new subscriber goes through the intro screen instead of straight to
-    // the chat, same as they would if they'd tapped the tab a second time.
+
     router.replace(preferences?.seen_ai_coach_intro ? '/coach' : '/ai-coach-intro');
   }
 
@@ -115,9 +110,6 @@ export default function Paywall() {
           Get unlimited access to your AI Coach, available around the clock to help you work through urges, slips, and hard moments — grounded in real binge eating recovery, not generic wellness tips.
         </Text>
 
-        {/* AI-generated content disclosure -- shown before purchase since this
-            screen is what unlocks the AI Coach (see ai-coach-intro.jsx for
-            the fuller disclosure + data-consent step shown after purchase). */}
         <View style={styles.disclosureCard}>
           <View style={styles.disclosureHeader}>
             <Ionicons name="sparkles" size={15} color={Colors.plum} />

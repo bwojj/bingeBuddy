@@ -16,12 +16,11 @@ import { setDefaultUrgeScreen } from '@/components/DataAPI';
 import { URGE_SCREEN_OPTIONS } from '@/constants/urgeScreenOptions';
 import { Colors, FontFamily, FontSize, Radii, Shadows, Gradients, Spacing } from '@/constants/theme';
 
-// How far above the header the gradient extends, so pulling past the top on
-// iOS bounces into more of the same gradient instead of bare background.
+
 const OVERSCROLL_BUFFER = 1000;
 
 function getGreeting() {
-  const hour = new Date().getHours();
+  const hour = new Date().getHours(); 
   if (hour < 12) return 'Good Morning';
   if (hour < 18) return 'Good Afternoon';
   return 'Good Evening';
@@ -33,11 +32,6 @@ export default function Index() {
   const [lastEntry, setLastEntry] = useState(null);
   const [configVisible, setConfigVisible] = useState(false);
   const [switchingDefault, setSwitchingDefault] = useState(false);
-  // Real measured height of the header's own content (text + padding) — the
-  // header and its overscroll-bounce buffer are ONE continuous gradient (see
-  // JSX below), so this is needed to recompute start/end fractions for the
-  // taller combined box such that the visible (bottom) slice still looks
-  // exactly like the original short header gradient did on its own.
   const [headerContentHeight, setHeaderContentHeight] = useState(160);
   const mergedHeight = OVERSCROLL_BUFFER + headerContentHeight;
   const mergedGradientStart = {
@@ -52,17 +46,11 @@ export default function Index() {
   const { userCredentials, userPreferences, userLoading, urgeCount, refreshUserData } = useAuth();
   const posthog = usePostHog();
 
-  // Mirrors userPreferences.default_urge_screen locally so a tap in the sheet
-  // takes effect (close + re-route) instantly, without waiting on the round
-  // trip to the server and the full-screen refetch that refreshUserData triggers.
   const [localDefaultKey, setLocalDefaultKey] = useState(undefined);
   useEffect(() => {
     if (userPreferences) setLocalDefaultKey(userPreferences.default_urge_screen || null);
   }, [userPreferences?.default_urge_screen]);
 
-  // AI Coach can't be picked as the default urge-support tool unless the
-  // user is actually subscribed -- otherwise "Feeling an urge?" would route
-  // a lapsed/free user straight into a paywall in the middle of a crisis.
   const configurableUrgeOptions = userPreferences?.is_premium
     ? URGE_SCREEN_OPTIONS
     : URGE_SCREEN_OPTIONS.filter((opt) => opt.key !== 'coach');
@@ -105,15 +93,6 @@ export default function Index() {
         showsVerticalScrollIndicator={false}
         contentInsetAdjustmentBehavior="never"
       >
-        {/*
-          Header + iOS overscroll-bounce buffer as ONE continuous gradient, so
-          there's no seam between two separately-painted layers regardless of
-          how the bounce is animating. The gradient is absolutely positioned,
-          extending OVERSCROLL_BUFFER px above the header; the normal-flow
-          content View below reserves the header's actual on-screen space and
-          reports its real height so the gradient's start/end fractions can be
-          recomputed for the taller combined box (see mergedGradientStart/End).
-        */}
         <View style={styles.headerWrap}>
           <LinearGradient
             colors={Gradients.hero.colors}
@@ -132,7 +111,6 @@ export default function Index() {
           </View>
         </View>
 
-        {/* SOS Card - sits below the header, replaces the old daily-quote card */}
         <View style={styles.sosWrapper}>
           <TouchableOpacity
             onPress={() => {
@@ -162,11 +140,9 @@ export default function Index() {
           </TouchableOpacity>
         </View>
 
-        {/* Motivation Section */}
         <Text style={styles.sectionTitle}>Motivation</Text>
         <HomeMotivation userPreferences={userPreferences}/>
 
-        {/* Recovery Snapshot Card - same stats card as My Recovery */}
         <Text style={styles.sectionTitle}>Recovery Snapshot</Text>
         <ConsistencyCard
           mode="urges"
@@ -174,7 +150,6 @@ export default function Index() {
           onPress={() => router.push('/my-plan')}
         />
 
-        {/* Latest Journal Entry */}
         <Text style={[styles.sectionTitle, { marginHorizontal: 24 }]}>Latest Journal Entry</Text>
         <TouchableOpacity style={styles.journalCard} onPress={() => router.push('/journal')} activeOpacity={0.85}>
           {lastEntry ? (
@@ -196,7 +171,6 @@ export default function Index() {
           <Text style={styles.journalLink}>View Journal →</Text>
         </TouchableOpacity>
 
-        {/* Bottom spacer for tab bar */}
         <View style={{ height: 90 }} />
       </ScrollView>
 

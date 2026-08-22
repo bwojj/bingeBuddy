@@ -7,25 +7,15 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import SystemMessagePromptTemplate, HumanMessagePromptTemplate, ChatPromptTemplate, MessagesPlaceholder
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
-# Ingestion-only imports -- unused now that the collection is pre-built on the
-# hosted Chroma server. Only needed if the commented-out ingestion block in
-# get_retriever() below is re-enabled.
-# import hashlib
-# from langchain_community.document_loaders import DirectoryLoader, TextLoader
-# from langchain_text_splitters import RecursiveCharacterTextSplitter
+
 
 logger = logging.getLogger(__name__)
 
-# When Django boots normally, backend/settings.py already calls load_dotenv() before
-# this module is imported. This call makes the module self-sufficient when run
-# standalone (e.g. `python3 bingeBuddyAPI/chatbot_utilities.py`) for testing.
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env'))
 
 CHROMA_COLLECTION_NAME = os.environ.get("CHROMA_COLLECTION_NAME", "ai-coach-collection")
 
-# The hosted collection was built by embedding chunks client-side with this exact
-# model before upload -- Chroma has no server-side embedding function here, so a
-# mismatched model_name would silently return wrong nearest-neighbors, not an error.
+
 EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
 # RAG_DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "rag_data")
@@ -33,18 +23,12 @@ EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
 _retriever = None
 _retriever_initialized = False
-# Guards initialization so a request thread that calls get_retriever() while a
-# background warmup (see BingebuddyapiConfig.ready()) is still in flight blocks
-# until it finishes, instead of reading the not-yet-initialized state as
-# initialized and getting back None -- see the double-checked read below.
+# Guards initialization
 _retriever_lock = threading.Lock()
 
 
 def get_retriever():
-    # Connects to the existing hosted Chroma collection on first call and caches
-    # the result (success or failure) for the life of the process, so a connection
-    # failure degrades ai_coach to a 503 instead of being retried per-request or
-    # crashing app boot.
+    # Connects to the existing hosted chroma collection
     global _retriever, _retriever_initialized
     if _retriever_initialized:
         return _retriever
@@ -67,10 +51,7 @@ def get_retriever():
                 create_collection_if_not_exists=False,
             )
 
-            # --- Ingestion (disabled) ---
-            # Documents are already embedded and stored on the hosted Chroma server, so
-            # the app only retrieves. Uncomment this block (and the ingestion imports
-            # above) to re-run ingestion against the same collection.
+            # Ingestion - disabled
             #
             # loader = DirectoryLoader(
             #     path=RAG_DATA_DIR,
@@ -117,7 +98,7 @@ def get_retriever():
     return _retriever
 
 
-# defines LLM
+
 llm = ChatGoogleGenerativeAI(
     model='gemini-3.1-flash-lite',
     temperature=0.7,
@@ -127,7 +108,7 @@ llm = ChatGoogleGenerativeAI(
     max_retries=2,
 )
 
-        # defines system prompt
+
 system_prompt = SystemMessagePromptTemplate.from_template(
     """
         You are an AI binge eating coach placed within a Binge Eating Recovery app, that
@@ -158,10 +139,10 @@ system_prompt = SystemMessagePromptTemplate.from_template(
 )
 user_prompt = HumanMessagePromptTemplate.from_template("{message}")
 
-# defines full prompt template to use
+
 prompt = ChatPromptTemplate.from_messages([system_prompt, MessagesPlaceholder(variable_name="history"), user_prompt])
 
-# defines chain for the llm
+
 chain = prompt | llm
 
 

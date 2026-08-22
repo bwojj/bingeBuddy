@@ -38,9 +38,7 @@ export default function AllUrges() {
     const ok = await deleteUrge(id);
     if (ok) {
       setUrges((prev) => prev.filter((u) => u.id !== id));
-      // This screen's own "urges defeated" count recomputes locally from
-      // `urges`, but the Me screen and milestone cards read urgeCount from
-      // AuthContext -- without this they'd keep showing the pre-delete total.
+  
       await refreshUserData();
     }
   }

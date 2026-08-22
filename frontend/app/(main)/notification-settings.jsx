@@ -61,10 +61,6 @@ export default function NotificationSettings() {
   };
 
   const handleTimeChange = (event, selected) => {
-    // Android's picker is a native modal dialog that dismisses itself once a
-    // value is confirmed, so unmount it here too. iOS's inline spinner has no
-    // such dialog -- it should stay open across scrubbing and only close when
-    // Save is pressed (see handleSave).
     if (Platform.OS === 'android') setShowPicker(false);
     if (selected) setTime(selected);
   };

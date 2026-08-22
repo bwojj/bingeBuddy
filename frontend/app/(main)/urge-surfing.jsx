@@ -19,10 +19,7 @@ function formatTime(totalSeconds) {
   return `${m}:${s}`;
 }
 
-// Shown once every other urge-support method has already been tried this
-// episode (see pickAnotherUrgeScreen in constants/urgeScreenOptions.js) —
-// a last resort that asks the user to just sit with the urge for 5 minutes
-// instead of bouncing between tools.
+// Shown once every other urge-support method has already been tried
 export default function UrgeSurfing() {
   const insets = useSafeAreaInsets();
   const router = useRouter();

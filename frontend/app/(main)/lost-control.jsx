@@ -19,9 +19,7 @@ const INSTEAD = [
   "Journal this experience, and learn from it",
 ];
 
-// Reached from the pre-urge check-in when the user has already slipped —
-// deliberately calmer and slower than the urge-tool screens, since shame and
-// restriction after a slip cause far more harm than the slip itself.
+
 export default function LostControl() {
   const insets = useSafeAreaInsets();
   const router = useRouter();

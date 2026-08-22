@@ -38,8 +38,6 @@ export default function LogUrge() {
   }, []);
 
   function handleNoteFocus() {
-    // Extra bottom padding (below) already made room to scroll this far —
-    // scrolling to the end lands the note card + Done button right above the keyboard.
     requestAnimationFrame(() => scrollRef.current?.scrollToEnd({ animated: true }));
   }
 

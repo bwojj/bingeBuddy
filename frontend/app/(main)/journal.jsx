@@ -50,11 +50,6 @@ const FILTERS = ['All Entries', 'Reflections', 'Victories', 'Struggles'];
 
 export default function Journal() {
   const insets = useSafeAreaInsets();
-  // Real measured height of the header's own content — the header and its
-  // overscroll-bounce buffer are ONE continuous gradient (see JSX below), so
-  // this is needed to recompute start/end fractions for the taller combined
-  // box such that the visible (bottom) slice still looks exactly like the
-  // original short header gradient did on its own.
   const [headerContentHeight, setHeaderContentHeight] = useState(160);
   const mergedHeight = OVERSCROLL_BUFFER + headerContentHeight;
   const mergedGradientStart = {
@@ -142,11 +137,6 @@ export default function Journal() {
         showsVerticalScrollIndicator={false}
         contentInsetAdjustmentBehavior="never"
       >
-        {/*
-          Header + iOS overscroll-bounce buffer as ONE continuous gradient, so
-          there's no seam between two separately-painted layers regardless of
-          how the bounce is animating. See index.jsx for the same pattern.
-        */}
         <View style={styles.headerWrap}>
           <LinearGradient
             colors={Gradients.hero.colors}
